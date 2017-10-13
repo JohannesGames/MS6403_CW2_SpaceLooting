@@ -6,6 +6,7 @@ using UnityEngine.AI;
 public class PCControl : MonoBehaviour
 {
     public GameObject GO_CameraContainer;
+    public Light LI_Point;
     public float FL_Gravity;
     CameraFollow CF_Camera;
     Vector2 V2_FingerPosition;
@@ -43,5 +44,17 @@ public class PCControl : MonoBehaviour
                 NMA_PC.SetDestination(hit.point);
             }
         }
+    }
+
+    void OnCollisionEnter(Collision col)
+    {
+        if (col.gameObject.layer == 8)  //if PC is in the pod room, turn off light
+            LI_Point.enabled = false;
+    }
+
+    void OnCollisionExit(Collision col)
+    {
+        if (col.gameObject.layer == 8)  //if PC leaves pod room, turn on light
+            LI_Point.enabled = true;
     }
 }
