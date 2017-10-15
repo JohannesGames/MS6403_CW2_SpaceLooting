@@ -4,11 +4,19 @@ using UnityEngine;
 
 public class RoomTrigger : MonoBehaviour
 {
+    public enum Rooms
+    {
+        Corridor,
+        PodRoom
+    };
+
+    public Rooms RoomType;
+
     void OnTriggerEnter(Collider col)
     {
         if (col.gameObject.layer == 8)
         {
-            if (gameObject.layer == 9)  //if player enters pod room turn off light
+            if (RoomType == Rooms.PodRoom)  //if player enters pod room turn off light
             {
                 col.GetComponent<PCControl>().LI_Point.enabled = false;
             }
@@ -19,7 +27,7 @@ public class RoomTrigger : MonoBehaviour
     {
         if (col.gameObject.layer == 8)
         {
-            if (gameObject.layer == 9)  //if player leaves pod room turn on light
+            if (RoomType == Rooms.PodRoom)  //if player leaves pod room turn on light
             {
                 col.GetComponent<PCControl>().LI_Point.enabled = true;
             }

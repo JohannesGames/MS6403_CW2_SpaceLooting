@@ -8,10 +8,12 @@ public class PCControl : MonoBehaviour
     public GameObject GO_CameraContainer;
     public Light LI_Point;
     public float FL_Gravity;
+    public LayerMask LM_Ray;    //the layermask for direction and item selection
     CameraFollow CF_Camera;
     Vector2 V2_FingerPosition;
     NavMeshAgent NMA_PC;
     CharacterController CC;
+    GameObject GO_PickupNext;   //the object the PC is moving towards
     
 
     void Start()
@@ -41,6 +43,8 @@ public class PCControl : MonoBehaviour
             RaycastHit hit;
             if (Physics.Raycast(ray, out hit))
             {
+                if (hit.transform.gameObject.layer == 10)   //is it a pickup?
+                    GO_PickupNext = hit.transform.gameObject;
                 NMA_PC.SetDestination(hit.point);
             }
         }
@@ -52,9 +56,20 @@ public class PCControl : MonoBehaviour
             LI_Point.enabled = false;
     }
 
+    void OnTriggerEnter(Collider col)
+    {
+        if (col.gameObject.layer == 10)
+        {
+            if (GO_PickupNext == col.transform.parent.gameObject)
+            {
+                Debug.Log("Pickup!");
+            }
+        }
+    }
+
     void OnCollisionExit(Collision col)
     {
-        if (col.gameObject.layer == 8)  //if PC leaves pod room, turn on light
-            LI_Point.enabled = true;
+        //if (col.gameObject.layer == 8)  //if PC leaves pod room, turn on light
+        //    LI_Point.enabled = true;
     }
 }
