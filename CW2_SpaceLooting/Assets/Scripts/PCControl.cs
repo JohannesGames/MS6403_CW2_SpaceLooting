@@ -13,8 +13,11 @@ public class PCControl : MonoBehaviour
     Vector2 V2_FingerPosition;
     NavMeshAgent NMA_PC;
     CharacterController CC;
-    GameObject GO_PickupNext;   //the object the PC is moving towards
-    
+    public GameObject GO_PickupNext = null;   //the object the PC is moving towards
+    public List<Collider> CO_InRadius = new List<Collider>();
+    public float FL_Reach = 1.5f;   //reach of PC
+
+
 
     void Start()
     {
@@ -22,6 +25,11 @@ public class PCControl : MonoBehaviour
         CF_Camera.GO_PC = gameObject;
         NMA_PC = GetComponent<NavMeshAgent>();
         CC = GetComponent<CharacterController>();
+    }
+
+    void FixedUpdate()
+    {
+        CheckForPickups();
     }
 
     void Update()
@@ -39,37 +47,50 @@ public class PCControl : MonoBehaviour
 
         if (Input.GetButtonUp("Fire1"))     //once finger leaves screen move character to specified point
         {
-            Ray ray = Camera.main.ScreenPointToRay(V2_FingerPosition);
+            CheckInput();
+        }
+    }
+
+    void LateUpdate()
+    {
+        CO_InRadius.Clear();
+    }
+
+    void CheckInput()
+    {
+        Ray ray = Camera.main.ScreenPointToRay(V2_FingerPosition);
+        int pickupIndex = LayerMask.NameToLayer("Pickup");
+        int floorIndex = LayerMask.NameToLayer("Floor");    //only check "Pickup" and "Floor" layers
+
+        if (pickupIndex == -1 || floorIndex == -1)
+            Debug.LogError("Layers incorrectly set up");
+        else
+        {
             RaycastHit hit;
-            if (Physics.Raycast(ray, out hit))
+            int layermask = (1 << pickupIndex | 1 <<floorIndex);    //raycast to "Pickup" only
+            if (Physics.Raycast(ray, out hit, layermask))
             {
-                if (hit.transform.gameObject.layer == 10)   //is it a pickup?
+                if (hit.transform.gameObject.layer == 10)   //if its a pickup, make it the next item to pick up
                     GO_PickupNext = hit.transform.gameObject;
                 NMA_PC.SetDestination(hit.point);
             }
         }
     }
 
-    void OnCollisionEnter(Collision col)
+    void CheckForPickups()  //check if PC is within reach of any pickups
     {
-        if (col.gameObject.layer == 8)  //if PC is in the pod room, turn off light
-            LI_Point.enabled = false;
-    }
+        int layerIndex = LayerMask.NameToLayer("Pickup");   //check only for pickups
+        if (layerIndex == -1)
+            Debug.LogError("No layer called \"Pickup\"");
+        int layermask = 1 << layerIndex;
+        Collider[] allInRadius = Physics.OverlapSphere(transform.position, FL_Reach, layermask, QueryTriggerInteraction.Ignore);
 
-    void OnTriggerEnter(Collider col)
-    {
-        if (col.gameObject.layer == 10)
+        if (allInRadius.Length > 0)
         {
-            if (GO_PickupNext == col.transform.parent.gameObject)
+            for (int i = 0; i < allInRadius.Length; i++)
             {
-                Debug.Log("Pickup!");
+                CO_InRadius.Add(allInRadius[i]);
             }
         }
-    }
-
-    void OnCollisionExit(Collision col)
-    {
-        //if (col.gameObject.layer == 8)  //if PC leaves pod room, turn on light
-        //    LI_Point.enabled = true;
     }
 }

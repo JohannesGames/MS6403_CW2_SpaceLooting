@@ -16,9 +16,9 @@ public class RoomTrigger : MonoBehaviour
     {
         if (col.gameObject.layer == 8)
         {
-            if (RoomType == Rooms.PodRoom)  //if player enters pod room turn off light
+            if (RoomType == Rooms.PodRoom)  //if player enters pod room
             {
-                col.GetComponent<PCControl>().LI_Point.enabled = false;
+                
             }
         }
     }
@@ -27,9 +27,9 @@ public class RoomTrigger : MonoBehaviour
     {
         if (col.gameObject.layer == 8)
         {
-            if (RoomType == Rooms.PodRoom)  //if player leaves pod room turn on light
+            if (RoomType == Rooms.PodRoom)  //if player leaves pod room
             {
-                col.GetComponent<PCControl>().LI_Point.enabled = true;
+                
             }
         }
     }
