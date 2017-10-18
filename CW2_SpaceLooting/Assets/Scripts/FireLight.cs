@@ -14,7 +14,7 @@ public class FireLight : MonoBehaviour
         li = GetComponent<Light>();
         li.color = CO_Lights[Random.Range(0, CO_Lights.Length - 1)];
         FL_Intensity = li.intensity;
-        FL_FlickerSpeed = Random.Range(3, 10);
+        FL_FlickerSpeed = Random.Range(1, 10);
     }
 
     // Update is called once per frame

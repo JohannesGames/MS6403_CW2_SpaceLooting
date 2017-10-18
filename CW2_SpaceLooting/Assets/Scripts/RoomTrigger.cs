@@ -14,7 +14,7 @@ public class RoomTrigger : MonoBehaviour
 
     void OnTriggerEnter(Collider col)
     {
-        if (col.gameObject.layer == 8)
+        if (col.gameObject.layer == 8)  //is it the player?
         {
             if (RoomType == Rooms.PodRoom)  //if player enters pod room
             {
@@ -25,7 +25,7 @@ public class RoomTrigger : MonoBehaviour
 
     void OnTriggerExit(Collider col)
     {
-        if (col.gameObject.layer == 8)
+        if (col.gameObject.layer == 8)  //is it the player
         {
             if (RoomType == Rooms.PodRoom)  //if player leaves pod room
             {

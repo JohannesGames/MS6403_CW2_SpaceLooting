@@ -75,6 +75,13 @@ public class PCControl : MonoBehaviour
                 NMA_PC.SetDestination(hit.point);
             }
         }
+
+        if (!LI_Point.enabled)   //turn on light with first input
+        {
+            LI_Point.enabled = true;
+            LI_Point.gameObject.SetActive(true);
+            LI_Point.transform.parent.gameObject.SetActive(true);
+        }
     }
 
     void CheckForPickups()  //check if PC is within reach of any pickups
