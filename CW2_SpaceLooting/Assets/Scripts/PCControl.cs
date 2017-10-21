@@ -8,7 +8,6 @@ public class PCControl : MonoBehaviour
     public GameObject GO_CameraContainer;
     public Light LI_Point;
     public float FL_Gravity;
-    public LayerMask LM_Ray;    //the layermask for direction and item selection
     CameraFollow CF_Camera;
     Vector2 V2_FingerPosition;
     NavMeshAgent NMA_PC;
@@ -25,6 +24,8 @@ public class PCControl : MonoBehaviour
         CF_Camera.GO_PC = gameObject;
         NMA_PC = GetComponent<NavMeshAgent>();
         CC = GetComponent<CharacterController>();
+
+        SetSilhouette();
     }
 
     void FixedUpdate()
@@ -54,6 +55,11 @@ public class PCControl : MonoBehaviour
     void LateUpdate()
     {
         CO_InRadius.Clear();
+    }
+
+    public void SetSilhouette() //TODO game manager sets local PC to green (parameter = 1) and other players to red outline
+    {
+        GetComponentInChildren<PlayerSilhouette>().SetSilhouetteColour(0);
     }
 
     void CheckInput()
