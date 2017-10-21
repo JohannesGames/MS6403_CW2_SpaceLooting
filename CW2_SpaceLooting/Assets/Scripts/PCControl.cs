@@ -9,9 +9,11 @@ public class PCControl : MonoBehaviour
     public Light LI_Point;
     public float FL_Gravity;
     CameraFollow CF_Camera;
-    Vector2 V2_FingerPosition;
+    Vector2 V2_FingerPosition;  //where the player presses the screen
     NavMeshAgent NMA_PC;
+    float speedNav; //the max navmeshagent speed of the PC
     CharacterController CC;
+    PCInventory pcI;
     public GameObject GO_PickupNext = null;   //the object the PC is moving towards
     public List<Collider> CO_InRadius = new List<Collider>();
     public float FL_Reach = 1.5f;   //reach of PC
@@ -23,7 +25,9 @@ public class PCControl : MonoBehaviour
         CF_Camera = Instantiate(GO_CameraContainer, transform.position, transform.rotation).GetComponent<CameraFollow>();
         CF_Camera.GO_PC = gameObject;
         NMA_PC = GetComponent<NavMeshAgent>();
+        speedNav = NMA_PC.speed;
         CC = GetComponent<CharacterController>();
+        pcI = GetComponent<PCInventory>();
 
         SetSilhouette();
     }
@@ -73,7 +77,7 @@ public class PCControl : MonoBehaviour
         else
         {
             RaycastHit hit;
-            int layermask = (1 << pickupIndex | 1 <<floorIndex);    //raycast to "Pickup" only
+            int layermask = (1 << pickupIndex | 1 << floorIndex);    //raycast to "Pickup" and "Floor" only
             if (Physics.Raycast(ray, out hit, layermask))
             {
                 if (hit.transform.gameObject.layer == 10)   //if its a pickup, make it the next item to pick up
@@ -100,10 +104,22 @@ public class PCControl : MonoBehaviour
 
         if (allInRadius.Length > 0)
         {
-            for (int i = 0; i < allInRadius.Length; i++)
+            foreach (Collider item in allInRadius)
+                CO_InRadius.Add(item);  //add all nearby items to list
+        }
+
+        for (int i = 0; i < allInRadius.Length; i++)
+        {
+            if (allInRadius[i].gameObject == GO_PickupNext) //if the desired pickup is within reach, stop and show inventory screen
             {
-                CO_InRadius.Add(allInRadius[i]);
+                NMA_PC.isStopped = true;
+                //TODO show inventory with encountered object
             }
         }
+    }
+
+    public void SetNavSpeed(float mod)
+    {
+
     }
 }
