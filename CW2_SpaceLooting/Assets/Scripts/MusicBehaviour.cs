@@ -7,6 +7,7 @@ public class MusicBehaviour : MonoBehaviour
     public AudioSource[] songStems; //index 0 is start riff, 1 is build tension, 2 is final layer, 3 is drums
     private float stemLength;
     private float nextLoopTime; //when the song will loop again
+    [Range(0,1)]
     public float songVol = 0.5f;    //volume of playback
 
     void Start()

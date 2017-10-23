@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PCInventory : MonoBehaviour
 {
-    List<Pickup> inInventory = new List<Pickup>();  //where all the PC's items are stored
+    public List<Pickup> inInventory = new List<Pickup>();  //where all the PC's items are stored
     PCControl pc;
 
     void Start()
@@ -16,6 +16,12 @@ public class PCInventory : MonoBehaviour
     void Update()
     {
         CheckEncumbrance();
+    }
+
+    public void AddItemInventory(Pickup tItem)  //called by button in UI
+    {
+        tItem.inventoryIndex = inInventory.Count;
+        inInventory.Add(tItem);
     }
 
     void CheckEncumbrance()

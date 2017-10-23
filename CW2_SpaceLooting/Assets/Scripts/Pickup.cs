@@ -4,8 +4,10 @@ using UnityEngine;
 
 public abstract class Pickup : MonoBehaviour
 {
-
+    [HideInInspector]
     public int inventoryIndex = -1;
+
+    public string itemName;
 
     public enum ItemType
     {
