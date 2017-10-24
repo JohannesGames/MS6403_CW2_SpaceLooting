@@ -23,9 +23,9 @@ GameObject:
   - component: {fileID: 65964676696116530}
   - component: {fileID: 23441390216287838}
   - component: {fileID: 54223068379402378}
-  - component: {fileID: 114669209602434704}
+  - component: {fileID: 114116011835649338}
   m_Layer: 10
-  m_Name: Tool Pickup
+  m_Name: Pickup prefab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -180,7 +180,7 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &114669209602434704
+--- !u!114 &114116011835649338
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
@@ -188,9 +188,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 1094402598845224}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 34893f0c19a39c84281a70efbf77db43, type: 3}
+  m_Script: {fileID: 11500000, guid: 574522a0a830a944b8bd2d3fe1d36c0a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  inventoryIndex: -1
   itemName: 
   pickupType: 0

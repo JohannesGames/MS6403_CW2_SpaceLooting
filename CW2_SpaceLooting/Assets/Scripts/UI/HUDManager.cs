@@ -15,17 +15,19 @@ public class HUDManager : MonoBehaviour
     public RectTransform containerPanel;
 
     public float pickupThrowStrength = 1000;
-    public PickupTool toolPickup;   //prefab for spawning tool pickups
+    public Pickup prefPickup;   //prefab for spawning pickups
 
     public GameObject[] allUIPanels;  //all the UI panels
 
     public PCControl pc;   //the local PC
+    public PCInventory pcInv;   //the local PC's inventory
 
     private bool menuActive;
 
     void Start()
     {
         pc = GameObject.FindGameObjectWithTag("Player").GetComponent<PCControl>();  //get the local PC here
+        pcInv = pc.GetComponent<PCInventory>();
         openInventoryButton.onClick.AddListener(OpenInventoryPanel);
     }
 
@@ -64,7 +66,7 @@ public class HUDManager : MonoBehaviour
 
     public void OpenInventoryPanel()
     {
-        foreach (Pickup item in pc.gameObject.GetComponent<PCInventory>().inInventory)
+        foreach (Pickup item in pcInv.inInventory)
         {
             ListItemInventory temp = Instantiate(listItem, inventoryListContent);
             temp.itemData = item;
@@ -81,11 +83,60 @@ public class HUDManager : MonoBehaviour
     {
         Vector3 tRot = new Vector3(30, Random.Range(0, 360), 0);    //generate random rotation to throw object
         Vector3 tPos = pc.transform.position + Vector3.up * 2;
-        PickupTool temp = Instantiate(toolPickup, tPos, Quaternion.Euler(tRot));
-        temp.itemName = tItem.itemName;
-        temp.pickupType = tItem.pickupType;
+        
+        for (int i = 0; i < pc.pcInventory.transform.childCount; i++)    //move from PC "Inventory" empty gameobject in hierarchy to main hierarchy with no parent
+        {
+            if (pc.pcInventory.transform.GetChild(i).GetComponent<Pickup>().itemName == tItem.itemName)
+            {
+                Transform invTrans = pc.pcInventory.transform.GetChild(i);
+                invTrans.position = tPos;
+                invTrans.rotation = Quaternion.Euler(tRot);
+                invTrans.GetComponent<MeshRenderer>().enabled = true;
+                invTrans.GetComponent<Collider>().enabled = true;
+                invTrans.GetComponent<Rigidbody>().AddForce(invTrans.TransformDirection(Vector3.up) * pickupThrowStrength);   //throw it a small distance next to the PC
+                invTrans.parent = null;
+            }
+        }
 
-        temp.GetComponent<Rigidbody>().AddForce(temp.transform.TransformDirection(Vector3.up) * pickupThrowStrength);
+//        Pickup temp = Instantiate(prefPickup, tPos, Quaternion.Euler(tRot));
+//        temp.itemName = tItem.itemName;
+//        temp.pickupType = tItem.pickupType;
+
+//#region Name object in hierarchy
+//        string iName = " ";   //name in hierarchy
+//        switch(temp.pickupType)
+//        {
+//            case Pickup.ItemType.boost:
+//                iName = "Boost: ";
+//                break;
+//            case Pickup.ItemType.component:
+//                iName = "Comp: ";
+//                break;
+//            case Pickup.ItemType.tool:
+//                iName = "Tool: ";
+//                break;
+//        }
+//        temp.name = iName + temp.itemName + " - Pickup";
+//        #endregion
+
+//        temp.GetComponent<Rigidbody>().AddForce(temp.transform.TransformDirection(Vector3.up) * pickupThrowStrength);   //throw it a small distance next to the PC
+
+        if (inventoryListContent.childCount > 0)    //then delete it from the hierarchy and the PC inventory list
+        {
+            for (int i = 0; i < inventoryListContent.childCount; i++)   //remove from UI hierarchy
+            {
+                if (inventoryListContent.GetChild(i).GetComponent<Pickup>().itemName == tItem.itemName)
+                {
+                    Destroy(inventoryListContent.GetChild(i).gameObject);   //remove from UI hierarchy
+                    for (int j = 0; j < pcInv.inInventory.Count; j++)   //remove from PCInventory list<>
+                    {
+                        if (pcInv.inInventory[j].itemName == tItem.itemName)
+                            pcInv.inInventory.RemoveAt(j);  //remove from PCInventory list<>
+                    }
+                    break;
+                }
+            }
+        }
     }
 
     void ClearInventoryLists()

@@ -20,8 +20,8 @@ public class PCInventory : MonoBehaviour
 
     public void AddItemInventory(Pickup tItem)  //called by button in UI
     {
-        tItem.inventoryIndex = inInventory.Count;
-        inInventory.Add(tItem);
+        Pickup temp = Instantiate(tItem, pc.pcInventory.transform);
+        inInventory.Add(temp);
     }
 
     void CheckEncumbrance()

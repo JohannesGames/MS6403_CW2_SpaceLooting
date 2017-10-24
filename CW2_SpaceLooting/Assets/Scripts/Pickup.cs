@@ -2,10 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class Pickup : MonoBehaviour
+public class Pickup : MonoBehaviour
 {
-    [HideInInspector]
-    public int inventoryIndex = -1;
+    //a sort of copy constructor
+    public Pickup(Pickup lastPickup)
+    {
+        this.itemName = lastPickup.itemName;
+        this.pickupType = lastPickup.pickupType;
+    }
 
     public string itemName;
 
@@ -17,15 +21,4 @@ public abstract class Pickup : MonoBehaviour
     }
 
     public ItemType pickupType;
-
-    void Start()
-    {
-
-    }
-
-
-    void Update()
-    {
-
-    }
 }

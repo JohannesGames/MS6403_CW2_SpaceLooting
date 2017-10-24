@@ -111,6 +111,34 @@ NavMeshSettings:
     tileSize: 256
     accuratePlacement: 0
   m_NavMeshData: {fileID: 23800000, guid: 6fe6ca9594f862143b6c168ede2b6461, type: 2}
+--- !u!1 &26799013
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 26799014}
+  m_Layer: 8
+  m_Name: Inventory
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &26799014
+Transform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 26799013}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1996634447}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &87049984
 Prefab:
   m_ObjectHideFlags: 0
@@ -537,11 +565,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 214053335}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 34893f0c19a39c84281a70efbf77db43, type: 3}
+  m_Script: {fileID: 11500000, guid: 574522a0a830a944b8bd2d3fe1d36c0a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  inventoryIndex: -1
-  itemName: 'Tool: Omni-tool'
+  itemName: 'Tool: Omni Tool'
   pickupType: 0
 --- !u!1 &224482717
 GameObject:
@@ -2264,10 +2291,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 802356217}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 34893f0c19a39c84281a70efbf77db43, type: 3}
+  m_Script: {fileID: 11500000, guid: 574522a0a830a944b8bd2d3fe1d36c0a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  inventoryIndex: -1
   itemName: 'Tool: Scimitar Blade Wrench'
   pickupType: 0
 --- !u!54 &802356219
@@ -2343,7 +2369,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 802356217}
   m_LocalRotation: {x: -0, y: -0.33768186, z: -0, w: 0.94126034}
-  m_LocalPosition: {x: 3.91, y: 1.5, z: -7.18}
+  m_LocalPosition: {x: 3.12, y: 1.5, z: -2.8}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1079455451}
@@ -2554,6 +2580,7 @@ MonoBehaviour:
   GO_PickupNext: {fileID: 0}
   CO_InRadius: []
   FL_Reach: 1.5
+  pcInventory: {fileID: 0}
 --- !u!195 &869170549
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -5140,13 +5167,14 @@ MonoBehaviour:
     type: 2}
   containerPanel: {fileID: 0}
   pickupThrowStrength: 200
-  toolPickup: {fileID: 114669209602434704, guid: 59f93d58be2e50f4ebf161e8c412174e,
+  prefPickup: {fileID: 114116011835649338, guid: 59f93d58be2e50f4ebf161e8c412174e,
     type: 2}
   allUIPanels:
   - {fileID: 1375400429}
   - {fileID: 881854022}
   - {fileID: 2078263930}
   pc: {fileID: 0}
+  pcInv: {fileID: 0}
 --- !u!1 &1996634442
 GameObject:
   m_ObjectHideFlags: 0
@@ -5231,6 +5259,7 @@ MonoBehaviour:
   GO_PickupNext: {fileID: 0}
   CO_InRadius: []
   FL_Reach: 1.5
+  pcInventory: {fileID: 26799013}
 --- !u!4 &1996634447
 Transform:
   m_ObjectHideFlags: 0
@@ -5243,6 +5272,7 @@ Transform:
   m_Children:
   - {fileID: 918860868}
   - {fileID: 1132477718}
+  - {fileID: 26799014}
   m_Father: {fileID: 0}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

@@ -19,6 +19,7 @@ public class PCControl : MonoBehaviour
     public GameObject GO_PickupNext = null;   //the object the PC is moving towards
     public List<Collider> CO_InRadius = new List<Collider>();
     public float FL_Reach = 1.5f;   //reach of PC
+    public GameObject pcInventory;  //where the inventory is stored in the hierarchy
 
 
 
@@ -120,10 +121,12 @@ public class PCControl : MonoBehaviour
             {
                 if (allInRadius[i].gameObject == GO_PickupNext) //if the desired pickup or container is within reach, stop and show inventory screen
                 {
-                    NMA_PC.ResetPath();
-                    hM.OpenSingleItemPanel(GO_PickupNext.GetComponent<Pickup>());  //send what kind of pickup it is to the HUD manager
+                    NMA_PC.ResetPath(); //stop the PC on the navmesh
+
+                    Pickup temp = GO_PickupNext.GetComponent<Pickup>();
+                    hM.OpenSingleItemPanel(temp);  //send what kind of pickup it is to the HUD manager
                     GO_PickupNext = null;
-                    //TODO show inventory with encountered object
+                    break;
                 }
             }
         }
