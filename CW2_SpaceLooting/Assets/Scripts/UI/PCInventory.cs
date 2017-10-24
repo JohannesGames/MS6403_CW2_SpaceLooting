@@ -20,8 +20,8 @@ public class PCInventory : MonoBehaviour
 
     public void AddItemInventory(Pickup tItem)  //called by button in UI
     {
-        Pickup temp = Instantiate(tItem, pc.pcInventory.transform);
-        inInventory.Add(temp);
+        //Pickup temp = Instantiate(tItem, pc.pcInventory.transform);
+        inInventory.Add(tItem);
     }
 
     void CheckEncumbrance()
@@ -35,14 +35,23 @@ public class PCInventory : MonoBehaviour
                 pickupsInInventory++;
             }
         }
-
-        if (pickupsInInventory >= 5)
+        if (pickupsInInventory > 5)
+            pickupsInInventory = 5;
+        
+        switch(pickupsInInventory)
         {
-            pc.SetNavSpeed(0.2f);   //minimum speed = 0.2 times normal speed
-        }
-        else if (pickupsInInventory > 2)
-        {
-            pc.SetNavSpeed(1 / pickupsInInventory);
+            case 5:
+                pc.SetNavSpeed(0.5f);   //minimum speed is half of the normal speed
+                break;
+            case 4:
+                pc.SetNavSpeed(0.8f);
+                break;
+            case 3:
+                pc.SetNavSpeed(0.92f);
+                break;
+            default:
+                pc.SetNavSpeed(1);  //otherwise use base speed
+                break;
         }
     }
 }

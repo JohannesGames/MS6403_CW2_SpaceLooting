@@ -15,21 +15,27 @@ public class MusicBehaviour : MonoBehaviour
         for (int i = 0; i < songStems.Length; i++)
         {
             songStems[i] = Instantiate(songStems[i], transform);
-            if (i > 0)
+            //if (i > 0)
                 songStems[i].volume = 0;
-            else
-            {
-                songStems[i].volume = songVol;
-                stemLength = songStems[i].clip.length;
-            }
+            //else
+            //{
+            //    songStems[i].volume = songVol;
+            //    stemLength = songStems[i].clip.length;
+            //}
         }
-
+        stemLength = songStems[0].clip.length;
         nextLoopTime = Time.time + stemLength;
     }
 
     void Update()
     {
-        if (Time.time >= nextLoopTime)
+        if (songStems[0].volume < songVol)
+        {
+            songStems[0].volume += Time.deltaTime / 100;
+        }
+        else
+            songStems[0].volume = songVol;
+        if (Time.time >= nextLoopTime - 0.6f)
         {
             ChangeMusic();
             nextLoopTime = Time.time + stemLength;
@@ -38,6 +44,13 @@ public class MusicBehaviour : MonoBehaviour
 
     void ChangeMusic()
     {
-        songStems[3].volume = songVol;
+        if (songStems[3].volume < songVol)
+        {
+            songStems[3].volume += songVol / 2;
+        }
+        else
+        {
+            songStems[3].volume = songVol;
+        }
     }
 }

@@ -18,12 +18,15 @@ public class LightBrightness : MonoBehaviour
     public float FL_FlickerMinTimeOff;  //minimum time light is off
     private float FL_FlickerTime;   //how long the light has been on or off
     Light LI;
+    private bool hasPlayedZapSFX = false;
+    private AudioSource zapSFX;
 
     void Start()
     {
         LI = GetComponent<Light>();
         FL_MaxIntensity = LI.intensity;
         LI.intensity = FL_MinIntensity;
+        zapSFX = GetComponent<AudioSource>();
     }
     
     void Update()
@@ -51,9 +54,16 @@ public class LightBrightness : MonoBehaviour
                 {
                     LI.intensity = FL_MinIntensity;
                     FL_FlickerTime = Time.time + Random.Range(FL_FlickerMinTimeOn, FL_FlickerMaxTimeOn);
+                    hasPlayedZapSFX = false;
+                    zapSFX.Stop();
                 }
                 else
                 {
+                    if (!hasPlayedZapSFX)
+                    {
+                        hasPlayedZapSFX = true;
+                        zapSFX.Play();
+                    }
                     LI.intensity = FL_MaxIntensity;
                     FL_FlickerTime = Time.time + Random.Range(FL_FlickerMinTimeOff, FL_FlickerMaxTimeOff);
                 }

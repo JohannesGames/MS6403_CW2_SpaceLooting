@@ -7,7 +7,7 @@ Material:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_Name: Pickup Silhouette
-  m_Shader: {fileID: 4800000, guid: 808daa15f846a1c4587d69961ec7bf7a, type: 3}
+  m_Shader: {fileID: 10704, guid: 0000000000000000f000000000000000, type: 0}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -68,6 +68,7 @@ Material:
     - _OcclusionStrength: 1
     - _Outline: 0.339
     - _Parallax: 0.02
+    - _Shininess: 1
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
@@ -75,6 +76,8 @@ Material:
     - _ZWrite: 1
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _Emission: {r: 0.94482756, g: 1, b: 0, a: 0}
+    - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}
     - _OccludedColor: {r: 0.4852941, g: 0.4852941, b: 0.4852941, a: 1}
     - _OutlineColor: {r: 1, g: 0.90669376, b: 0.1544118, a: 1}
+    - _SpecColor: {r: 1, g: 1, b: 1, a: 0}

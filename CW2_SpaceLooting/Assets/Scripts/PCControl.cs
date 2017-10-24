@@ -14,12 +14,12 @@ public class PCControl : MonoBehaviour
     NavMeshAgent NMA_PC;
     float speedNav; //the max navmeshagent speed of the PC
     CharacterController CC;
-    PCInventory pcI;
+    //PCInventory pcI;
     HUDManager hM;
     public GameObject GO_PickupNext = null;   //the object the PC is moving towards
     public List<Collider> CO_InRadius = new List<Collider>();
     public float FL_Reach = 1.5f;   //reach of PC
-    public GameObject pcInventory;  //where the inventory is stored in the hierarchy
+    public Transform pcInvenTrans;  //where the inventory is stored in the hierarchy
 
 
 
@@ -30,7 +30,7 @@ public class PCControl : MonoBehaviour
         NMA_PC = GetComponent<NavMeshAgent>();
         speedNav = NMA_PC.speed;
         CC = GetComponent<CharacterController>();
-        pcI = GetComponent<PCInventory>();
+        //pcI = GetComponent<PCInventory>();
         hM = GameObject.FindGameObjectWithTag("GameController").GetComponent<HUDManager>();
 
         SetSilhouette();
@@ -134,6 +134,6 @@ public class PCControl : MonoBehaviour
 
     public void SetNavSpeed(float mod)
     {
-
+        NMA_PC.speed = speedNav * mod;
     }
 }

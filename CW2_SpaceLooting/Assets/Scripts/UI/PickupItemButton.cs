@@ -25,11 +25,10 @@ public class PickupItemButton : MonoBehaviour
         //TODO check whether someone else has already taken it
         SingleItemWorld temp = GetComponentInParent<SingleItemWorld>();
         PCInventory pci = hm.pc.gameObject.GetComponent<PCInventory>();
-        pci.AddItemInventory(temp.itemData);   //add item to inventory using PCInventory script
-        temp.itemInWorld.transform.parent = hm.pc.transform;    //add to PC Inventory in hierarchy
-        temp.itemInWorld.GetComponent<MeshRenderer>().enabled = false;
-        temp.itemInWorld.GetComponent<Collider>().enabled = false;
-        Destroy(GetComponentInParent<SingleItemWorld>().itemInWorld);   //remove from UI list
-        hm.CloseInventory();
+        pci.AddItemInventory(temp.itemInWorld.GetComponent<Pickup>());   //add item to inventory using PCInventory script
+        temp.itemInWorld.transform.parent = hm.pc.pcInvenTrans;    //add to PC Inventory in hierarchy
+        temp.itemInWorld.SetActive(false);
+        Destroy(GetComponentInParent<SingleItemWorld>().gameObject);   //remove from UI list
+        hm.CloseSingleItem();
     }
 }
