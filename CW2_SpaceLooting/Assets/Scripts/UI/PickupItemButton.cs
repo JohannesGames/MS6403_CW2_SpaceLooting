@@ -27,8 +27,12 @@ public class PickupItemButton : MonoBehaviour
         PCInventory pci = hm.pc.gameObject.GetComponent<PCInventory>();
         pci.AddItemInventory(temp.itemInWorld.GetComponent<Pickup>());   //add item to inventory using PCInventory script
         temp.itemInWorld.transform.parent = hm.pc.pcInvenTrans;    //add to PC Inventory in hierarchy
-        temp.itemInWorld.SetActive(false);
+        //temp.itemInWorld.SetActive(false);
+        temp.itemInWorld.transform.GetComponent<Collider>().enabled = false;
+        temp.itemInWorld.transform.GetComponent<MeshRenderer>().enabled = false;
         Destroy(GetComponentInParent<SingleItemWorld>().gameObject);   //remove from UI list
+        if (hm.openContainer) //if the object is being picked up from a container
+            hm.UpdateInventory();
         hm.CloseSingleItem();
     }
 }

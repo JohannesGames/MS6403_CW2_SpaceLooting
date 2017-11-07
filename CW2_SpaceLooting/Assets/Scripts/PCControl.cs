@@ -19,7 +19,7 @@ public class PCControl : MonoBehaviour
     public GameObject GO_PickupNext = null;   //the object the PC is moving towards
     public List<Collider> CO_InRadius = new List<Collider>();
     public float FL_Reach = 1.5f;   //reach of PC
-    public Transform pcInvenTrans;  //where the inventory is stored in the hierarchy
+    public Transform pcInvenTrans;  //where the inventory is in the hierarchy
 
 
 
@@ -43,22 +43,14 @@ public class PCControl : MonoBehaviour
 
     void Update()
     {
-        if (!CC.isGrounded)
+        if (!CC.isGrounded) //if PC is not grounded move downwards
         {
             Vector3 pos = new Vector3(transform.position.x, transform.position.y - FL_Gravity, transform.position.z);
             transform.position = pos;
         }
         if (!isInMenu)  //if player is not using a menu take input
         {
-            if (Input.GetButtonDown("Fire1"))   //once finger hits screen take position
-            {
-                V2_FingerPosition = Input.mousePosition;
-            }
-
-            if (Input.GetButtonUp("Fire1"))     //once finger leaves screen move character to specified point
-            {
-                CheckInput();
-            }
+            TakeInput();
         }
     }
 
@@ -72,12 +64,27 @@ public class PCControl : MonoBehaviour
         GetComponentInChildren<PlayerSilhouette>().SetSilhouetteColour(0);
     }
 
+    #region // Input //
+
+    void TakeInput()
+    {
+        if (Input.GetButtonDown("Fire1"))   //once finger hits screen take position
+        {
+            V2_FingerPosition = Input.mousePosition;
+        }
+
+        if (Input.GetButtonUp("Fire1"))     //once finger leaves screen move character to specified point
+        {
+            CheckInput();
+        }
+    }
+
     void CheckInput()
     {
         Ray ray = Camera.main.ScreenPointToRay(V2_FingerPosition);
         int pickupIndex = LayerMask.NameToLayer("Pickup");
-        int floorIndex = LayerMask.NameToLayer("Floor");    //only check "Pickup" and "Floor" layers
-        int containerIndex = LayerMask.NameToLayer("Container");
+        int floorIndex = LayerMask.NameToLayer("Floor");    
+        int containerIndex = LayerMask.NameToLayer("Container");    //only check "Pickup", "Floor" and "Container" layers
 
         if (pickupIndex == -1 || floorIndex == -1 || containerIndex == -1)
             Debug.LogError("Layers incorrectly set up");
@@ -85,7 +92,7 @@ public class PCControl : MonoBehaviour
         {
             RaycastHit hit;
             int layermask = (1 << pickupIndex | 1 << floorIndex | 1 << containerIndex);    //raycast to "Pickup", "Floor" and "Container" only
-            if (Physics.Raycast(ray, out hit, 100, layermask, QueryTriggerInteraction.Ignore))
+            if (Physics.Raycast(ray, out hit, 100, layermask))
             {
                 if (hit.transform.gameObject.layer == LayerMask.NameToLayer("Pickup") || hit.transform.gameObject.layer == LayerMask.NameToLayer("Container"))   //if its a pickup or container, make it the next item to interact with
                     GO_PickupNext = hit.transform.gameObject;
@@ -100,6 +107,7 @@ public class PCControl : MonoBehaviour
             LI_Point.transform.parent.gameObject.SetActive(true);
         }
     }
+#endregion
 
     void CheckForPickups()  //check if PC is within reach of any pickups or containers
     {
@@ -123,8 +131,17 @@ public class PCControl : MonoBehaviour
                 {
                     NMA_PC.ResetPath(); //stop the PC on the navmesh
 
-                    Pickup temp = GO_PickupNext.GetComponent<Pickup>();
-                    hM.OpenSingleItemPanel(temp);  //send what kind of pickup it is to the HUD manager
+                    if (GO_PickupNext.layer == 10)  //if it's a pickup display it in the inventory
+                    {
+                        Pickup temp = GO_PickupNext.GetComponent<Pickup>();
+                        hM.OpenSingleItemPanel(temp);  //send what kind of pickup it is to the HUD manager
+                    }
+                    else    //if it's a container display it in the inventory
+                    {
+                        Container temp = GO_PickupNext.GetComponent<Container>();
+                        hM.OpenContainerPanel(temp);
+                    }
+
                     GO_PickupNext = null;
                     break;
                 }
