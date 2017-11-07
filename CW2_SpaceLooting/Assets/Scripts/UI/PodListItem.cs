@@ -24,10 +24,14 @@ public class PodListItem : MonoBehaviour
     public void RemoveFromSlot()
     {
         int type;
-        if (itemInSlot.pickupType == Pickup.ItemType.component)
-            type = 0;
-        else
-            type = 1;
-        rp.RemoveItem(listIndex, type);
+        if (itemInSlot)
+        {
+            if (itemInSlot.pickupType == Pickup.ItemType.component)
+                type = 0;
+            else
+                type = 1;
+            rp.RemoveItem(listIndex, type);
+            rp.GetComponent<HUDManager>().UpdateInventory();
+        }
     }
 }

@@ -41,10 +41,10 @@ public class RepairPod : MonoBehaviour
             toolsRequired[i].listIndex = i;
         }
     }
-    
+
     void Update()
     {
-        
+
     }
 
     public void AddItem(Pickup tItem)
@@ -53,11 +53,12 @@ public class RepairPod : MonoBehaviour
         {
             for (int i = 0; i < componentsRequired.Length; i++)
             {
-                if (componentsRequired[i] == null)  //if there's space add it to the array and the pod in the hierarchy
+                if (!componentsRequired[i].itemInSlot)  //if there's space add it to the array and the pod in the hierarchy
                 {
                     tItem.transform.parent = itemInventory;
                     componentsRequired[i].itemInSlot = tItem;
                     componentsRequired[i].removeButton.GetComponentInChildren<Text>().text = tItem.itemName;
+                    return;
                 }
             }
         }
@@ -65,11 +66,12 @@ public class RepairPod : MonoBehaviour
         {
             for (int i = 0; i < toolsRequired.Length; i++)
             {
-                if (toolsRequired[i] == null)  //if there's space add it to the array and the pod in the hierarchy
+                if (!toolsRequired[i].itemInSlot)  //if there's space add it to the array and the pod in the hierarchy
                 {
                     tItem.transform.parent = itemInventory;
                     toolsRequired[i].itemInSlot = tItem;
                     toolsRequired[i].removeButton.GetComponentInChildren<Text>().text = tItem.itemName;
+                    return;
                 }
             }
         }
@@ -81,12 +83,22 @@ public class RepairPod : MonoBehaviour
         {
             componentsRequired[index].itemInSlot.transform.parent = hm.pc.pcInvenTrans;
             componentsRequired[index].itemInSlot = null;
+            componentsRequired[index].removeButton.GetComponentInChildren<Text>().text = "n/a";
         }
-        else
+        else    //if it's a tool
         {
             toolsRequired[index].itemInSlot.transform.parent = hm.pc.pcInvenTrans;
             toolsRequired[index].itemInSlot = null;
+            toolsRequired[index].removeButton.GetComponentInChildren<Text>().text = "n/a";
         }
+    }
+
+    public void ResetText() //reset the text on the item slots in the repair screen
+    {
+        for (int i = 0; i < componentsRequired.Length; i++)
+            componentsRequired[i].removeButton.GetComponentInChildren<Text>().text = "n/a";
+        for (int i = 0; i < toolsRequired.Length; i++)
+            toolsRequired[i].removeButton.GetComponentInChildren<Text>().text = "n/a";
     }
 
     public bool CheckPickup(Pickup tItem)
@@ -95,7 +107,7 @@ public class RepairPod : MonoBehaviour
         {
             for (int i = 0; i < componentsRequired.Length; i++)
             {
-                if (componentsRequired[i])
+                if (componentsRequired[i].itemInSlot)
                 {
                     if (componentsRequired[i].itemInSlot.itemName == tItem.itemName)  //if it's the same name the item is not needed and does not need to be displayed
                         return false;
@@ -106,7 +118,7 @@ public class RepairPod : MonoBehaviour
         {
             for (int i = 0; i < toolsRequired.Length; i++)
             {
-                if (toolsRequired[i])
+                if (toolsRequired[i].itemInSlot)
                 {
                     if (toolsRequired[i].itemInSlot.itemName == tItem.itemName)  //if it's the same name the item is not needed and does not need to be displayed
                         return false;

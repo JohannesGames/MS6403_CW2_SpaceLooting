@@ -41,7 +41,7 @@ public class HUDManager : MonoBehaviour
     public RepairPod rp;
     [HideInInspector]
     public bool inRepairPodScreen;
-    
+
     /////////////
 
     public float pickupThrowStrength;   //the strength with which pickups are thrown from the player when dropped
@@ -62,8 +62,8 @@ public class HUDManager : MonoBehaviour
     // Update is called once per frame
     void LateUpdate()
     {
-        if (inventoryPanel.gameObject.activeSelf || 
-            singleItemPanel.gameObject.activeSelf || 
+        if (inventoryPanel.gameObject.activeSelf ||
+            singleItemPanel.gameObject.activeSelf ||
             containerPanel.gameObject.activeSelf)   //in case a menu was closed but another panel remains open
             menuActive = true;
 
@@ -164,6 +164,16 @@ public class HUDManager : MonoBehaviour
     {
         inRepairPodScreen = false;
         repairPodPanel.gameObject.SetActive(false);
+        rp.ResetText();
+        if (rp.itemInventory.childCount > 0)
+        {
+            foreach (Pickup item in rp.itemInventory.GetComponentsInChildren<Pickup>())
+                item.transform.parent = pc.pcInvenTrans;
+            foreach (PodListItem item in rp.componentsRequired)
+                item.itemInSlot = null;
+            foreach (PodListItem item in rp.toolsRequired)
+                item.itemInSlot = null;
+        }
     }
     #endregion
 
@@ -173,7 +183,7 @@ public class HUDManager : MonoBehaviour
     {
         Vector3 tRot = new Vector3(30, Random.Range(0, 360), 0);    //generate random rotation to throw object
         Vector3 tPos = pc.transform.position + Vector3.up * 2;
-        
+
         for (int i = 0; i < pc.pcInvenTrans.childCount; i++)    //move from PC Inventory transform in hierarchy to main hierarchy with no parent
         {
             if (pc.pcInvenTrans.GetChild(i).GetComponent<Pickup>().itemName == tItem.itemName)
@@ -264,16 +274,39 @@ public class HUDManager : MonoBehaviour
     public void UpdateInventory()
     {
         ClearInventoryList();
-
+        pcInv.UpdateInventory();
         int tIndex = 0;
-        foreach (Pickup item in pcInv.inInventory)
+        foreach (Pickup item in pcInv.inInventory)  //used foreach because its prettier
         {
-            if (!rp.CheckPickup(item))   //if on the repair pod screen and the item is not yet in use
+            if (!inRepairPodScreen)
             {
                 ListItemInventory temp = Instantiate(listItem, inventoryListContent);   //create new UI element in the inventory list
                 listOfItemsInInventory.Add(temp);
                 listOfItemsInInventory[tIndex].itemData = item;
                 tIndex++;
+            }
+            else    //if on repair screen
+            {
+                if (rp.CheckPickup(item))   //checks that the item (or one of the same name) is not already in use
+                {
+                    bool repeat = false;    //checks for repeated pickups in Inventory list (unique items required to repair pod)
+                    if (inventoryListContent.childCount > 0)
+                    {
+                        for (int i = 0; i < inventoryListContent.childCount; i++)   //check currently displayed pickups. if one is already shown do not repeat
+                        {
+                            if (item.itemName ==
+                                inventoryListContent.GetChild(i).GetComponent<ListItemInventory>().itemData.itemName)
+                                repeat = true;
+                        }
+                    }
+                    if (!repeat)
+                    {
+                        ListItemInventory temp = Instantiate(listItem, inventoryListContent);   //create new UI element in the inventory list
+                        listOfItemsInInventory.Add(temp);
+                        listOfItemsInInventory[tIndex].itemData = item;
+                        tIndex++;
+                    }
+                }
             }
         }
     }
@@ -293,10 +326,13 @@ public class HUDManager : MonoBehaviour
         if (inventoryListContent.childCount > 0)
         {
             for (int i = inventoryListContent.childCount - 1; i >= 0; i--)
+            {
                 Destroy(inventoryListContent.GetChild(i).gameObject);    //delete any children created when populating the inventory list UI element
+                inventoryListContent.GetChild(i).transform.SetParent(null);
+            }
         }
         listOfItemsInInventory.Clear();
     }
 
-#endregion
+    #endregion
 }

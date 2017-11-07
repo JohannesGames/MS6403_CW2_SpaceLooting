@@ -95,8 +95,12 @@ public class PCControl : MonoBehaviour
             int layermask = (1 << pickupIndex | 1 << floorIndex | 1 << containerIndex | 1 << podIndex);    //raycast to "Pickup", "Floor", "Pod" and "Container" only
             if (Physics.Raycast(ray, out hit, 100, layermask))
             {
-                if (hit.transform.gameObject.layer == LayerMask.NameToLayer("Pickup") || hit.transform.gameObject.layer == LayerMask.NameToLayer("Container"))   //if its a pickup or container, make it the next item to interact with
+                if (hit.transform.gameObject.layer == LayerMask.NameToLayer("Pickup")
+                    || hit.transform.gameObject.layer == LayerMask.NameToLayer("Container")
+                    || hit.transform.gameObject.layer == LayerMask.NameToLayer("Pod"))   //if its a pickup or container or pod, make it the next item to interact with
                     GO_PickupNext = hit.transform.gameObject;
+                else
+                    GO_PickupNext = null;
                 NMA_PC.SetDestination(hit.point);
             }
         }
@@ -115,7 +119,7 @@ public class PCControl : MonoBehaviour
         int layerIndex = LayerMask.NameToLayer("Pickup");   //check only for pickups
         if (layerIndex == -1)
             Debug.LogError("No layer called \"Pickup\"");
-        int layermask = LayerMask.GetMask("Pickup", "Container");    //1 << layerIndex;
+        int layermask = LayerMask.GetMask("Pickup", "Container", "Pod");    //1 << layerIndex;
         if (GO_PickupNext != null)
         {
             Collider[] allInRadius = Physics.OverlapSphere(transform.position, FL_Reach, layermask, QueryTriggerInteraction.Ignore);

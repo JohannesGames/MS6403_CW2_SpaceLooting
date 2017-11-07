@@ -185,6 +185,7 @@ GameObject:
   - component: {fileID: 114392644578904872}
   - component: {fileID: 114890733141761254}
   - component: {fileID: 114724525515826798}
+  - component: {fileID: 114959476333333462}
   m_Layer: 5
   m_Name: UI Item - Inventory
   m_TagString: Untagged
@@ -413,7 +414,7 @@ MonoBehaviour:
   itemButtonDrop: {fileID: 114096204546774728}
   itemButtonConsume: {fileID: 114521780586636572}
   putInContainer: {fileID: 114591773594110206}
-  repairWithItem: {fileID: 0}
+  repairWithItem: {fileID: 114760274732716118}
 --- !u!114 &114451068898850822
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -875,6 +876,19 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: Drop
+--- !u!114 &114959476333333462
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1912605622805450}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 1741964061, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_HorizontalFit: 2
+  m_VerticalFit: 0
 --- !u!222 &222414559894208976
 CanvasRenderer:
   m_ObjectHideFlags: 1

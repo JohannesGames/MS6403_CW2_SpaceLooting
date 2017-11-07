@@ -61,5 +61,6 @@ public class ListItemInventory : MonoBehaviour
     public void AddToRepairSlot()
     {
         hm.rp.AddItem(itemData);
+        hm.UpdateInventory();
     }
 }

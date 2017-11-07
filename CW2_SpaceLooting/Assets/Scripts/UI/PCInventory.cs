@@ -23,6 +23,16 @@ public class PCInventory : MonoBehaviour
         //Pickup temp = Instantiate(tItem, pc.pcInventory.transform);
         inInventory.Add(tItem);
     }
+    
+    public void UpdateInventory()
+    {
+        inInventory.Clear();
+
+        foreach (Pickup item in pc.pcInvenTrans.GetComponentsInChildren<Pickup>())
+        {
+            inInventory.Add(item);
+        }
+    }
 
     void CheckEncumbrance()
     {
