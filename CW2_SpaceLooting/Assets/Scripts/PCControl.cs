@@ -83,15 +83,16 @@ public class PCControl : MonoBehaviour
     {
         Ray ray = Camera.main.ScreenPointToRay(V2_FingerPosition);
         int pickupIndex = LayerMask.NameToLayer("Pickup");
-        int floorIndex = LayerMask.NameToLayer("Floor");    
-        int containerIndex = LayerMask.NameToLayer("Container");    //only check "Pickup", "Floor" and "Container" layers
+        int floorIndex = LayerMask.NameToLayer("Floor");
+        int podIndex = LayerMask.NameToLayer("Pod");
+        int containerIndex = LayerMask.NameToLayer("Container");    //only check "Pickup", "Floor", "Pod" and "Container" layers
 
-        if (pickupIndex == -1 || floorIndex == -1 || containerIndex == -1)
+        if (pickupIndex == -1 || floorIndex == -1 || containerIndex == -1 || podIndex == -1)
             Debug.LogError("Layers incorrectly set up");
         else
         {
             RaycastHit hit;
-            int layermask = (1 << pickupIndex | 1 << floorIndex | 1 << containerIndex);    //raycast to "Pickup", "Floor" and "Container" only
+            int layermask = (1 << pickupIndex | 1 << floorIndex | 1 << containerIndex | 1 << podIndex);    //raycast to "Pickup", "Floor", "Pod" and "Container" only
             if (Physics.Raycast(ray, out hit, 100, layermask))
             {
                 if (hit.transform.gameObject.layer == LayerMask.NameToLayer("Pickup") || hit.transform.gameObject.layer == LayerMask.NameToLayer("Container"))   //if its a pickup or container, make it the next item to interact with
@@ -136,11 +137,16 @@ public class PCControl : MonoBehaviour
                         Pickup temp = GO_PickupNext.GetComponent<Pickup>();
                         hM.OpenSingleItemPanel(temp);  //send what kind of pickup it is to the HUD manager
                     }
-                    else    //if it's a container display it in the inventory
+                    else if (GO_PickupNext.layer == 15)    //if it's a container display it in the inventory
                     {
                         Container temp = GO_PickupNext.GetComponent<Container>();
                         hM.OpenContainerPanel(temp);
                     }
+                    else    //if it's the pod, open repair screen
+                    {
+                        hM.OpenRepairPodPanel();
+                    }
+
 
                     GO_PickupNext = null;
                     break;

@@ -6,6 +6,8 @@ using UnityEngine.UI;
 public class HUDManager : MonoBehaviour
 {
     public Image blurLayer;
+
+    // Inventory Panel
     public Button closeInventoryButton;
     public AudioSource closeInventorySFX;
     public Button openInventoryButton;
@@ -14,30 +16,46 @@ public class HUDManager : MonoBehaviour
     public RectTransform inventoryListContent;  //where the inventory content is (displayed) childed
     public List<ListItemInventory> listOfItemsInInventory = new List<ListItemInventory>();
     public ListItemInventory listItem;
+    //////////////
+
+    // Single Item Panel
     public RectTransform singleItemPanel;   //the panel containing info for single items found in the world
     public Button closeSingleItemButton;
     public AudioSource closeSingleItemSFX;
     public AudioSource openSingleItemSFX;
     public SingleItemWorld sItemWorld;  //the UI prefab of single items found in the world
+    //////////////
+
+    // Container Panel
     [HideInInspector]
     public Container openContainer = null;
     public SingleItemWorld containerItem;
     public Button closeContainerPanel;
     public RectTransform containerPanel;
     public RectTransform containerListContent;
+    /////////////
 
-    public float pickupThrowStrength = 1000;
-    public Pickup prefPickup;   //prefab for spawning pickups
+    // Repair Pod Panel
+    public RectTransform repairPodPanel;
+    [HideInInspector]
+    public RepairPod rp;
+    [HideInInspector]
+    public bool inRepairPodScreen;
+    
+    /////////////
+
+    public float pickupThrowStrength;   //the strength with which pickups are thrown from the player when dropped
 
     public PCControl pc;   //the local PC
     public PCInventory pcInv;   //the local PC's inventory
 
-    private bool menuActive;
+    private bool menuActive;    //is a menu active
 
     void Start()
     {
         pc = GameObject.FindGameObjectWithTag("Player").GetComponent<PCControl>();  //get the local PC here
         pcInv = pc.GetComponent<PCInventory>();
+        rp = GetComponent<RepairPod>();
         openInventoryButton.onClick.AddListener(OpenInventoryPanel);
     }
 
@@ -53,45 +71,8 @@ public class HUDManager : MonoBehaviour
         blurLayer.gameObject.SetActive(menuActive);
     }
 
-    #region CLOSE UI ELEMENTS
-    public void CloseInventory()
-    {
-        inventoryPanel.gameObject.SetActive(false);
-        closeInventoryButton.gameObject.SetActive(false);
-        ClearInventoryList();
-        openInventoryButton.gameObject.SetActive(true);
-        menuActive = false;
-        //closeInventorySFX.Play();
-        CloseContainerPanel();
-    }
-
-    public void CloseSingleItem()
-    {
-        singleItemPanel.gameObject.SetActive(false);
-        closeSingleItemButton.gameObject.SetActive(false);
-        openInventoryButton.gameObject.SetActive(true);
-        if (singleItemPanel.childCount > 1)
-        {
-            int cCount = singleItemPanel.childCount;
-            for (int i = cCount - 1; i > 0; i--)
-                Destroy(singleItemPanel.GetChild(i).gameObject);    //delete any children created when populating the single item panel UI element
-        }
-        menuActive = false;
-        closeSingleItemSFX.Play();
-    }
-
-    public void CloseContainerPanel()
-    {
-        containerPanel.gameObject.SetActive(false);
-        closeContainerPanel.gameObject.SetActive(false);
-        openInventoryButton.gameObject.SetActive(true);
-        ClearContainerList();
-        menuActive = false;
-        openContainer = null;
-    }
-    #endregion
-
     #region OPEN UI ELEMENTS
+
     public void OpenSingleItemPanel(Pickup sItem)
     {
         SingleItemWorld temp = Instantiate(sItemWorld, singleItemPanel);
@@ -129,14 +110,64 @@ public class HUDManager : MonoBehaviour
         UpdateContainer();
 
         containerPanel.gameObject.SetActive(true);
-        openInventoryButton.gameObject.SetActive(false);
-        pc.isInMenu = true;
-        menuActive = true;
+        OpenInventoryPanel();
+    }
+
+    public void OpenRepairPodPanel()
+    {
+        inRepairPodScreen = true;
+        repairPodPanel.gameObject.SetActive(true);
         OpenInventoryPanel();
     }
     #endregion
 
-#region MOVE ITEMS
+    #region CLOSE UI ELEMENTS
+
+    public void CloseInventory()
+    {
+        inventoryPanel.gameObject.SetActive(false);
+        closeInventoryButton.gameObject.SetActive(false);
+        ClearInventoryList();
+        openInventoryButton.gameObject.SetActive(true);
+        menuActive = false;
+        //closeInventorySFX.Play();
+        CloseContainerPanel();
+        CloseRepairPodPanel();
+    }
+
+    public void CloseSingleItem()
+    {
+        singleItemPanel.gameObject.SetActive(false);
+        closeSingleItemButton.gameObject.SetActive(false);
+        openInventoryButton.gameObject.SetActive(true);
+        if (singleItemPanel.childCount > 1)
+        {
+            int cCount = singleItemPanel.childCount;
+            for (int i = cCount - 1; i > 0; i--)
+                Destroy(singleItemPanel.GetChild(i).gameObject);    //delete any children created when populating the single item panel UI element
+        }
+        menuActive = false;
+        closeSingleItemSFX.Play();
+    }
+
+    public void CloseContainerPanel()
+    {
+        containerPanel.gameObject.SetActive(false);
+        closeContainerPanel.gameObject.SetActive(false);
+        openInventoryButton.gameObject.SetActive(true);
+        ClearContainerList();
+        menuActive = false;
+        openContainer = null;
+    }
+
+    void CloseRepairPodPanel()
+    {
+        inRepairPodScreen = false;
+        repairPodPanel.gameObject.SetActive(false);
+    }
+    #endregion
+
+    #region MOVE ITEMS
 
     public void DropInventoryItem(Pickup tItem)
     {
@@ -209,7 +240,7 @@ public class HUDManager : MonoBehaviour
 
     #endregion
 
-#region UPDATE UI LISTS
+    #region UPDATE UI LISTS
 
     public void UpdateContainer()
     {
@@ -237,10 +268,13 @@ public class HUDManager : MonoBehaviour
         int tIndex = 0;
         foreach (Pickup item in pcInv.inInventory)
         {
-            ListItemInventory temp = Instantiate(listItem, inventoryListContent);
-            listOfItemsInInventory.Add(temp);
-            listOfItemsInInventory[tIndex].itemData = item;
-            tIndex++;
+            if (!rp.CheckPickup(item))   //if on the repair pod screen and the item is not yet in use
+            {
+                ListItemInventory temp = Instantiate(listItem, inventoryListContent);   //create new UI element in the inventory list
+                listOfItemsInInventory.Add(temp);
+                listOfItemsInInventory[tIndex].itemData = item;
+                tIndex++;
+            }
         }
     }
 
