@@ -54,20 +54,13 @@ public class HUDManager : MonoBehaviour
 
     void Start()
     {
-        
-
         pc = GameObject.FindGameObjectWithTag("Player").GetComponent<PCControl>();  //get the local PC here
         pcInv = pc.GetComponent<PCInventory>();
         rp = GetComponent<RepairPod>();
         openInventoryButton.onClick.AddListener(OpenInventoryPanel);
-
-        if (pc == null)
-        {
-            print("THERE IS NO PC");
-        }
     }
 
-    // Update is called once per frame
+
     void LateUpdate()
     {
         if (inventoryPanel.gameObject.activeSelf ||
@@ -95,7 +88,7 @@ public class HUDManager : MonoBehaviour
         openInventoryButton.gameObject.SetActive(false);
         pc.isInMenu = true; //stop other input
         menuActive = true;
-        openSingleItemSFX.Play();
+        //openSingleItemSFX.Play();
     }
 
     public void OpenInventoryPanel()
@@ -155,7 +148,7 @@ public class HUDManager : MonoBehaviour
                 Destroy(singleItemPanel.GetChild(i).gameObject);    //delete any children created when populating the single item panel UI element
         }
         menuActive = false;
-        closeSingleItemSFX.Play();
+        //closeSingleItemSFX.Play();
     }
 
     public void CloseContainerPanel()

@@ -32,8 +32,8 @@ public class PCControl : NetworkBehaviour
         speedNav = NMA_PC.speed;
         CC = GetComponent<CharacterController>();
         hM = GameObject.FindGameObjectWithTag("GameController").GetComponent<HUDManager>();
-
-        SetSilhouette();
+        hM.enabled = true;
+        hM.GetComponent<RepairPod>().enabled = true;
     }
 
     void FixedUpdate()
@@ -69,11 +69,6 @@ public class PCControl : NetworkBehaviour
             return;
         }
         CO_InRadius.Clear();
-    }
-
-    public void SetSilhouette() //TODO game manager sets local PC to green (parameter = 1) and other players to red outline
-    {
-        GetComponentInChildren<PlayerSilhouette>().SetSilhouetteColour(0);
     }
 
     #region // Input //
@@ -173,6 +168,10 @@ public class PCControl : NetworkBehaviour
 
     public void SetNavSpeed(float mod)
     {
+        if (!isLocalPlayer)
+        {
+            return;
+        }
         NMA_PC.speed = speedNav * mod;
     }
 }

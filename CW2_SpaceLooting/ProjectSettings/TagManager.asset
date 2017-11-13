@@ -34,9 +34,9 @@ TagManager:
   - 
   - 
   - 
-  - 
-  - 
-  - 
+  - Outline Enemy
+  - Outline Container
+  - Outline Pickup
   m_SortingLayers:
   - name: Default
     uniqueID: 0
