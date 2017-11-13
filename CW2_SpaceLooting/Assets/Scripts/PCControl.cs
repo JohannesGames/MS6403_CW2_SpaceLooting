@@ -1,9 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.AI;
 
-public class PCControl : MonoBehaviour
+public class PCControl : NetworkBehaviour
 {
     public bool isInMenu;
     public GameObject GO_CameraContainer;
@@ -23,14 +24,13 @@ public class PCControl : MonoBehaviour
 
 
 
-    void Start()
+    public override void OnStartLocalPlayer()   //is this "override" necessary?
     {
         CF_Camera = Instantiate(GO_CameraContainer, transform.position, transform.rotation).GetComponent<CameraFollow>();
         CF_Camera.GO_PC = gameObject;
         NMA_PC = GetComponent<NavMeshAgent>();
         speedNav = NMA_PC.speed;
         CC = GetComponent<CharacterController>();
-        //pcI = GetComponent<PCInventory>();
         hM = GameObject.FindGameObjectWithTag("GameController").GetComponent<HUDManager>();
 
         SetSilhouette();
@@ -38,11 +38,19 @@ public class PCControl : MonoBehaviour
 
     void FixedUpdate()
     {
+        if (!isLocalPlayer)
+        {
+            return;
+        }
         CheckForPickups();
     }
 
     void Update()
     {
+        if (!isLocalPlayer)
+        {
+            return;
+        }
         if (!CC.isGrounded) //if PC is not grounded move downwards
         {
             Vector3 pos = new Vector3(transform.position.x, transform.position.y - FL_Gravity, transform.position.z);
@@ -56,6 +64,10 @@ public class PCControl : MonoBehaviour
 
     void LateUpdate()
     {
+        if (!isLocalPlayer)
+        {
+            return;
+        }
         CO_InRadius.Clear();
     }
 

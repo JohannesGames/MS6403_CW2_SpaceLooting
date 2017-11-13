@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Networking;
 
 public class HUDManager : MonoBehaviour
 {
@@ -53,10 +54,17 @@ public class HUDManager : MonoBehaviour
 
     void Start()
     {
+        
+
         pc = GameObject.FindGameObjectWithTag("Player").GetComponent<PCControl>();  //get the local PC here
         pcInv = pc.GetComponent<PCInventory>();
         rp = GetComponent<RepairPod>();
         openInventoryButton.onClick.AddListener(OpenInventoryPanel);
+
+        if (pc == null)
+        {
+            print("THERE IS NO PC");
+        }
     }
 
     // Update is called once per frame
