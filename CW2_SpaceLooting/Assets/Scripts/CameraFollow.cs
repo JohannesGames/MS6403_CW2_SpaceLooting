@@ -6,6 +6,8 @@ public class CameraFollow : MonoBehaviour
 {
     public float FL_CameraSpeed = 3;
     public GameObject GO_PC;
+    public Camera mainCamera;
+    public Camera pcCamera;
     
     void Update()
     {

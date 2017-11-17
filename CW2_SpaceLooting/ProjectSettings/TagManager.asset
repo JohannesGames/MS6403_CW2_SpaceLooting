@@ -22,6 +22,7 @@ TagManager:
   - Door Trigger
   - Container
   - Pod
+  - Outline
   - 
   - 
   - 
@@ -34,9 +35,8 @@ TagManager:
   - 
   - 
   - 
-  - Outline Enemy
-  - Outline Container
-  - Outline Pickup
+  - 
+  - 
   m_SortingLayers:
   - name: Default
     uniqueID: 0

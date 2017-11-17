@@ -22,19 +22,28 @@ public class PCControl : NetworkBehaviour
     public List<Collider> CO_InRadius = new List<Collider>();
     public float FL_Reach = 1.5f;   //reach of PC
     public Transform pcInvenTrans;  //where the inventory is in the hierarchy
+    public Color outlineColour;
 
 
 
     public override void OnStartLocalPlayer()
     {
-        CF_Camera = Instantiate(GO_CameraContainer, transform.position, transform.rotation).GetComponent<CameraFollow>();
-        CF_Camera.GO_PC = gameObject;
+        CameraAndOutline(true);
         NMA_PC = GetComponent<NavMeshAgent>();
         speedNav = NMA_PC.speed;
         CC = GetComponent<CharacterController>();
         hM = Instantiate(hM);
         hM.pc = this;
         hM.pcInv = GetComponent<PCInventory>();
+    }
+
+    private void Start()
+    {
+        if (isLocalPlayer)
+        {
+            return;
+        }
+        CameraAndOutline(false);
     }
 
     void FixedUpdate()
@@ -70,6 +79,23 @@ public class PCControl : NetworkBehaviour
             return;
         }
         CO_InRadius.Clear();
+    }
+
+    void CameraAndOutline(bool isLocal)
+    {
+        if (isLocal)
+        {
+            CF_Camera = Instantiate(GO_CameraContainer, transform.position, transform.rotation).GetComponent<CameraFollow>();
+            CF_Camera.GO_PC = gameObject;
+            Demo pcCameraOutlineScript = CF_Camera.pcCamera.GetComponent<Demo>();
+            Outline pcO = GetComponentInChildren<Outline>();
+            pcO.m_OutlineColor = outlineColour;
+            pcCameraOutlineScript.m_Outlines[0] = pcO;
+            pcCameraOutlineScript.OutlineApply(null, pcO.gameObject);
+            pcCameraOutlineScript.m_PrevMouseOn = pcO.gameObject;
+
+            CF_Camera.mainCamera.GetComponent<Demo>().m_Outlines = FindObjectsOfType<Outline>();
+        }
     }
 
     #region // Input //
