@@ -12,11 +12,10 @@ public class ListItemInventory : MonoBehaviour
     public Button itemButtonConsume;
     public Button putInContainer;
     public Button repairWithItem;
-    private HUDManager hm;
+    public HUDManager hm;
 
     void Start()
     {
-        hm = GameObject.FindGameObjectWithTag("GameController").GetComponent<HUDManager>();
         itemName.text = itemData.itemName;
         if (itemData.pickupType != Pickup.ItemType.boost)   //if its not a consumeable hide the "consume" button
             itemButtonConsume.gameObject.SetActive(false);

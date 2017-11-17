@@ -16,7 +16,8 @@ public class PCControl : NetworkBehaviour
     float speedNav; //the max navmeshagent speed of the PC
     CharacterController CC;
     //PCInventory pcI;
-    HUDManager hM;
+    public HUDManager hM;
+    public Transform podInventory;
     public GameObject GO_PickupNext = null;   //the object the PC is moving towards
     public List<Collider> CO_InRadius = new List<Collider>();
     public float FL_Reach = 1.5f;   //reach of PC
@@ -24,16 +25,16 @@ public class PCControl : NetworkBehaviour
 
 
 
-    public override void OnStartLocalPlayer()   //is this "override" necessary?
+    public override void OnStartLocalPlayer()
     {
         CF_Camera = Instantiate(GO_CameraContainer, transform.position, transform.rotation).GetComponent<CameraFollow>();
         CF_Camera.GO_PC = gameObject;
         NMA_PC = GetComponent<NavMeshAgent>();
         speedNav = NMA_PC.speed;
         CC = GetComponent<CharacterController>();
-        hM = GameObject.FindGameObjectWithTag("GameController").GetComponent<HUDManager>();
-        hM.enabled = true;
-        hM.GetComponent<RepairPod>().enabled = true;
+        hM = Instantiate(hM);
+        hM.pc = this;
+        hM.pcInv = GetComponent<PCInventory>();
     }
 
     void FixedUpdate()
@@ -123,44 +124,47 @@ public class PCControl : NetworkBehaviour
 
     void CheckForPickups()  //check if PC is within reach of any pickups or containers
     {
-        int layerIndex = LayerMask.NameToLayer("Pickup");   //check only for pickups
-        if (layerIndex == -1)
-            Debug.LogError("No layer called \"Pickup\"");
-        int layermask = LayerMask.GetMask("Pickup", "Container", "Pod");    //1 << layerIndex;
-        if (GO_PickupNext != null)
+        if (GO_PickupNext)
         {
-            Collider[] allInRadius = Physics.OverlapSphere(transform.position, FL_Reach, layermask, QueryTriggerInteraction.Ignore);
-
-            if (allInRadius.Length > 0)
+            int layerIndex = LayerMask.NameToLayer("Pickup");   //check only for pickups
+            if (layerIndex == -1)
+                Debug.LogError("No layer called \"Pickup\"");
+            int layermask = LayerMask.GetMask("Pickup", "Container", "Pod");    //1 << layerIndex;
+            if (GO_PickupNext != null)
             {
-                foreach (Collider item in allInRadius)
-                    CO_InRadius.Add(item);  //add all nearby items to list
-            }
+                Collider[] allInRadius = Physics.OverlapSphere(transform.position, FL_Reach, layermask, QueryTriggerInteraction.Ignore);
 
-            for (int i = 0; i < allInRadius.Length; i++)
-            {
-                if (allInRadius[i].gameObject == GO_PickupNext) //if the desired pickup or container is within reach, stop and show inventory screen
+                if (allInRadius.Length > 0)
                 {
-                    NMA_PC.ResetPath(); //stop the PC on the navmesh
+                    foreach (Collider item in allInRadius)
+                        CO_InRadius.Add(item);  //add all nearby items to list
+                }
 
-                    if (GO_PickupNext.layer == 10)  //if it's a pickup display it in the inventory
+                for (int i = 0; i < allInRadius.Length; i++)
+                {
+                    if (allInRadius[i].gameObject == GO_PickupNext) //if the desired pickup or container is within reach, stop and show inventory screen
                     {
-                        Pickup temp = GO_PickupNext.GetComponent<Pickup>();
-                        hM.OpenSingleItemPanel(temp);  //send what kind of pickup it is to the HUD manager
-                    }
-                    else if (GO_PickupNext.layer == 15)    //if it's a container display it in the inventory
-                    {
-                        Container temp = GO_PickupNext.GetComponent<Container>();
-                        hM.OpenContainerPanel(temp);
-                    }
-                    else    //if it's the pod, open repair screen
-                    {
-                        hM.OpenRepairPodPanel();
-                    }
+                        NMA_PC.ResetPath(); //stop the PC on the navmesh
+
+                        if (GO_PickupNext.layer == 10)  //if it's a pickup display it in the inventory
+                        {
+                            Pickup temp = GO_PickupNext.GetComponent<Pickup>();
+                            hM.OpenSingleItemPanel(temp);  //send what kind of pickup it is to the HUD manager
+                        }
+                        else if (GO_PickupNext.layer == 15)    //if it's a container display it in the inventory
+                        {
+                            Container temp = GO_PickupNext.GetComponent<Container>();
+                            hM.OpenContainerPanel(temp);
+                        }
+                        else    //if it's the pod, open repair screen
+                        {
+                            hM.OpenRepairPodPanel();
+                        }
 
 
-                    GO_PickupNext = null;
-                    break;
+                        GO_PickupNext = null;
+                        break;
+                    }
                 }
             }
         }

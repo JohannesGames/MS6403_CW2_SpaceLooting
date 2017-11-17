@@ -54,10 +54,11 @@ public class HUDManager : MonoBehaviour
 
     void Start()
     {
-        pc = GameObject.FindGameObjectWithTag("Player").GetComponent<PCControl>();  //get the local PC here
-        pcInv = pc.GetComponent<PCInventory>();
         rp = GetComponent<RepairPod>();
+        rp.itemInventory = pc.podInventory;
         openInventoryButton.onClick.AddListener(OpenInventoryPanel);
+        closeInventoryButton.onClick.AddListener(CloseInventory);
+        closeSingleItemButton.onClick.AddListener(CloseSingleItem);
     }
 
 
@@ -77,6 +78,7 @@ public class HUDManager : MonoBehaviour
     public void OpenSingleItemPanel(Pickup sItem)
     {
         SingleItemWorld temp = Instantiate(sItemWorld, singleItemPanel);
+        temp.itemButtonPickup.GetComponent<PickupItemButton>().hm = this;
         temp.itemData = sItem;
         temp.itemInWorld = sItem.gameObject;
 
@@ -262,6 +264,7 @@ public class HUDManager : MonoBehaviour
             foreach (Pickup item in openContainer.inContainer)
             {
                 SingleItemWorld temp = Instantiate(containerItem, containerListContent);
+                temp.itemButtonPickup.GetComponent<PickupItemButton>().hm = this;
 
                 if (item.pickupType != Pickup.ItemType.boost)  //only show Consume button for boosts
                     temp.itemButtonConsume.gameObject.SetActive(false);
@@ -282,6 +285,7 @@ public class HUDManager : MonoBehaviour
             if (!inRepairPodScreen)
             {
                 ListItemInventory temp = Instantiate(listItem, inventoryListContent);   //create new UI element in the inventory list
+                temp.hm = this;
                 listOfItemsInInventory.Add(temp);
                 listOfItemsInInventory[tIndex].itemData = item;
                 tIndex++;
@@ -303,6 +307,7 @@ public class HUDManager : MonoBehaviour
                     if (!repeat)
                     {
                         ListItemInventory temp = Instantiate(listItem, inventoryListContent);   //create new UI element in the inventory list
+                        temp.hm = this;
                         listOfItemsInInventory.Add(temp);
                         listOfItemsInInventory[tIndex].itemData = item;
                         tIndex++;

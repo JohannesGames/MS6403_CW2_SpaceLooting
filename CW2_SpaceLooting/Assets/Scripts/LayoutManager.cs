@@ -11,6 +11,20 @@ public class PickupSpawner
     public int rarity;
 }
 
+public class prePickup
+{
+    public string itemName;
+
+    public enum ItemType
+    {
+        tool,
+        component,
+        boost
+    }
+
+    public ItemType pickupType;
+}
+
 public class LayoutManager : NetworkBehaviour
 {
     public Pickup pickupPrefab;
@@ -24,11 +38,10 @@ public class LayoutManager : NetworkBehaviour
 
     void Start()
     {
-        if (isLocalPlayer)
+        if (!isServer)
         {
             return;
         }
-        ReadData();
         SpawnPickups();
     }
 
@@ -36,12 +49,6 @@ public class LayoutManager : NetworkBehaviour
     void Update()
     {
 
-    }
-
-    void ReadData()
-    {
-        //TODO ReadComponenentData()
-        //TODO ReadBootData()
     }
 
     void ReadToolData()
@@ -69,29 +76,30 @@ public class LayoutManager : NetworkBehaviour
     {
         ReadToolData();
 
-        List<Pickup> pickupPool = new List<Pickup>();   //the possible pool of spawned pickups
+        List<prePickup> pickupPool = new List<prePickup>();   //the possible pool of spawned pickups
         foreach (PickupSpawner item in spawnList)
         {
             for (int i = 0; i < item.rarity; i++)       //rarity defines how many of this object go into the potential spawn pool
             {
-                Pickup PU = new Pickup();
+                prePickup PU = new prePickup();
                 PU.itemName = item.pickupName;
-                PU.pickupType = Pickup.ItemType.tool;
+                PU.pickupType = prePickup.ItemType.tool;
                 pickupPool.Add(PU);
             }
         }
 
         //Spawn the correct amount of tools in the various containers and spawn points
 
-        Pickup[] toBeSpawned = new Pickup[playerNumber * toolsRequired * 4];    //this contains the chosen pickups to be spawned around the map
-        for (int i = 0; i < toBeSpawned.Length; i++)    //while there are still spaces in the array add Pickups
+        prePickup[] toBeSpawned = new prePickup[playerNumber * toolsRequired * 4];    //this contains the chosen pickups to be spawned around the map
+
+        for (int i = 0; i < toBeSpawned.Length; i++)    
         {
-            if (!toBeSpawned[i])
+            if (toBeSpawned[i] == null) //while there are still spaces in the array add Pickups
             {
                 int index = Random.Range(0, pickupPool.Count - 1);
-                Pickup PU = new Pickup();
+                prePickup PU = new prePickup();
                 PU.itemName = pickupPool[index].itemName;
-                PU.pickupType = pickupPool[index].pickupType;
+                PU.pickupType = prePickup.ItemType.tool;
                 toBeSpawned[i] = PU;
             }
         }
@@ -106,17 +114,5 @@ public class LayoutManager : NetworkBehaviour
         }
 
         //check enough unique ones (playerNumber * toolsRequired * 2)
-    }
-
-    bool IsEmpty(Pickup[] arr)  //checks whether a given array has any empty/null spaces
-    {
-        foreach (Pickup item in arr)
-        {
-            if (!item)
-            {
-                return true;
-            }
-        }
-        return false;
     }
 }
