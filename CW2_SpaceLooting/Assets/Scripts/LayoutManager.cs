@@ -35,13 +35,14 @@ public class LayoutManager : NetworkBehaviour
     public List<PickupSpawner> spawnList = new List<PickupSpawner>();
     private char lineSeperater = '\n';
     private char fieldSeperator = ',';
-
+    
     void Start()
     {
         if (!isServer)
         {
             return;
         }
+        DontDestroyOnLoad(this);
         SpawnPickups();
     }
 

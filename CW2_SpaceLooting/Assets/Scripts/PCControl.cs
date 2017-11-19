@@ -23,7 +23,13 @@ public class PCControl : NetworkBehaviour
     public float FL_Reach = 1.5f;   //reach of PC
     public Transform pcInvenTrans;  //where the inventory is in the hierarchy
     public Color outlineColour;
+    public float pickupThrowStrength = 500;
 
+    //////// Double click
+    public float doubleClickInterval = 0.5f;
+    float doubleClickTime;   //the time by which a second click must have been inputed
+    bool instandPickup; //if double clicked, pick up instantly
+    /////////
 
 
     public override void OnStartLocalPlayer()
@@ -132,9 +138,24 @@ public class PCControl : NetworkBehaviour
                 if (hit.transform.gameObject.layer == LayerMask.NameToLayer("Pickup")
                     || hit.transform.gameObject.layer == LayerMask.NameToLayer("Container")
                     || hit.transform.gameObject.layer == LayerMask.NameToLayer("Pod"))   //if its a pickup or container or pod, make it the next item to interact with
+                {
+                    if (hit.transform.gameObject == GO_PickupNext)  //if the object had previously been selected AND a double click is detected, pick it up instantly when reached
+                    {
+                        if (Time.time < doubleClickTime)
+                            instandPickup = true;
+                    }
+                    else
+                    {
+                        instandPickup = false;
+                        doubleClickTime = Time.time + doubleClickInterval;
+                    }
                     GO_PickupNext = hit.transform.gameObject;
+                }
                 else
+                {
                     GO_PickupNext = null;
+                    instandPickup = false;
+                }
                 NMA_PC.SetDestination(hit.point);
             }
         }
@@ -174,26 +195,71 @@ public class PCControl : NetworkBehaviour
 
                         if (GO_PickupNext.layer == 10)  //if it's a pickup display it in the inventory
                         {
-                            Pickup temp = GO_PickupNext.GetComponent<Pickup>();
-                            hM.OpenSingleItemPanel(temp);  //send what kind of pickup it is to the HUD manager
+                            if (instandPickup)  //if the item was double-clicked pick up instantly without menu
+                            {
+                                CmdPickupObject(GO_PickupNext);
+                                break;
+                            }
+                            else if (Time.time >= doubleClickTime)  //allows time for a double click for pickups in the vicinity
+                            {
+                                Pickup temp = GO_PickupNext.GetComponent<Pickup>();
+                                hM.OpenSingleItemPanel(temp);  //send what kind of pickup it is to the HUD manager
+                                GO_PickupNext = null;
+                                break;
+                            }
                         }
                         else if (GO_PickupNext.layer == 15)    //if it's a container display it in the inventory
                         {
                             Container temp = GO_PickupNext.GetComponent<Container>();
                             hM.OpenContainerPanel(temp);
+                            GO_PickupNext = null;
+                            break;
                         }
                         else    //if it's the pod, open repair screen
                         {
                             hM.OpenRepairPodPanel();
+                            GO_PickupNext = null;
+                            break;
                         }
-
-
-                        GO_PickupNext = null;
-                        break;
+                        
                     }
                 }
             }
         }
+    }
+
+    public void PickupObject(GameObject obj)
+    {
+        Pickup toPickUp = obj.GetComponent<Pickup>();
+        GetComponent<PCInventory>().AddItemInventory(toPickUp);   //add item to inventory using PCInventory script
+        CmdPickupObject(obj);
+        hM.AddMessage("Picked up: " + toPickUp.itemName, true);
+        GO_PickupNext = null;
+    }
+
+    [Command]
+    void CmdPickupObject(GameObject obj)
+    {
+        obj.transform.parent = pcInvenTrans;    //add to PC Inventory in hierarchy
+        obj.GetComponent<Pickup>().particleSys.Stop();
+        obj.transform.GetComponent<Rigidbody>().isKinematic = true;
+        obj.transform.GetComponent<BoxCollider>().enabled = false;
+        obj.transform.GetComponent<MeshRenderer>().enabled = false;
+    }
+
+    [Command]
+    public void CmdDropObject(GameObject obj)
+    {
+        Vector3 tRot = new Vector3(30, Random.Range(0, 360), 0);    //generate random rotation to throw object
+        Vector3 tPos = transform.position + Vector3.up * 2;
+        obj.transform.position = tPos;
+        obj.transform.rotation = Quaternion.Euler(tRot);
+        obj.GetComponent<Rigidbody>().isKinematic = false;
+        obj.GetComponent<Pickup>().particleSys.Play();
+        obj.GetComponent<Rigidbody>().AddForce(obj.transform.TransformDirection(Vector3.up) * pickupThrowStrength);   //throw it a small distance next to the PC
+        obj.transform.parent = null;
+        obj.GetComponent<Collider>().enabled = true;
+        obj.GetComponent<MeshRenderer>().enabled = true;
     }
 
     public void SetNavSpeed(float mod)

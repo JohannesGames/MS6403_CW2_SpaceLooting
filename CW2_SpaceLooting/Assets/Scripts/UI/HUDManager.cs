@@ -4,10 +4,19 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Networking;
 
+public class QuickMessage
+{
+    public QuickMessage(string txt, float rTime)
+    {
+        displayMessage = txt;
+        removeTime = rTime;
+    }
+    public string displayMessage = " ";
+    public float removeTime;
+}
+
 public class HUDManager : MonoBehaviour
 {
-    public Image blurLayer;
-
     // Inventory Panel
     public Button closeInventoryButton;
     public AudioSource closeInventorySFX;
@@ -17,6 +26,9 @@ public class HUDManager : MonoBehaviour
     public RectTransform inventoryListContent;  //where the inventory content is (displayed) childed
     public List<ListItemInventory> listOfItemsInInventory = new List<ListItemInventory>();
     public ListItemInventory listItem;
+    public Sprite toolIcon;
+    public Sprite compIcon;
+    public Sprite boostIcon;
     //////////////
 
     // Single Item Panel
@@ -45,6 +57,14 @@ public class HUDManager : MonoBehaviour
 
     /////////////
 
+    // Quick Message Panel
+    public RectTransform quickMessagePanel;
+    public float displayTime = 3;
+    public Text msgPrefab;
+    List<QuickMessage> allCurrentMessages = new List<QuickMessage>();  //all messages currently displayed
+
+    /////////////
+
     public float pickupThrowStrength;   //the strength with which pickups are thrown from the player when dropped
 
     public PCControl pc;   //the local PC
@@ -61,6 +81,11 @@ public class HUDManager : MonoBehaviour
         closeSingleItemButton.onClick.AddListener(CloseSingleItem);
     }
 
+    void Update()
+    {
+        CheckMessages();
+    }
+
 
     void LateUpdate()
     {
@@ -70,7 +95,6 @@ public class HUDManager : MonoBehaviour
             menuActive = true;
 
         pc.isInMenu = menuActive;
-        blurLayer.gameObject.SetActive(menuActive);
     }
 
     #region OPEN UI ELEMENTS
@@ -82,8 +106,22 @@ public class HUDManager : MonoBehaviour
         temp.itemData = sItem;
         temp.itemInWorld = sItem.gameObject;
 
-        if (sItem.pickupType != Pickup.ItemType.boost)  //only show Consume button for boosts
-            temp.itemButtonConsume.gameObject.SetActive(false);
+        switch (sItem.pickupType)
+        {
+            case Pickup.ItemType.tool:
+                temp.itemButtonConsume.gameObject.SetActive(false);     //only show Consume button for boosts
+                temp.itemImage.sprite = toolIcon;
+                break;
+            case Pickup.ItemType.component:
+                temp.itemButtonConsume.gameObject.SetActive(false);     //only show Consume button for boosts
+                temp.itemImage.sprite = compIcon;
+                break;
+            case Pickup.ItemType.boost:
+                temp.itemImage.sprite = boostIcon;
+                break;
+            default:
+                break;
+        }
 
         singleItemPanel.gameObject.SetActive(true); //show panel
         closeSingleItemButton.gameObject.SetActive(true);   //show close inventory button
@@ -189,12 +227,13 @@ public class HUDManager : MonoBehaviour
 
         for (int i = 0; i < pc.pcInvenTrans.childCount; i++)    //move from PC Inventory transform in hierarchy to main hierarchy with no parent
         {
-            if (pc.pcInvenTrans.GetChild(i).GetComponent<Pickup>().itemName == tItem.itemName)
+            if (pc.pcInvenTrans.GetChild(i).GetComponent<Pickup>().itemName == tItem.itemName)  //find item in PC hierarchy
             {
                 Transform invTrans = pc.pcInvenTrans.GetChild(i);
                 invTrans.position = tPos;
                 invTrans.rotation = Quaternion.Euler(tRot);
-                invTrans.gameObject.SetActive(true);
+                invTrans.GetComponent<Rigidbody>().isKinematic = false;
+                invTrans.GetComponent<Pickup>().particleSys.Play();
                 invTrans.GetComponent<Rigidbody>().AddForce(invTrans.TransformDirection(Vector3.up) * pickupThrowStrength);   //throw it a small distance next to the PC
                 invTrans.parent = null;
                 invTrans.GetComponent<Collider>().enabled = true;
@@ -265,12 +304,26 @@ public class HUDManager : MonoBehaviour
             {
                 SingleItemWorld temp = Instantiate(containerItem, containerListContent);
                 temp.itemButtonPickup.GetComponent<PickupItemButton>().hm = this;
-
-                if (item.pickupType != Pickup.ItemType.boost)  //only show Consume button for boosts
-                    temp.itemButtonConsume.gameObject.SetActive(false);
-
                 temp.itemData = item;
                 temp.itemInWorld = item.gameObject;
+
+                switch (item.pickupType)
+                {
+                    case Pickup.ItemType.tool:
+                        temp.itemButtonConsume.gameObject.SetActive(false);     //only show Consume button for boosts
+                        temp.itemImage.sprite = toolIcon;
+                        break;
+                    case Pickup.ItemType.component:
+                        temp.itemButtonConsume.gameObject.SetActive(false);     //only show Consume button for boosts
+                        temp.itemImage.sprite = compIcon;
+                        break;
+                    case Pickup.ItemType.boost:
+                        temp.itemImage.sprite = boostIcon;
+                        break;
+                    default:
+                        break;
+                }
+
             }
         }
     }
@@ -280,7 +333,7 @@ public class HUDManager : MonoBehaviour
         ClearInventoryList();
         pcInv.UpdateInventory();
         int tIndex = 0;
-        foreach (Pickup item in pcInv.inInventory)  //used foreach because its prettier
+        foreach (Pickup item in pcInv.inInventory)  //used foreach because its slightly neater
         {
             if (!inRepairPodScreen)
             {
@@ -288,6 +341,22 @@ public class HUDManager : MonoBehaviour
                 temp.hm = this;
                 listOfItemsInInventory.Add(temp);
                 listOfItemsInInventory[tIndex].itemData = item;
+
+                switch (temp.itemData.pickupType)
+                {
+                    case Pickup.ItemType.tool:
+                        temp.itemImage.sprite = toolIcon;
+                        break;
+                    case Pickup.ItemType.component:
+                        temp.itemImage.sprite = compIcon;
+                        break;
+                    case Pickup.ItemType.boost:
+                        temp.itemImage.sprite = boostIcon;
+                        break;
+                    default:
+                        break;
+                }
+
                 tIndex++;
             }
             else    //if on repair screen
@@ -310,6 +379,22 @@ public class HUDManager : MonoBehaviour
                         temp.hm = this;
                         listOfItemsInInventory.Add(temp);
                         listOfItemsInInventory[tIndex].itemData = item;
+
+                        switch (temp.itemData.pickupType)
+                        {
+                            case Pickup.ItemType.tool:
+                                temp.itemImage.sprite = toolIcon;
+                                break;
+                            case Pickup.ItemType.component:
+                                temp.itemImage.sprite = compIcon;
+                                break;
+                            case Pickup.ItemType.boost:
+                                temp.itemImage.sprite = boostIcon;
+                                break;
+                            default:
+                                break;
+                        }
+
                         tIndex++;
                     }
                 }
@@ -338,6 +423,36 @@ public class HUDManager : MonoBehaviour
             }
         }
         listOfItemsInInventory.Clear();
+    }
+
+    void CheckMessages()
+    {
+        for (int i = allCurrentMessages.Count - 1; i >= 0; i--)
+        {
+            if (Time.time >= allCurrentMessages[i].removeTime)
+            {
+                for (int j = 0; j < quickMessagePanel.childCount; j++)
+                {
+                    if (quickMessagePanel.GetChild(j)
+                        && quickMessagePanel.GetChild(j).GetComponent<Text>().text == allCurrentMessages[i].displayMessage)
+                    {
+                        Destroy(quickMessagePanel.GetChild(j).gameObject);
+                        break;
+                    }
+                }
+                allCurrentMessages.Remove(allCurrentMessages[i]);
+            }
+        }
+    }
+
+    public void AddMessage(string msg, bool isPC)
+    {
+        QuickMessage qm = new QuickMessage(msg, Time.time + displayTime);
+        allCurrentMessages.Add(qm);
+        Text newMessage = Instantiate(msgPrefab, quickMessagePanel);
+        newMessage.text = msg;
+        if (isPC)
+            newMessage.color = Color.white;
     }
 
     #endregion

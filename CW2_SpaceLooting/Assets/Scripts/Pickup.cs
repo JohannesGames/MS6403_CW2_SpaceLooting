@@ -21,4 +21,12 @@ public class Pickup : MonoBehaviour
     }
 
     public ItemType pickupType;
+
+    [HideInInspector]
+    public ParticleSystem particleSys;
+
+    void Start()
+    {
+        particleSys = GetComponentInChildren<ParticleSystem>();
+    }
 }
