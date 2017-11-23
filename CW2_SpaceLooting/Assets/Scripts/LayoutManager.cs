@@ -105,9 +105,35 @@ public class LayoutManager : NetworkBehaviour
             }
         }
 
+        int[] serialsUsed = new int[playerNumber * toolsRequired * 4];
+
         for (int i = 0; i < toBeSpawned.Length; i++)    //spawn chosen tools
         {
             var PU = Instantiate(pickupPrefab);
+
+            //// is serial unique?
+            bool repeated = false;
+            do
+            {
+                PU.serial = Random.Range(1000000, 999999);
+                for (int j = 0; j < serialsUsed.Length; j++)
+                {
+                    if (PU.serial == serialsUsed[j])
+                    {
+                        repeated = true;
+                        break;
+                    }
+                }
+            } while (repeated);
+            ////
+
+            //// add new serial to serialsUsed array
+            for (int j = 0; j < serialsUsed.Length; j++)
+            {
+                if (serialsUsed[j] == 0) serialsUsed[j] = PU.serial;
+            }
+            ////
+
             PU.pickupType = Pickup.ItemType.tool;
             PU.itemName = toBeSpawned[i].itemName;
             PU.name = toBeSpawned[i].itemName + " - TOOL";

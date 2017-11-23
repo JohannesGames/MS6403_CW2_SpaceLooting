@@ -10,7 +10,7 @@ public class RepairPod : MonoBehaviour
     public RectTransform compsPanelBottom;
     public PodListItem[] toolsRequired;  //the tools required [count set in inspector]
     public RectTransform toolsPanel;
-    public Transform itemInventory;  //where the items are kept in the hierarchy
+    public List<InventoryPickup> inRepairScreen = new List<InventoryPickup>();
     public PodListItem itemSlot;
     HUDManager hm;
 
@@ -47,17 +47,17 @@ public class RepairPod : MonoBehaviour
 
     }
 
-    public void AddItem(Pickup tItem)
+    public void AddItem(InventoryPickup tItem)
     {
-        if (tItem.pickupType == Pickup.ItemType.component)  //if it's a component add it to the array
+        if (tItem.pickupType == InventoryPickup.ItemType.component)  //if it's a component add it to the array
         {
             for (int i = 0; i < componentsRequired.Length; i++)
             {
-                if (!componentsRequired[i].itemInSlot)  //if there's space add it to the array and the pod in the hierarchy
+                if (componentsRequired[i].itemInSlot == null)  //if there's space add it to the array and the pod in the hierarchy
                 {
                     tItem.transform.parent = itemInventory;
                     componentsRequired[i].itemInSlot = tItem;
-                    componentsRequired[i].removeButton.GetComponentInChildren<Text>().text = tItem.itemName;
+                    componentsRequired[i].removeButton.GetComponentInChildren<Text>().text = tItem.itemName;    // display item name in repair UI TODO make prettier
                     return;
                 }
             }
@@ -101,9 +101,9 @@ public class RepairPod : MonoBehaviour
             toolsRequired[i].removeButton.GetComponentInChildren<Text>().text = "n/a";
     }
 
-    public bool CheckPickup(Pickup tItem)
+    public bool CheckPickup(InventoryPickup tItem)
     {
-        if (tItem.pickupType == Pickup.ItemType.component)  //if it's a component
+        if (tItem.pickupType == InventoryPickup.ItemType.component)  //if it's a component
         {
             for (int i = 0; i < componentsRequired.Length; i++)
             {

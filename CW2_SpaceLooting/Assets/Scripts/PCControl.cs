@@ -22,6 +22,7 @@ public class PCControl : NetworkBehaviour
     public List<Collider> CO_InRadius = new List<Collider>();
     public float FL_Reach = 1.5f;   //reach of PC
     public Transform pcInvenTrans;  //where the inventory is in the hierarchy
+    public Pickup pickupPrefab;
     public Color outlineColour;
     public float pickupThrowStrength = 500;
 
@@ -240,18 +241,22 @@ public class PCControl : NetworkBehaviour
     [Command]
     void CmdPickupObject(GameObject obj)
     {
-        obj.transform.parent = pcInvenTrans;    //add to PC Inventory in hierarchy
-        obj.GetComponent<Pickup>().particleSys.Stop();
-        obj.transform.GetComponent<Rigidbody>().isKinematic = true;
-        obj.transform.GetComponent<BoxCollider>().enabled = false;
-        obj.transform.GetComponent<MeshRenderer>().enabled = false;
+        Destroy(obj);
+        //obj.transform.parent = pcInvenTrans;    //add to PC Inventory in hierarchy
+        //obj.GetComponent<Pickup>().particleSys.Stop();
+        //obj.transform.GetComponent<Rigidbody>().isKinematic = true;
+        //obj.transform.GetComponent<BoxCollider>().enabled = false;
+        //obj.transform.GetComponent<MeshRenderer>().enabled = false;
     }
 
     [Command]
-    public void CmdDropObject(GameObject obj)
+    public void CmdDropObject(Pickup obj)
     {
         Vector3 tRot = new Vector3(30, Random.Range(0, 360), 0);    //generate random rotation to throw object
         Vector3 tPos = transform.position + Vector3.up * 2;
+
+        Instantiate(pickupPrefab, tPos, Quaternion.identity);
+
         obj.transform.position = tPos;
         obj.transform.rotation = Quaternion.Euler(tRot);
         obj.GetComponent<Rigidbody>().isKinematic = false;

@@ -4,10 +4,11 @@ using System.Collections;
 
 public class PodListItem : MonoBehaviour
 {
-    public Pickup itemInSlot;
+    public InventoryPickup itemInSlot;
     public Button removeButton;
     public int listIndex = -1;
     RepairPod rp;
+    public Image icon;
     // Use this for initialization
     void Start()
     {
@@ -24,9 +25,9 @@ public class PodListItem : MonoBehaviour
     public void RemoveFromSlot()
     {
         int type;
-        if (itemInSlot)
+        if (itemInSlot == null)
         {
-            if (itemInSlot.pickupType == Pickup.ItemType.component)
+            if (itemInSlot.pickupType == InventoryPickup.ItemType.component)
                 type = 0;
             else
                 type = 1;

@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class ListItemInventory : MonoBehaviour
 {
-    public Pickup itemData;
+    public InventoryPickup itemData;
     public Image itemImage;
     public Text itemName;
     public Button itemButtonDrop;
@@ -17,7 +17,7 @@ public class ListItemInventory : MonoBehaviour
     void Start()
     {
         itemName.text = itemData.itemName;
-        if (itemData.pickupType != Pickup.ItemType.boost)   //if its not a consumeable hide the "consume" button
+        if (itemData.pickupType != InventoryPickup.ItemType.boost)   //if its not a consumeable hide the "consume" button
             itemButtonConsume.gameObject.SetActive(false);
 
         ShowButtons();

@@ -25,6 +25,9 @@ public class Pickup : MonoBehaviour
     [HideInInspector]
     public ParticleSystem particleSys;
 
+    [HideInInspector]
+    public int serial;
+
     void Start()
     {
         particleSys = GetComponentInChildren<ParticleSystem>();

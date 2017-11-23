@@ -6,7 +6,7 @@ public class Container : MonoBehaviour
 {
     public Transform inventoryLocation;   //where the items in the container are in the hierarchy
     [HideInInspector]
-    public List<Pickup> inContainer = new List<Pickup>();
+    public List<InventoryPickup> inContainer = new List<InventoryPickup>();
 
     void Start()
     {
@@ -18,11 +18,8 @@ public class Container : MonoBehaviour
 
     }
 
-    public void CheckForItems()    //populate the inContainer list with items
+    public void AddItemContainer(InventoryPickup tItem)
     {
-        foreach (Pickup item in inventoryLocation.GetComponentsInChildren<Pickup>())
-        {
-            inContainer.Add(item);
-        }
+        inContainer.Add(tItem);
     }
 }

@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PCInventory : MonoBehaviour
 {
-    public List<Pickup> inInventory = new List<Pickup>();  //where all the PC's items are stored
+    public List<InventoryPickup> inInventory = new List<InventoryPickup>();  //where all the PC's items are stored
     PCControl pc;
 
     void Start()
@@ -21,26 +21,39 @@ public class PCInventory : MonoBehaviour
     public void AddItemInventory(Pickup tItem)  //called by button in UI
     {
         //Pickup temp = Instantiate(tItem, pc.pcInventory.transform);
-        inInventory.Add(tItem);
+        switch (tItem.pickupType)
+        {
+            case Pickup.ItemType.tool:
+                inInventory.Add(new InventoryPickup(tItem.itemName, InventoryPickup.ItemType.tool, tItem.serial));
+                break;
+            case Pickup.ItemType.component:
+                inInventory.Add(new InventoryPickup(tItem.itemName, InventoryPickup.ItemType.component, tItem.serial));
+                break;
+            case Pickup.ItemType.boost:
+                inInventory.Add(new InventoryPickup(tItem.itemName, InventoryPickup.ItemType.boost, tItem.serial));
+                break;
+            default:
+                break;
+        }
     }
     
     public void UpdateInventory()
     {
         inInventory.Clear();
 
-        foreach (Pickup item in pc.pcInvenTrans.GetComponentsInChildren<Pickup>())
-        {
-            inInventory.Add(item);
-        }
+        //foreach (Pickup item in pc.pcInvenTrans.GetComponentsInChildren<Pickup>())
+        //{
+        //    inInventory.Add(item);
+        //}
     }
 
     void CheckEncumbrance()
     {
         int pickupsInInventory = 0;
 
-        foreach (Pickup item in inInventory)
+        foreach (InventoryPickup item in inInventory)
         {
-            if (item.pickupType == Pickup.ItemType.component || item.pickupType == Pickup.ItemType.tool)    //carrying a tool or a component adds to encumbrance
+            if (item.pickupType == InventoryPickup.ItemType.component || item.pickupType == InventoryPickup.ItemType.tool)    //carrying a tool or a component adds to encumbrance
             {
                 pickupsInInventory++;
             }

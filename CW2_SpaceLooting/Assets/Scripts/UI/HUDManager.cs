@@ -147,7 +147,6 @@ public class HUDManager : MonoBehaviour
     {
         openContainer = con;
         con.inContainer.Clear();
-        con.CheckForItems();
         UpdateContainer();
 
         containerPanel.gameObject.SetActive(true);
@@ -220,47 +219,47 @@ public class HUDManager : MonoBehaviour
 
     #region MOVE ITEMS
 
-    public void DropInventoryItem(Pickup tItem)
+    public void DropInventoryItem(InventoryPickup iPick)
     {
         Vector3 tRot = new Vector3(30, Random.Range(0, 360), 0);    //generate random rotation to throw object
         Vector3 tPos = pc.transform.position + Vector3.up * 2;
 
-        for (int i = 0; i < pc.pcInvenTrans.childCount; i++)    //move from PC Inventory transform in hierarchy to main hierarchy with no parent
-        {
-            if (pc.pcInvenTrans.GetChild(i).GetComponent<Pickup>().itemName == tItem.itemName)  //find item in PC hierarchy
-            {
-                Transform invTrans = pc.pcInvenTrans.GetChild(i);
-                invTrans.position = tPos;
-                invTrans.rotation = Quaternion.Euler(tRot);
-                invTrans.GetComponent<Rigidbody>().isKinematic = false;
-                invTrans.GetComponent<Pickup>().particleSys.Play();
-                invTrans.GetComponent<Rigidbody>().AddForce(invTrans.TransformDirection(Vector3.up) * pickupThrowStrength);   //throw it a small distance next to the PC
-                invTrans.parent = null;
-                invTrans.GetComponent<Collider>().enabled = true;
-                invTrans.GetComponent<MeshRenderer>().enabled = true;
-            }
-        }
+        //for (int i = 0; i < pc.pcInvenTrans.childCount; i++)    //move from PC Inventory transform in hierarchy to main hierarchy with no parent
+        //{
+        //    if (pc.pcInvenTrans.GetChild(i).GetComponent<Pickup>().itemName == tItem.itemName)  //find item in PC hierarchy
+        //    {
+        //        Transform invTrans = pc.pcInvenTrans.GetChild(i);
+        //        invTrans.position = tPos;
+        //        invTrans.rotation = Quaternion.Euler(tRot);
+        //        invTrans.GetComponent<Rigidbody>().isKinematic = false;
+        //        invTrans.GetComponent<Pickup>().particleSys.Play();
+        //        invTrans.GetComponent<Rigidbody>().AddForce(invTrans.TransformDirection(Vector3.up) * pickupThrowStrength);   //throw it a small distance next to the PC
+        //        invTrans.parent = null;
+        //        invTrans.GetComponent<Collider>().enabled = true;
+        //        invTrans.GetComponent<MeshRenderer>().enabled = true;
+        //    }
+        //}
 
-        if (listOfItemsInInventory.Count > 0)    //then delete it from the hierarchy and the PC inventory list
-        {
-            for (int i = 0; i < listOfItemsInInventory.Count; i++)   //remove from UI hierarchy
-            {
-                if (listOfItemsInInventory[i].itemData.itemName == tItem.itemName)
-                {
-                    Destroy(listOfItemsInInventory[i].gameObject);   //remove from UI hierarchy
-                    listOfItemsInInventory.RemoveAt(i);
-                    for (int j = 0; j < pcInv.inInventory.Count; j++)   //remove from PCInventory list<>
-                    {
-                        if (pcInv.inInventory[j].itemName == tItem.itemName)
-                            pcInv.inInventory.RemoveAt(j);  //remove from PCInventory list<>
-                    }
-                    break;
-                }
-            }
-        }
+        //if (listOfItemsInInventory.Count > 0)    //then delete it from the hierarchy and the PC inventory list
+        //{
+        //    for (int i = 0; i < listOfItemsInInventory.Count; i++)   //remove from UI hierarchy
+        //    {
+        //        if (listOfItemsInInventory[i].itemData.itemName == tItem.itemName)
+        //        {
+        //            Destroy(listOfItemsInInventory[i].gameObject);   //remove from UI hierarchy
+        //            listOfItemsInInventory.RemoveAt(i);
+        //            for (int j = 0; j < pcInv.inInventory.Count; j++)   //remove from PCInventory list<>
+        //            {
+        //                if (pcInv.inInventory[j].itemName == tItem.itemName)
+        //                    pcInv.inInventory.RemoveAt(j);  //remove from PCInventory list<>
+        //            }
+        //            break;
+        //        }
+        //    }
+        //}
     }
 
-    public void MoveToContainer(Pickup tItem)
+    public void MoveToContainer(InventoryPickup tItem)
     {
         for (int i = 0; i < pc.pcInvenTrans.childCount; i++)    //move from PC Inventory transform in hierarchy to the container's inventory
         {
@@ -299,25 +298,26 @@ public class HUDManager : MonoBehaviour
         if (openContainer)
         {
             ClearContainerList();
-            openContainer.CheckForItems();
-            foreach (Pickup item in openContainer.inContainer)
+            foreach (InventoryPickup item in openContainer.inContainer)
             {
                 SingleItemWorld temp = Instantiate(containerItem, containerListContent);
+                InventoryPickup tempData = GetComponent<InventoryPickup>();
+                tempData.itemName = temp.name;
+                tempData.pickupType = item.pickupType;
+                tempData.serial = item.serial;
                 temp.itemButtonPickup.GetComponent<PickupItemButton>().hm = this;
-                temp.itemData = item;
-                temp.itemInWorld = item.gameObject;
 
                 switch (item.pickupType)
                 {
-                    case Pickup.ItemType.tool:
+                    case InventoryPickup.ItemType.tool:
                         temp.itemButtonConsume.gameObject.SetActive(false);     //only show Consume button for boosts
                         temp.itemImage.sprite = toolIcon;
                         break;
-                    case Pickup.ItemType.component:
+                    case InventoryPickup.ItemType.component:
                         temp.itemButtonConsume.gameObject.SetActive(false);     //only show Consume button for boosts
                         temp.itemImage.sprite = compIcon;
                         break;
-                    case Pickup.ItemType.boost:
+                    case InventoryPickup.ItemType.boost:
                         temp.itemImage.sprite = boostIcon;
                         break;
                     default:
@@ -332,32 +332,32 @@ public class HUDManager : MonoBehaviour
     {
         ClearInventoryList();
         pcInv.UpdateInventory();
-        int tIndex = 0;
-        foreach (Pickup item in pcInv.inInventory)  //used foreach because its slightly neater
+        foreach (InventoryPickup item in pcInv.inInventory)  //used foreach because its slightly neater
         {
             if (!inRepairPodScreen)
             {
                 ListItemInventory temp = Instantiate(listItem, inventoryListContent);   //create new UI element in the inventory list
+                InventoryPickup tempData = temp.GetComponent<InventoryPickup>();
                 temp.hm = this;
                 listOfItemsInInventory.Add(temp);
-                listOfItemsInInventory[tIndex].itemData = item;
+                tempData.itemName = item.itemName;
+                tempData.pickupType = item.pickupType;
+                tempData.serial = item.serial;
 
-                switch (temp.itemData.pickupType)
+                switch (tempData.pickupType)    // set the relevant icon for the object
                 {
-                    case Pickup.ItemType.tool:
+                    case InventoryPickup.ItemType.tool:
                         temp.itemImage.sprite = toolIcon;
                         break;
-                    case Pickup.ItemType.component:
+                    case InventoryPickup.ItemType.component:
                         temp.itemImage.sprite = compIcon;
                         break;
-                    case Pickup.ItemType.boost:
+                    case InventoryPickup.ItemType.boost:
                         temp.itemImage.sprite = boostIcon;
                         break;
                     default:
                         break;
                 }
-
-                tIndex++;
             }
             else    //if on repair screen
             {
@@ -373,29 +373,31 @@ public class HUDManager : MonoBehaviour
                                 repeat = true;
                         }
                     }
-                    if (!repeat)
+                    if (!repeat)    // no other of this pickup have been added to repair screen
                     {
                         ListItemInventory temp = Instantiate(listItem, inventoryListContent);   //create new UI element in the inventory list
                         temp.hm = this;
+                        InventoryPickup tempData = temp.GetComponent<InventoryPickup>();
+                        temp.hm = this;
                         listOfItemsInInventory.Add(temp);
-                        listOfItemsInInventory[tIndex].itemData = item;
+                        tempData.itemName = item.itemName;
+                        tempData.pickupType = item.pickupType;
+                        tempData.serial = item.serial;
 
-                        switch (temp.itemData.pickupType)
+                        switch (tempData.pickupType)    // set the relevant icon for the object
                         {
-                            case Pickup.ItemType.tool:
+                            case InventoryPickup.ItemType.tool:
                                 temp.itemImage.sprite = toolIcon;
                                 break;
-                            case Pickup.ItemType.component:
+                            case InventoryPickup.ItemType.component:
                                 temp.itemImage.sprite = compIcon;
                                 break;
-                            case Pickup.ItemType.boost:
+                            case InventoryPickup.ItemType.boost:
                                 temp.itemImage.sprite = boostIcon;
                                 break;
                             default:
                                 break;
                         }
-
-                        tIndex++;
                     }
                 }
             }
