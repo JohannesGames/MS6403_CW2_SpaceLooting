@@ -33,12 +33,14 @@ public class RepairPod : MonoBehaviour
                 componentsRequired[i] = Instantiate(itemSlot, compsPanelBottom);
             }
             componentsRequired[i].listIndex = i;
+            componentsRequired[i].podItemType = InventoryPickup.ItemType.component;
         }
 
         for (int i = 0; i < toolsRequired.Length; i++)
         {
             toolsRequired[i] = Instantiate(itemSlot, toolsPanel);
             toolsRequired[i].listIndex = i;
+            toolsRequired[i].podItemType = InventoryPickup.ItemType.tool;
         }
     }
 
@@ -55,7 +57,8 @@ public class RepairPod : MonoBehaviour
             {
                 if (componentsRequired[i].itemInSlot == null)  //if there's space add it to the array and the pod in the hierarchy
                 {
-                    tItem.transform.parent = itemInventory;
+                    inRepairScreen.Add(new InventoryPickup(tItem));
+                    hm.pcInv.inInventory.Remove(tItem);
                     componentsRequired[i].itemInSlot = tItem;
                     componentsRequired[i].removeButton.GetComponentInChildren<Text>().text = tItem.itemName;    // display item name in repair UI TODO make prettier
                     return;
@@ -66,9 +69,10 @@ public class RepairPod : MonoBehaviour
         {
             for (int i = 0; i < toolsRequired.Length; i++)
             {
-                if (!toolsRequired[i].itemInSlot)  //if there's space add it to the array and the pod in the hierarchy
+                if (toolsRequired[i].itemInSlot == null)  //if there's space add it to the array and the pod in the hierarchy
                 {
-                    tItem.transform.parent = itemInventory;
+                    inRepairScreen.Add(new InventoryPickup(tItem));
+                    hm.pcInv.inInventory.Remove(tItem);
                     toolsRequired[i].itemInSlot = tItem;
                     toolsRequired[i].removeButton.GetComponentInChildren<Text>().text = tItem.itemName;
                     return;
@@ -77,19 +81,22 @@ public class RepairPod : MonoBehaviour
         }
     }
 
-    public void RemoveItem(int index, int type) //type = 1 means tool, = 0 means component
+    public void RemoveItem(int index, InventoryPickup.ItemType tType) //type = 1 means tool, = 0 means component
     {
-        if (type == 0)  //if it's a component
+        switch (tType)
         {
-            componentsRequired[index].itemInSlot.transform.parent = hm.pc.pcInvenTrans;
-            componentsRequired[index].itemInSlot = null;
-            componentsRequired[index].removeButton.GetComponentInChildren<Text>().text = "n/a";
-        }
-        else    //if it's a tool
-        {
-            toolsRequired[index].itemInSlot.transform.parent = hm.pc.pcInvenTrans;
-            toolsRequired[index].itemInSlot = null;
-            toolsRequired[index].removeButton.GetComponentInChildren<Text>().text = "n/a";
+            case InventoryPickup.ItemType.tool:
+                hm.pcInv.inInventory.Add(new InventoryPickup(toolsRequired[index].itemInSlot));
+                toolsRequired[index].itemInSlot = null;
+                toolsRequired[index].removeButton.GetComponentInChildren<Text>().text = "n/a";
+                break;
+            case InventoryPickup.ItemType.component:
+                hm.pcInv.inInventory.Add(new InventoryPickup(componentsRequired[index].itemInSlot));
+                componentsRequired[index].itemInSlot = null;
+                componentsRequired[index].removeButton.GetComponentInChildren<Text>().text = "n/a";
+                break;
+            default:
+                break;
         }
     }
 
@@ -107,7 +114,7 @@ public class RepairPod : MonoBehaviour
         {
             for (int i = 0; i < componentsRequired.Length; i++)
             {
-                if (componentsRequired[i].itemInSlot)
+                if (componentsRequired[i].itemInSlot != null)
                 {
                     if (componentsRequired[i].itemInSlot.itemName == tItem.itemName)  //if it's the same name the item is not needed and does not need to be displayed
                         return false;
@@ -118,7 +125,7 @@ public class RepairPod : MonoBehaviour
         {
             for (int i = 0; i < toolsRequired.Length; i++)
             {
-                if (toolsRequired[i].itemInSlot)
+                if (toolsRequired[i].itemInSlot != null)
                 {
                     if (toolsRequired[i].itemInSlot.itemName == tItem.itemName)  //if it's the same name the item is not needed and does not need to be displayed
                         return false;

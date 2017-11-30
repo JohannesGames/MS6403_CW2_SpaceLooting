@@ -77,30 +77,26 @@ public class LayoutManager : NetworkBehaviour
     {
         ReadToolData();
 
-        List<prePickup> pickupPool = new List<prePickup>();   //the possible pool of spawned pickups
+        List<InventoryPickup> pickupPool = new List<InventoryPickup>();   //the possible pool of spawned pickups
         foreach (PickupSpawner item in spawnList)
         {
             for (int i = 0; i < item.rarity; i++)       //rarity defines how many of this object go into the potential spawn pool
             {
-                prePickup PU = new prePickup();
-                PU.itemName = item.pickupName;
-                PU.pickupType = prePickup.ItemType.tool;
+                InventoryPickup PU = new InventoryPickup(item.pickupName, InventoryPickup.ItemType.tool, -1);
                 pickupPool.Add(PU);
             }
         }
 
         //Spawn the correct amount of tools in the various containers and spawn points
 
-        prePickup[] toBeSpawned = new prePickup[playerNumber * toolsRequired * 4];    //this contains the chosen pickups to be spawned around the map
+        InventoryPickup[] toBeSpawned = new InventoryPickup[playerNumber * toolsRequired * 4];    //this contains the chosen pickups to be spawned around the map
 
         for (int i = 0; i < toBeSpawned.Length; i++)    
         {
             if (toBeSpawned[i] == null) //while there are still spaces in the array add Pickups
             {
                 int index = Random.Range(0, pickupPool.Count - 1);
-                prePickup PU = new prePickup();
-                PU.itemName = pickupPool[index].itemName;
-                PU.pickupType = prePickup.ItemType.tool;
+                InventoryPickup PU = new InventoryPickup(pickupPool[index].itemName, InventoryPickup.ItemType.tool, -1);
                 toBeSpawned[i] = PU;
             }
         }
@@ -134,7 +130,7 @@ public class LayoutManager : NetworkBehaviour
             }
             ////
 
-            PU.pickupType = Pickup.ItemType.tool;
+            PU.pickupType = InventoryPickup.ItemType.tool;
             PU.itemName = toBeSpawned[i].itemName;
             PU.name = toBeSpawned[i].itemName + " - TOOL";
             NetworkServer.Spawn(PU.gameObject);

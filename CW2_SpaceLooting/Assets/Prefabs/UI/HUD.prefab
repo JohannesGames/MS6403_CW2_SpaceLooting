@@ -911,7 +911,6 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   toolsPanel: {fileID: 224992925254863382}
-  itemInventory: {fileID: 0}
   itemSlot: {fileID: 114127438087040818, guid: b12798824787c0347add2324ce303ffb, type: 2}
 --- !u!114 &114072231024634540
 MonoBehaviour:

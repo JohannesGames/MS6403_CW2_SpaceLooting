@@ -232,7 +232,7 @@ public class PCControl : NetworkBehaviour
     public void PickupObject(GameObject obj)
     {
         Pickup toPickUp = obj.GetComponent<Pickup>();
-        GetComponent<PCInventory>().AddItemInventory(toPickUp);   //add item to inventory using PCInventory script
+        GetComponent<PCInventory>().AddItemInventory(new InventoryPickup(toPickUp));   //add item to inventory using PCInventory script
         CmdPickupObject(obj);
         hM.AddMessage("Picked up: " + toPickUp.itemName, true);
         GO_PickupNext = null;
@@ -250,21 +250,20 @@ public class PCControl : NetworkBehaviour
     }
 
     [Command]
-    public void CmdDropObject(Pickup obj)
+    public void CmdDropObject(InventoryPickup obj)
     {
         Vector3 tRot = new Vector3(30, Random.Range(0, 360), 0);    //generate random rotation to throw object
         Vector3 tPos = transform.position + Vector3.up * 2;
 
-        Instantiate(pickupPrefab, tPos, Quaternion.identity);
+        Pickup pu = Instantiate(pickupPrefab, tPos, Quaternion.identity);
 
-        obj.transform.position = tPos;
-        obj.transform.rotation = Quaternion.Euler(tRot);
-        obj.GetComponent<Rigidbody>().isKinematic = false;
-        obj.GetComponent<Pickup>().particleSys.Play();
-        obj.GetComponent<Rigidbody>().AddForce(obj.transform.TransformDirection(Vector3.up) * pickupThrowStrength);   //throw it a small distance next to the PC
-        obj.transform.parent = null;
-        obj.GetComponent<Collider>().enabled = true;
-        obj.GetComponent<MeshRenderer>().enabled = true;
+        pu.transform.position = tPos;
+        pu.transform.rotation = Quaternion.Euler(tRot);
+        pu.GetComponent<Rigidbody>().isKinematic = false;
+        pu.GetComponent<Pickup>().particleSys.Play();
+        pu.GetComponent<Rigidbody>().AddForce(pu.transform.TransformDirection(Vector3.up) * pickupThrowStrength);   //throw it a small distance next to the PC
+        pu.GetComponent<Collider>().enabled = true;
+        pu.GetComponent<MeshRenderer>().enabled = true;
     }
 
     public void SetNavSpeed(float mod)

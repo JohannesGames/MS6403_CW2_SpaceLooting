@@ -18,18 +18,17 @@ public class PCInventory : MonoBehaviour
         CheckEncumbrance();
     }
 
-    public void AddItemInventory(Pickup tItem)  //called by button in UI
+    public void AddItemInventory(InventoryPickup tItem)  //called by button in UI
     {
-        //Pickup temp = Instantiate(tItem, pc.pcInventory.transform);
         switch (tItem.pickupType)
         {
-            case Pickup.ItemType.tool:
+            case InventoryPickup.ItemType.tool:
                 inInventory.Add(new InventoryPickup(tItem.itemName, InventoryPickup.ItemType.tool, tItem.serial));
                 break;
-            case Pickup.ItemType.component:
+            case InventoryPickup.ItemType.component:
                 inInventory.Add(new InventoryPickup(tItem.itemName, InventoryPickup.ItemType.component, tItem.serial));
                 break;
-            case Pickup.ItemType.boost:
+            case InventoryPickup.ItemType.boost:
                 inInventory.Add(new InventoryPickup(tItem.itemName, InventoryPickup.ItemType.boost, tItem.serial));
                 break;
             default:

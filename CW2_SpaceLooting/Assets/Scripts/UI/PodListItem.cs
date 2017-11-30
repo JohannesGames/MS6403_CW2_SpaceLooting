@@ -9,6 +9,7 @@ public class PodListItem : MonoBehaviour
     public int listIndex = -1;
     RepairPod rp;
     public Image icon;
+    public InventoryPickup.ItemType podItemType;
     // Use this for initialization
     void Start()
     {
@@ -24,14 +25,9 @@ public class PodListItem : MonoBehaviour
 
     public void RemoveFromSlot()
     {
-        int type;
         if (itemInSlot == null)
         {
-            if (itemInSlot.pickupType == InventoryPickup.ItemType.component)
-                type = 0;
-            else
-                type = 1;
-            rp.RemoveItem(listIndex, type);
+            rp.RemoveItem(listIndex, podItemType);
             rp.GetComponent<HUDManager>().UpdateInventory();
         }
     }

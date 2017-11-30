@@ -75,7 +75,6 @@ public class HUDManager : MonoBehaviour
     void Start()
     {
         rp = GetComponent<RepairPod>();
-        rp.itemInventory = pc.podInventory;
         openInventoryButton.onClick.AddListener(OpenInventoryPanel);
         closeInventoryButton.onClick.AddListener(CloseInventory);
         closeSingleItemButton.onClick.AddListener(CloseSingleItem);
@@ -108,15 +107,15 @@ public class HUDManager : MonoBehaviour
 
         switch (sItem.pickupType)
         {
-            case Pickup.ItemType.tool:
+            case InventoryPickup.ItemType.tool:
                 temp.itemButtonConsume.gameObject.SetActive(false);     //only show Consume button for boosts
                 temp.itemImage.sprite = toolIcon;
                 break;
-            case Pickup.ItemType.component:
+            case InventoryPickup.ItemType.component:
                 temp.itemButtonConsume.gameObject.SetActive(false);     //only show Consume button for boosts
                 temp.itemImage.sprite = compIcon;
                 break;
-            case Pickup.ItemType.boost:
+            case InventoryPickup.ItemType.boost:
                 temp.itemImage.sprite = boostIcon;
                 break;
             default:
@@ -205,10 +204,13 @@ public class HUDManager : MonoBehaviour
         inRepairPodScreen = false;
         repairPodPanel.gameObject.SetActive(false);
         rp.ResetText();
-        if (rp.itemInventory.childCount > 0)
+        if (rp.inRepairScreen.Count > 0)
         {
-            foreach (Pickup item in rp.itemInventory.GetComponentsInChildren<Pickup>())
-                item.transform.parent = pc.pcInvenTrans;
+            for (int i = rp.inRepairScreen.Count - 1; i >= 0; i--)
+            {
+                pcInv.inInventory.Add(rp.inRepairScreen[i]);
+                rp.inRepairScreen.RemoveAt(i);
+            }
             foreach (PodListItem item in rp.componentsRequired)
                 item.itemInSlot = null;
             foreach (PodListItem item in rp.toolsRequired)
