@@ -43,6 +43,8 @@ public class LayoutManager : NetworkBehaviour
             return;
         }
         DontDestroyOnLoad(this);
+
+        print("BEGIN");
         SpawnPickups();
     }
 
@@ -108,19 +110,36 @@ public class LayoutManager : NetworkBehaviour
             var PU = Instantiate(pickupPrefab);
 
             //// is serial unique?
-            bool repeated = false;
-            do
+            for (int j = 0; j < 1; j++)
             {
                 PU.serial = Random.Range(1000000, 999999);
-                for (int j = 0; j < serialsUsed.Length; j++)
+                if (serialsUsed[j] != 0)
                 {
                     if (PU.serial == serialsUsed[j])
                     {
-                        repeated = true;
+                        j = -1;
                         break;
                     }
                 }
-            } while (repeated);
+            }
+
+            //bool repeated = false;
+            //do
+            //{
+            //    PU.serial = Random.Range(1000000, 999999);
+            //    for (int j = 0; j < serialsUsed.Length; j++)
+            //    {
+            //        if (serialsUsed[j] != 0)
+            //        {
+            //            if (PU.serial == serialsUsed[j])
+            //            {
+            //                repeated = true;
+            //                break;
+            //            }
+            //        }
+            //    }
+            //    print(repeated);
+            //} while (repeated);
             ////
 
             //// add new serial to serialsUsed array
