@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.Networking;
 
 public class QuickMessage
 {
@@ -17,6 +16,57 @@ public class QuickMessage
 
 public class HUDManager : MonoBehaviour
 {
+    public struct ItemPickups
+    {
+        public ItemPickups(string _name, InventoryPickup.ItemType _type, int _serial)
+        {
+            itemName = _name;
+            switch (_type)
+            {
+                case InventoryPickup.ItemType.tool:
+                    pickupType = 0;
+                    break;
+                case InventoryPickup.ItemType.component:
+                    pickupType = 1;
+                    break;
+                case InventoryPickup.ItemType.boost:
+                    pickupType = 2;
+                    break;
+                default:
+                    pickupType = -1;
+                    break;
+            }
+            serial = _serial;
+        }
+
+        public ItemPickups(InventoryPickup ip)
+        {
+            itemName = ip.itemName;
+            switch (ip.pickupType)
+            {
+                case InventoryPickup.ItemType.tool:
+                    pickupType = 0;
+                    break;
+                case InventoryPickup.ItemType.component:
+                    pickupType = 1;
+                    break;
+                case InventoryPickup.ItemType.boost:
+                    pickupType = 2;
+                    break;
+                default:
+                    pickupType = -1;
+                    break;
+            }
+            serial = ip.serial;
+        }
+
+        public string itemName;
+
+        public int pickupType;
+
+        public int serial;
+    }
+
     // Inventory Panel
     public Button closeInventoryButton;
     public AudioSource closeInventorySFX;
@@ -226,6 +276,8 @@ public class HUDManager : MonoBehaviour
         Vector3 tRot = new Vector3(30, Random.Range(0, 360), 0);    //generate random rotation to throw object
         Vector3 tPos = pc.transform.position + Vector3.up * 2;
 
+        pc.CmdDropObject(new ItemPickups(iPick));
+        
         //for (int i = 0; i < pc.pcInvenTrans.childCount; i++)    //move from PC Inventory transform in hierarchy to main hierarchy with no parent
         //{
         //    if (pc.pcInvenTrans.GetChild(i).GetComponent<Pickup>().itemName == tItem.itemName)  //find item in PC hierarchy
@@ -263,11 +315,12 @@ public class HUDManager : MonoBehaviour
 
     public void MoveToContainer(InventoryPickup tItem)
     {
-        for (int i = 0; i < pc.pcInvenTrans.childCount; i++)    //move from PC Inventory transform in hierarchy to the container's inventory
+        for (int i = 0; i < pcInv.inInventory.Count; i++)    //move from the PC Inventory to the container's inventory
         {
-            if (pc.pcInvenTrans.GetChild(i).GetComponent<Pickup>().itemName == tItem.itemName)
+            if (pcInv.inInventory[i].serial == tItem.serial)
             {
-                pc.pcInvenTrans.GetChild(i).parent = openContainer.inventoryLocation;
+                openContainer.AddItemContainer(tItem);
+                pcInv.inInventory.RemoveAt(i);
             }
         }
         UpdateContainer();
@@ -300,27 +353,19 @@ public class HUDManager : MonoBehaviour
         if (openContainer)
         {
             ClearContainerList();
-            foreach (InventoryPickup item in openContainer.inContainer)
+            foreach (ItemPickups item in openContainer.inContainer)
             {
                 SingleItemWorld temp = Instantiate(containerItem, containerListContent);
                 InventoryPickup tempData = GetComponent<InventoryPickup>();
-                tempData.itemName = temp.name;
-                tempData.pickupType = item.pickupType;
-                tempData.serial = item.serial;
+                //tempData.itemName = temp.name;
+                //tempData.pickupType = item.pickupType;
+                //tempData.serial = item.serial;
                 temp.itemButtonPickup.GetComponent<PickupItemButton>().hm = this;
 
                 switch (item.pickupType)
                 {
-                    case InventoryPickup.ItemType.tool:
-                        temp.itemButtonConsume.gameObject.SetActive(false);     //only show Consume button for boosts
-                        temp.itemImage.sprite = toolIcon;
-                        break;
-                    case InventoryPickup.ItemType.component:
-                        temp.itemButtonConsume.gameObject.SetActive(false);     //only show Consume button for boosts
-                        temp.itemImage.sprite = compIcon;
-                        break;
-                    case InventoryPickup.ItemType.boost:
-                        temp.itemImage.sprite = boostIcon;
+                    case 2: // if it's a boost
+                        temp.itemButtonConsume.gameObject.SetActive(true);     //only show Consume button for boosts
                         break;
                     default:
                         break;
@@ -345,21 +390,6 @@ public class HUDManager : MonoBehaviour
                 tempData.itemName = item.itemName;
                 tempData.pickupType = item.pickupType;
                 tempData.serial = item.serial;
-
-                switch (tempData.pickupType)    // set the relevant icon for the object
-                {
-                    case InventoryPickup.ItemType.tool:
-                        temp.itemImage.sprite = toolIcon;
-                        break;
-                    case InventoryPickup.ItemType.component:
-                        temp.itemImage.sprite = compIcon;
-                        break;
-                    case InventoryPickup.ItemType.boost:
-                        temp.itemImage.sprite = boostIcon;
-                        break;
-                    default:
-                        break;
-                }
             }
             else    //if on repair screen
             {
@@ -385,21 +415,6 @@ public class HUDManager : MonoBehaviour
                         tempData.itemName = item.itemName;
                         tempData.pickupType = item.pickupType;
                         tempData.serial = item.serial;
-
-                        switch (tempData.pickupType)    // set the relevant icon for the object
-                        {
-                            case InventoryPickup.ItemType.tool:
-                                temp.itemImage.sprite = toolIcon;
-                                break;
-                            case InventoryPickup.ItemType.component:
-                                temp.itemImage.sprite = compIcon;
-                                break;
-                            case InventoryPickup.ItemType.boost:
-                                temp.itemImage.sprite = boostIcon;
-                                break;
-                            default:
-                                break;
-                        }
                     }
                 }
             }

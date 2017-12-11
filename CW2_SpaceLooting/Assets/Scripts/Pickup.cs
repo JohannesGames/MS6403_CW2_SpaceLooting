@@ -14,6 +14,8 @@ public class Pickup : MonoBehaviour
     [HideInInspector]
     public int serial;
 
+    public Sprite icon;
+
     void Start()
     {
         particleSys = GetComponentInChildren<ParticleSystem>();

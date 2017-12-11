@@ -1,12 +1,40 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 
-public class Container : MonoBehaviour
+public class Container : NetworkBehaviour
 {
-    public Transform inventoryLocation;   //where the items in the container are in the hierarchy
-    [HideInInspector]
-    public List<InventoryPickup> inContainer = new List<InventoryPickup>();
+    //public struct ContainerPickups
+    //{
+    //    public ContainerPickups(string _name, InventoryPickup.ItemType _type, int _serial)
+    //    {
+    //        itemName = _name;
+    //        pickupType = _type;
+    //        serial = _serial;
+    //    }
+
+    //    public ContainerPickups(InventoryPickup ip)
+    //    {
+    //        itemName = ip.itemName;
+    //        pickupType = ip.pickupType;
+    //        serial = ip.serial;
+    //    }
+
+    //    public string itemName;
+
+    //    public InventoryPickup.ItemType pickupType;
+
+    //    public int serial;
+    //}
+
+    public class SyncInContainer : SyncListStruct<HUDManager.ItemPickups>
+    {
+    }
+
+    public SyncInContainer inContainer = new SyncInContainer();
+    
+    //public List<InventoryPickup> inContainer = new List<InventoryPickup>();
 
     void Start()
     {
@@ -20,6 +48,12 @@ public class Container : MonoBehaviour
 
     public void AddItemContainer(InventoryPickup tItem)
     {
-        inContainer.Add(tItem);
+        inContainer.Add(new HUDManager.ItemPickups(tItem));
+    }
+
+    public void RemoveItemContainer(InventoryPickup tItem)
+    {
+        HUDManager.ItemPickups cp = new HUDManager.ItemPickups(tItem);
+        inContainer.Remove(cp);
     }
 }

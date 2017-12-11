@@ -17,6 +17,7 @@ public class PCControl : NetworkBehaviour
     CharacterController CC;
     //PCInventory pcI;
     public HUDManager hM;
+    public LocalGameManager lgm;
     public Transform podInventory;
     public GameObject GO_PickupNext = null;   //the object the PC is moving towards
     public List<Collider> CO_InRadius = new List<Collider>();
@@ -40,6 +41,7 @@ public class PCControl : NetworkBehaviour
         speedNav = NMA_PC.speed;
         CC = GetComponent<CharacterController>();
         hM = Instantiate(hM);
+        Instantiate(lgm);
         hM.pc = this;
         hM.pcInv = GetComponent<PCInventory>();
     }
@@ -188,7 +190,7 @@ public class PCControl : NetworkBehaviour
                         CO_InRadius.Add(item);  //add all nearby items to list
                 }
 
-                for (int i = 0; i < allInRadius.Length; i++)
+                for (int i = 0; i < allInRadius.Length; i++)    // check all items in range
                 {
                     if (allInRadius[i].gameObject == GO_PickupNext) //if the desired pickup or container is within reach, stop and show inventory screen
                     {
@@ -250,7 +252,7 @@ public class PCControl : NetworkBehaviour
     }
 
     [Command]
-    public void CmdDropObject(InventoryPickup obj)
+    public void CmdDropObject(HUDManager.ItemPickups ip)
     {
         Vector3 tRot = new Vector3(30, Random.Range(0, 360), 0);    //generate random rotation to throw object
         Vector3 tPos = transform.position + Vector3.up * 2;
@@ -259,11 +261,8 @@ public class PCControl : NetworkBehaviour
 
         pu.transform.position = tPos;
         pu.transform.rotation = Quaternion.Euler(tRot);
-        pu.GetComponent<Rigidbody>().isKinematic = false;
         pu.GetComponent<Pickup>().particleSys.Play();
         pu.GetComponent<Rigidbody>().AddForce(pu.transform.TransformDirection(Vector3.up) * pickupThrowStrength);   //throw it a small distance next to the PC
-        pu.GetComponent<Collider>().enabled = true;
-        pu.GetComponent<MeshRenderer>().enabled = true;
     }
 
     public void SetNavSpeed(float mod)
