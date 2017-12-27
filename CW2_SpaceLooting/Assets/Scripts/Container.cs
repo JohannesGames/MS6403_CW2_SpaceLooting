@@ -5,55 +5,25 @@ using UnityEngine.Networking;
 
 public class Container : NetworkBehaviour
 {
-    //public struct ContainerPickups
-    //{
-    //    public ContainerPickups(string _name, InventoryPickup.ItemType _type, int _serial)
-    //    {
-    //        itemName = _name;
-    //        pickupType = _type;
-    //        serial = _serial;
-    //    }
 
-    //    public ContainerPickups(InventoryPickup ip)
-    //    {
-    //        itemName = ip.itemName;
-    //        pickupType = ip.pickupType;
-    //        serial = ip.serial;
-    //    }
-
-    //    public string itemName;
-
-    //    public InventoryPickup.ItemType pickupType;
-
-    //    public int serial;
-    //}
-
-    public class SyncInContainer : SyncListStruct<HUDManager.ItemPickups>
+    public class SyncInContainer : SyncListStruct<PCControl.ItemPickups>
     {
     }
 
     public SyncInContainer inContainer = new SyncInContainer();
-    
-    //public List<InventoryPickup> inContainer = new List<InventoryPickup>();
 
-    void Start()
-    {
-        
-    }
-    
-    void Update()
-    {
+    //[SyncVar]
+    //public List<PCControl.ItemPickups> inContainer = new List<PCControl.ItemPickups>();
 
-    }
-
-    public void AddItemContainer(InventoryPickup tItem)
+    [Command]
+    public void CmdAddItemContainer(InventoryPickup tItem)
     {
-        inContainer.Add(new HUDManager.ItemPickups(tItem));
+        inContainer.Add(new PCControl.ItemPickups(tItem));
     }
 
     public void RemoveItemContainer(InventoryPickup tItem)
     {
-        HUDManager.ItemPickups cp = new HUDManager.ItemPickups(tItem);
+        PCControl.ItemPickups cp = new PCControl.ItemPickups(tItem);
         inContainer.Remove(cp);
     }
 }

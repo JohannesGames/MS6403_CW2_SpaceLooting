@@ -281,7 +281,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 574e8725573b85040a50142a4611902d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  inInventory: []
 --- !u!114 &114391825915806040
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -352,12 +351,17 @@ MonoBehaviour:
   LI_Point: {fileID: 108191797683479830}
   FL_Gravity: 0
   hM: {fileID: 114216866977420888, guid: 0d6661e9241f115418a8624db5f479a0, type: 2}
+  lgm: {fileID: 114786811400711148, guid: 44bbecb7674b777439431205085b82e6, type: 2}
   podInventory: {fileID: 4610772718841810}
   GO_PickupNext: {fileID: 0}
   CO_InRadius: []
   FL_Reach: 1.5
   pcInvenTrans: {fileID: 4963334820417674}
+  pickupPrefab: {fileID: 114116011835649338, guid: 59f93d58be2e50f4ebf161e8c412174e,
+    type: 2}
   outlineColour: {r: 0, g: 0.58431375, b: 1, a: 1}
+  pickupThrowStrength: 500
+  doubleClickInterval: 0.5
 --- !u!143 &143157360071920434
 CharacterController:
   m_ObjectHideFlags: 1

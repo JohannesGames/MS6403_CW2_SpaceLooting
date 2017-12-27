@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class ListItemInventory : MonoBehaviour
 {
-    public InventoryPickup itemData;
+    public InventoryPickup itemData = new InventoryPickup();
     public Image itemImage;
     public Text itemName;
     public Button itemButtonDrop;
@@ -13,6 +13,7 @@ public class ListItemInventory : MonoBehaviour
     public Button putInContainer;
     public Button repairWithItem;
     public HUDManager hm;
+    public float serial;
 
     void Start()
     {
@@ -55,6 +56,7 @@ public class ListItemInventory : MonoBehaviour
     public void ItemInContainer()
     {
         hm.MoveToContainer(itemData);
+        Destroy(gameObject);
     }
 
     public void AddToRepairSlot()

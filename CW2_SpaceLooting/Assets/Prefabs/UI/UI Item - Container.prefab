@@ -543,12 +543,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c364083fe86128242b93becc5c332c5d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  itemData: {fileID: 0}
-  itemImage: {fileID: 114651083304404818}
+  itemIcon: {fileID: 114651083304404818}
   itemName: {fileID: 114302865165346592}
   itemButtonPickup: {fileID: 114012015853922150}
   itemButtonConsume: {fileID: 114019050809846472}
   itemInWorld: {fileID: 0}
+  isInContainer: 0
 --- !u!114 &114829267762811278
 MonoBehaviour:
   m_ObjectHideFlags: 1

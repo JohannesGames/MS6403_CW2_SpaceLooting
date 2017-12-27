@@ -1,9 +1,11 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 
-public class Pickup : MonoBehaviour
+public class Pickup : NetworkBehaviour
 {
+    [SyncVar]
     public string itemName;
 
     public InventoryPickup.ItemType pickupType;
@@ -14,10 +16,12 @@ public class Pickup : MonoBehaviour
     [HideInInspector]
     public int serial;
 
-    public Sprite icon;
-
     void Start()
     {
+        if (!isLocalPlayer)
+        {
+            return;
+        }
         particleSys = GetComponentInChildren<ParticleSystem>();
     }
 }

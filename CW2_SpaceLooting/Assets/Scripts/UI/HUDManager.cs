@@ -16,56 +16,7 @@ public class QuickMessage
 
 public class HUDManager : MonoBehaviour
 {
-    public struct ItemPickups
-    {
-        public ItemPickups(string _name, InventoryPickup.ItemType _type, int _serial)
-        {
-            itemName = _name;
-            switch (_type)
-            {
-                case InventoryPickup.ItemType.tool:
-                    pickupType = 0;
-                    break;
-                case InventoryPickup.ItemType.component:
-                    pickupType = 1;
-                    break;
-                case InventoryPickup.ItemType.boost:
-                    pickupType = 2;
-                    break;
-                default:
-                    pickupType = -1;
-                    break;
-            }
-            serial = _serial;
-        }
-
-        public ItemPickups(InventoryPickup ip)
-        {
-            itemName = ip.itemName;
-            switch (ip.pickupType)
-            {
-                case InventoryPickup.ItemType.tool:
-                    pickupType = 0;
-                    break;
-                case InventoryPickup.ItemType.component:
-                    pickupType = 1;
-                    break;
-                case InventoryPickup.ItemType.boost:
-                    pickupType = 2;
-                    break;
-                default:
-                    pickupType = -1;
-                    break;
-            }
-            serial = ip.serial;
-        }
-
-        public string itemName;
-
-        public int pickupType;
-
-        public int serial;
-    }
+    
 
     // Inventory Panel
     public Button closeInventoryButton;
@@ -152,23 +103,21 @@ public class HUDManager : MonoBehaviour
     {
         SingleItemWorld temp = Instantiate(sItemWorld, singleItemPanel);
         temp.itemButtonPickup.GetComponent<PickupItemButton>().hm = this;
-        temp.itemData = sItem;
+        temp.itemData = new InventoryPickup(sItem);
         temp.itemInWorld = sItem.gameObject;
 
         switch (sItem.pickupType)
         {
             case InventoryPickup.ItemType.tool:
                 temp.itemButtonConsume.gameObject.SetActive(false);     //only show Consume button for boosts
-                temp.itemImage.sprite = toolIcon;
+                temp.itemIcon.sprite = toolIcon;
                 break;
             case InventoryPickup.ItemType.component:
                 temp.itemButtonConsume.gameObject.SetActive(false);     //only show Consume button for boosts
-                temp.itemImage.sprite = compIcon;
+                temp.itemIcon.sprite = compIcon;
                 break;
             case InventoryPickup.ItemType.boost:
-                temp.itemImage.sprite = boostIcon;
-                break;
-            default:
+                temp.itemIcon.sprite = boostIcon;
                 break;
         }
 
@@ -276,7 +225,16 @@ public class HUDManager : MonoBehaviour
         Vector3 tRot = new Vector3(30, Random.Range(0, 360), 0);    //generate random rotation to throw object
         Vector3 tPos = pc.transform.position + Vector3.up * 2;
 
-        pc.CmdDropObject(new ItemPickups(iPick));
+        for (int i = 0; i < pcInv.inInventory.Count; i++)           // remove pickup from pc inventory
+        {
+            if (pcInv.inInventory[i].serial == iPick.serial)
+            {
+                pcInv.inInventory.RemoveAt(i);
+                break;
+            }
+        }
+        UpdateInventory();
+        pc.CmdDropObject(new PCControl.ItemPickups(iPick));
         
         //for (int i = 0; i < pc.pcInvenTrans.childCount; i++)    //move from PC Inventory transform in hierarchy to main hierarchy with no parent
         //{
@@ -319,29 +277,26 @@ public class HUDManager : MonoBehaviour
         {
             if (pcInv.inInventory[i].serial == tItem.serial)
             {
-                openContainer.AddItemContainer(tItem);
+                openContainer.CmdAddItemContainer(tItem);
                 pcInv.inInventory.RemoveAt(i);
             }
         }
         UpdateContainer();
+        UpdateInventory();
+    }
 
-        if (listOfItemsInInventory.Count > 0)    //delete it from the hierarchy and the PC inventory list
+    public void MoveFromContainer(InventoryPickup tItem)
+    {
+        for (int i = 0; i < openContainer.inContainer.Count; i++)    // container to PC inventory
         {
-            for (int i = 0; i < listOfItemsInInventory.Count; i++)   //remove from UI hierarchy
+            if (openContainer.inContainer[i].serial == tItem.serial)
             {
-                if (listOfItemsInInventory[i].itemData.itemName == tItem.itemName)
-                {
-                    Destroy(listOfItemsInInventory[i].gameObject);   //remove from UI hierarchy
-                    listOfItemsInInventory.RemoveAt(i);
-                    for (int j = 0; j < pcInv.inInventory.Count; j++)   //remove from PCInventory list<>
-                    {
-                        if (pcInv.inInventory[j].itemName == tItem.itemName)
-                            pcInv.inInventory.RemoveAt(j);  //remove from PCInventory list<>
-                    }
-                    return;
-                }
+                openContainer.inContainer.RemoveAt(i);
+                pcInv.inInventory.Add(tItem);
             }
         }
+        UpdateContainer();
+        UpdateInventory();
     }
 
     #endregion
@@ -353,21 +308,24 @@ public class HUDManager : MonoBehaviour
         if (openContainer)
         {
             ClearContainerList();
-            foreach (ItemPickups item in openContainer.inContainer)
+            foreach (PCControl.ItemPickups item in openContainer.inContainer)
             {
                 SingleItemWorld temp = Instantiate(containerItem, containerListContent);
-                InventoryPickup tempData = GetComponent<InventoryPickup>();
-                //tempData.itemName = temp.name;
-                //tempData.pickupType = item.pickupType;
-                //tempData.serial = item.serial;
+                temp.itemData = new InventoryPickup(item);
                 temp.itemButtonPickup.GetComponent<PickupItemButton>().hm = this;
+                temp.isInContainer = true;
 
                 switch (item.pickupType)
                 {
-                    case 2: // if it's a boost
-                        temp.itemButtonConsume.gameObject.SetActive(true);     //only show Consume button for boosts
+                    case 0: // if it's a tool
+                        temp.itemIcon.sprite = toolIcon;
                         break;
-                    default:
+                    case 1: // if it's a component
+                        temp.itemIcon.sprite = compIcon;
+                        break;
+                    case 2: // if it's a boost
+                        temp.itemIcon.sprite = boostIcon;
+                        temp.itemButtonConsume.gameObject.SetActive(true);     //only show Consume button for boosts
                         break;
                 }
 
@@ -378,43 +336,65 @@ public class HUDManager : MonoBehaviour
     public void UpdateInventory()
     {
         ClearInventoryList();
-        pcInv.UpdateInventory();
         foreach (InventoryPickup item in pcInv.inInventory)  //used foreach because its slightly neater
         {
             if (!inRepairPodScreen)
             {
                 ListItemInventory temp = Instantiate(listItem, inventoryListContent);   //create new UI element in the inventory list
-                InventoryPickup tempData = temp.GetComponent<InventoryPickup>();
                 temp.hm = this;
-                listOfItemsInInventory.Add(temp);
-                tempData.itemName = item.itemName;
-                tempData.pickupType = item.pickupType;
-                tempData.serial = item.serial;
-            }
-            else    //if on repair screen
-            {
-                if (rp.CheckPickup(item))   //checks that the item (or one of the same name) is not already in use
+                switch (item.pickupType)
                 {
-                    bool repeat = false;    //checks for repeated pickups in Inventory list (unique items required to repair pod)
+                    case InventoryPickup.ItemType.tool:
+                        temp.itemImage.sprite = toolIcon;
+                        break;
+                    case InventoryPickup.ItemType.component:
+                        temp.itemImage.sprite = compIcon;
+                        break;
+                    case InventoryPickup.ItemType.boost:
+                        temp.itemImage.sprite = boostIcon;
+                        break;
+                }
+                listOfItemsInInventory.Add(temp);
+                temp.itemData.itemName = item.itemName;
+                temp.itemData.pickupType = item.pickupType;
+                temp.serial = temp.itemData.serial = item.serial;
+            }
+            else    // if on repair screen
+            {
+                if (rp.CheckPickup(item))   // checks that the item (or one of the same name) is not already in use
+                {
+                    bool repeat = false;    // checks for repeated pickups in Inventory list (unique items required to repair pod)
                     if (inventoryListContent.childCount > 0)
                     {
-                        for (int i = 0; i < inventoryListContent.childCount; i++)   //check currently displayed pickups. if one is already shown do not repeat
+                        for (int i = 0; i < inventoryListContent.childCount; i++)   // check currently displayed pickups. if one of these pickups is already shown do not repeat
                         {
                             if (item.itemName ==
                                 inventoryListContent.GetChild(i).GetComponent<ListItemInventory>().itemData.itemName)
                                 repeat = true;
                         }
                     }
-                    if (!repeat)    // no other of this pickup have been added to repair screen
+                    if (!repeat)    // if no other of this pickup have been added to repair screen
                     {
                         ListItemInventory temp = Instantiate(listItem, inventoryListContent);   //create new UI element in the inventory list
                         temp.hm = this;
                         InventoryPickup tempData = temp.GetComponent<InventoryPickup>();
                         temp.hm = this;
+                        switch (item.pickupType)
+                        {
+                            case InventoryPickup.ItemType.tool:
+                                temp.itemImage.sprite = toolIcon;
+                                break;
+                            case InventoryPickup.ItemType.component:
+                                temp.itemImage.sprite = compIcon;
+                                break;
+                            case InventoryPickup.ItemType.boost:
+                                temp.itemImage.sprite = boostIcon;
+                                break;
+                        }
                         listOfItemsInInventory.Add(temp);
-                        tempData.itemName = item.itemName;
-                        tempData.pickupType = item.pickupType;
-                        tempData.serial = item.serial;
+                        temp.itemData.itemName = item.itemName;
+                        temp.itemData.pickupType = item.pickupType;
+                        temp.serial = temp.itemData.serial = item.serial;
                     }
                 }
             }
@@ -427,8 +407,6 @@ public class HUDManager : MonoBehaviour
         {
             Destroy(item.gameObject);
         }
-        if (openContainer)
-            openContainer.inContainer.Clear();
     }
 
     void ClearInventoryList()

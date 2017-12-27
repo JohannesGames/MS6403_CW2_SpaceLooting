@@ -8,32 +8,11 @@ public class InventoryPickup
 
     #region Constructors
 
-    public InventoryPickup(string pName, ItemType pType, int pSerial, Sprite pIcon)
-    {
-        itemName = pName;
-        pickupType = pType;
-        serial = pSerial;
-        icon = pIcon;
-    }
-
     public InventoryPickup(string pName, ItemType pType, int pSerial)
     {
         itemName = pName;
         pickupType = pType;
         serial = pSerial;
-
-        switch (pType)
-        {
-            case ItemType.tool:
-                icon = LocalGameManager.LGM.toolIcon;
-                break;
-            case ItemType.component:
-                icon = LocalGameManager.LGM.compIcon;
-                break;
-            case ItemType.boost:
-                icon = LocalGameManager.LGM.boostIcon;
-                break;
-        }
     }
 
     public InventoryPickup(InventoryPickup ip)
@@ -41,7 +20,6 @@ public class InventoryPickup
         itemName = ip.itemName;
         pickupType = ip.pickupType;
         serial = ip.serial;
-        icon = ip.icon;
     }
 
     public InventoryPickup(Pickup pu)
@@ -49,7 +27,13 @@ public class InventoryPickup
         itemName = pu.itemName;
         pickupType = pu.pickupType;
         serial = pu.serial;
-        icon = pu.icon;
+    }
+
+    public InventoryPickup(PCControl.ItemPickups ip)
+    {
+        itemName = ip.itemName;
+        pickupType = (ItemType)ip.pickupType;
+        serial = ip.serial;
     }
     #endregion
 
@@ -57,14 +41,12 @@ public class InventoryPickup
 
     public enum ItemType
     {
-        tool,
-        component,
-        boost
+        tool = 0,
+        component = 1,
+        boost = 2
     }
 
     public ItemType pickupType;
 
     public int serial;
-
-    public Sprite icon;
 }

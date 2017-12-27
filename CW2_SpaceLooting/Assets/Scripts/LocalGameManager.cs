@@ -12,10 +12,10 @@ public class LocalGameManager : NetworkBehaviour
 
     void Awake()
     {
-        if (!isLocalPlayer)
-        {
-            return;
-        }
+        //if (!isLocalPlayer)
+        //{
+        //    return;
+        //}
 
         //// Singleton
         if (LGM == null)

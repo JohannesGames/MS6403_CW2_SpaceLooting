@@ -22,11 +22,20 @@ public class PickupItemButton : MonoBehaviour
     public void PickupItem()
     {
         //TODO check whether someone else has already taken it
+
         SingleItemWorld temp = GetComponentInParent<SingleItemWorld>();
-        hm.pc.PickupObject(temp.itemInWorld);
-        Destroy(GetComponentInParent<SingleItemWorld>().gameObject);   //remove from UI list
-        if (hm.openContainer) //if the object is being picked up from a container
-            hm.UpdateInventory();
-        hm.CloseSingleItem();
+
+        if (temp.isInContainer)
+        {
+            hm.MoveFromContainer(temp.itemData);
+            hm.AddMessage("Picked up: " + temp.itemData.itemName, true);
+            Destroy(GetComponentInParent<SingleItemWorld>().gameObject);   //remove from UI list
+        }
+        else
+        {
+            hm.pc.PickupObject(temp.itemInWorld);
+            Destroy(GetComponentInParent<SingleItemWorld>().gameObject);   //remove from UI list
+            hm.CloseSingleItem();
+        }
     }
 }

@@ -45,10 +45,6 @@ public class LayoutManager : NetworkBehaviour
     public List<PickupSpawner> spawnList = new List<PickupSpawner>();
     private char lineSeperater = '\n';
     private char fieldSeperator = ',';
-
-    public Sprite toolIcon;
-    public Sprite compIcon;
-    public Sprite boostIcon;
     
     void Start()
     {
@@ -104,20 +100,16 @@ public class LayoutManager : NetworkBehaviour
         ReadPickupData(_type);
 
         int numItemsRequired;
-        Sprite tIcon;
-        switch (_type)      //set the number required and icon for the item
+        switch (_type)      //set the number required for the item
         {
             case InventoryPickup.ItemType.tool:
                 numItemsRequired = toolsRequired;
-                tIcon = toolIcon;
                 break;
             case InventoryPickup.ItemType.component:
                 numItemsRequired = compsRequired;
-                tIcon = compIcon;
                 break;
             case InventoryPickup.ItemType.boost:
                 numItemsRequired = boostsPerPlayer;
-                tIcon = boostIcon;
                 break;
         }
 
@@ -126,11 +118,11 @@ public class LayoutManager : NetworkBehaviour
         {
             for (int i = 0; i < item.rarity; i++)       // rarity defines how many of this object go into the potential spawn pool
             {
-                pickupPool.Add(new InventoryPickup(item.pickupName, _type, -1, null));
+                pickupPool.Add(new InventoryPickup(item.pickupName, _type, -1));
             }
         }
 
-        // TODO Spawn the correct amount of tools in the various containers and spawn points
+        // TODO Spawn the correct amount of pickups in the various containers and spawn points
 
         InventoryPickup[] toBeSpawned = new InventoryPickup[playerNumber * toolsRequired * itemMulitplier];    // this contains the pickups chosen from pickupPool to be spawned around the map
 
@@ -139,7 +131,7 @@ public class LayoutManager : NetworkBehaviour
             if (toBeSpawned[i] == null) // while there are still spaces in the array add Pickups
             {
                 int index = Random.Range(0, pickupPool.Count - 1);
-                InventoryPickup PU = new InventoryPickup(pickupPool[index].itemName, InventoryPickup.ItemType.tool, -1, null);
+                InventoryPickup PU = new InventoryPickup(pickupPool[index].itemName, InventoryPickup.ItemType.tool, -1);
                 toBeSpawned[i] = PU;
             }
         }
@@ -172,23 +164,23 @@ public class LayoutManager : NetworkBehaviour
             }
             ////
 
-            //// set world object's name and type
+            //// set world object's name, type and icon
             PU.pickupType = _type;
             PU.itemName = toBeSpawned[i].itemName;
             ////
 
-            //switch (_type)      //set the relevant name and icon for the item
-            //{
-            //    case InventoryPickup.ItemType.tool:
-            //        PU.name = toBeSpawned[i].itemName + " - TOOL";
-            //        break;
-            //    case InventoryPickup.ItemType.component:
-            //        PU.name = toBeSpawned[i].itemName + " - COMPONENT";
-            //        break;
-            //    case InventoryPickup.ItemType.boost:
-            //        PU.name = toBeSpawned[i].itemName + " - BOOST";
-            //        break;
-            //}
+            switch (_type)      //set the relevant hierarchy name for the item
+            {
+                case InventoryPickup.ItemType.tool:
+                    PU.name = toBeSpawned[i].itemName + " - TOOL";
+                    break;
+                case InventoryPickup.ItemType.component:
+                    PU.name = toBeSpawned[i].itemName + " - COMPONENT";
+                    break;
+                case InventoryPickup.ItemType.boost:
+                    PU.name = toBeSpawned[i].itemName + " - BOOST";
+                    break;
+            }
 
             NetworkServer.Spawn(PU.gameObject);
         }

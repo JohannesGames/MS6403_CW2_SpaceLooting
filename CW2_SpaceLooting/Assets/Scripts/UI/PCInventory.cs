@@ -20,29 +20,20 @@ public class PCInventory : MonoBehaviour
 
     public void AddItemInventory(InventoryPickup tItem)  //called by button in UI
     {
-        switch (tItem.pickupType)
-        {
-            case InventoryPickup.ItemType.tool:
-                inInventory.Add(new InventoryPickup(tItem.itemName, InventoryPickup.ItemType.tool, tItem.serial));
-                break;
-            case InventoryPickup.ItemType.component:
-                inInventory.Add(new InventoryPickup(tItem.itemName, InventoryPickup.ItemType.component, tItem.serial));
-                break;
-            case InventoryPickup.ItemType.boost:
-                inInventory.Add(new InventoryPickup(tItem.itemName, InventoryPickup.ItemType.boost, tItem.serial));
-                break;
-            default:
-                break;
-        }
-    }
-    
-    public void UpdateInventory()
-    {
-        inInventory.Clear();
-
-        //foreach (Pickup item in pc.pcInvenTrans.GetComponentsInChildren<Pickup>())
+        inInventory.Add(new InventoryPickup(tItem));
+        //switch (tItem.pickupType)
         //{
-        //    inInventory.Add(item);
+        //    case InventoryPickup.ItemType.tool:
+        //        inInventory.Add(new InventoryPickup(tItem.itemName, InventoryPickup.ItemType.tool, tItem.serial));
+        //        break;
+        //    case InventoryPickup.ItemType.component:
+        //        inInventory.Add(new InventoryPickup(tItem.itemName, InventoryPickup.ItemType.component, tItem.serial));
+        //        break;
+        //    case InventoryPickup.ItemType.boost:
+        //        inInventory.Add(new InventoryPickup(tItem.itemName, InventoryPickup.ItemType.boost, tItem.serial));
+        //        break;
+        //    default:
+        //        break;
         //}
     }
 

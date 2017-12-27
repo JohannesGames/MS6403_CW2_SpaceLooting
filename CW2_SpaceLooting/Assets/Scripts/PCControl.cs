@@ -6,6 +6,32 @@ using UnityEngine.AI;
 
 public class PCControl : NetworkBehaviour
 {
+
+    public struct ItemPickups
+    {
+        public ItemPickups(string _name, int _type, int _serial)
+        {
+            itemName = _name;
+            pickupType = _type;
+            serial = _serial;
+        }
+
+        public ItemPickups(InventoryPickup ip)
+        {
+            itemName = ip.itemName;
+            int typeIndex = (int)ip.pickupType;
+            pickupType = typeIndex;
+            serial = ip.serial;
+        }
+
+        public string itemName;
+
+        public int pickupType;
+
+        public int serial;
+    }
+
+
     public bool isInMenu;
     public GameObject GO_CameraContainer;
     public Light LI_Point;
@@ -30,28 +56,24 @@ public class PCControl : NetworkBehaviour
     //////// Double click
     public float doubleClickInterval = 0.5f;
     float doubleClickTime;   //the time by which a second click must have been inputed
-    bool instandPickup; //if double clicked, pick up instantly
+    bool instantPickup; //if double clicked, pick up instantly
     /////////
 
 
-    public override void OnStartLocalPlayer()
+    void Start()
     {
+        if (!isLocalPlayer)
+        {
+            return;
+        }
         CameraAndOutline(true);
         NMA_PC = GetComponent<NavMeshAgent>();
         speedNav = NMA_PC.speed;
         CC = GetComponent<CharacterController>();
         hM = Instantiate(hM);
-        Instantiate(lgm);
         hM.pc = this;
+        Instantiate(lgm);
         hM.pcInv = GetComponent<PCInventory>();
-    }
-
-    private void Start()
-    {
-        if (isLocalPlayer)
-        {
-            return;
-        }
         CameraAndOutline(false);
     }
 
@@ -145,11 +167,11 @@ public class PCControl : NetworkBehaviour
                     if (hit.transform.gameObject == GO_PickupNext)  //if the object had previously been selected AND a double click is detected, pick it up instantly when reached
                     {
                         if (Time.time < doubleClickTime)
-                            instandPickup = true;
+                            instantPickup = true;
                     }
                     else
                     {
-                        instandPickup = false;
+                        instantPickup = false;
                         doubleClickTime = Time.time + doubleClickInterval;
                     }
                     GO_PickupNext = hit.transform.gameObject;
@@ -157,7 +179,7 @@ public class PCControl : NetworkBehaviour
                 else
                 {
                     GO_PickupNext = null;
-                    instandPickup = false;
+                    instantPickup = false;
                 }
                 NMA_PC.SetDestination(hit.point);
             }
@@ -196,11 +218,11 @@ public class PCControl : NetworkBehaviour
                     {
                         NMA_PC.ResetPath(); //stop the PC on the navmesh
 
-                        if (GO_PickupNext.layer == 10)  //if it's a pickup display it in the inventory
+                        if (GO_PickupNext.layer == LayerMask.NameToLayer("Pickup"))  //if it's a pickup display it in the inventory
                         {
-                            if (instandPickup)  //if the item was double-clicked pick up instantly without menu
+                            if (instantPickup)  //if the item was double-clicked pick up instantly without menu
                             {
-                                CmdPickupObject(GO_PickupNext);
+                                PickupObject(GO_PickupNext);
                                 break;
                             }
                             else if (Time.time >= doubleClickTime)  //allows time for a double click for pickups in the vicinity
@@ -211,7 +233,7 @@ public class PCControl : NetworkBehaviour
                                 break;
                             }
                         }
-                        else if (GO_PickupNext.layer == 15)    //if it's a container display it in the inventory
+                        else if (GO_PickupNext.layer == LayerMask.NameToLayer("Container"))    //if it's a container display it in the inventory
                         {
                             Container temp = GO_PickupNext.GetComponent<Container>();
                             hM.OpenContainerPanel(temp);
@@ -231,10 +253,10 @@ public class PCControl : NetworkBehaviour
         }
     }
 
-    public void PickupObject(GameObject obj)
+    public void PickupObject(GameObject obj)    // this is called when picking up from the game world
     {
         Pickup toPickUp = obj.GetComponent<Pickup>();
-        GetComponent<PCInventory>().AddItemInventory(new InventoryPickup(toPickUp));   //add item to inventory using PCInventory script
+        hM.pcInv.inInventory.Add(new InventoryPickup(toPickUp.itemName, toPickUp.pickupType, toPickUp.serial));
         CmdPickupObject(obj);
         hM.AddMessage("Picked up: " + toPickUp.itemName, true);
         GO_PickupNext = null;
@@ -244,25 +266,23 @@ public class PCControl : NetworkBehaviour
     void CmdPickupObject(GameObject obj)
     {
         Destroy(obj);
-        //obj.transform.parent = pcInvenTrans;    //add to PC Inventory in hierarchy
-        //obj.GetComponent<Pickup>().particleSys.Stop();
-        //obj.transform.GetComponent<Rigidbody>().isKinematic = true;
-        //obj.transform.GetComponent<BoxCollider>().enabled = false;
-        //obj.transform.GetComponent<MeshRenderer>().enabled = false;
     }
 
     [Command]
-    public void CmdDropObject(HUDManager.ItemPickups ip)
+    public void CmdDropObject(ItemPickups ip)
     {
         Vector3 tRot = new Vector3(30, Random.Range(0, 360), 0);    //generate random rotation to throw object
         Vector3 tPos = transform.position + Vector3.up * 2;
 
         Pickup pu = Instantiate(pickupPrefab, tPos, Quaternion.identity);
-
+        pu.itemName = ip.itemName;
+        int index = (int)ip.pickupType;
+        pu.pickupType = (InventoryPickup.ItemType)index;
+        pu.serial = ip.serial;
         pu.transform.position = tPos;
         pu.transform.rotation = Quaternion.Euler(tRot);
-        pu.GetComponent<Pickup>().particleSys.Play();
         pu.GetComponent<Rigidbody>().AddForce(pu.transform.TransformDirection(Vector3.up) * pickupThrowStrength);   //throw it a small distance next to the PC
+        NetworkServer.Spawn(pu.gameObject);
     }
 
     public void SetNavSpeed(float mod)
