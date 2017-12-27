@@ -15186,9 +15186,6 @@ MonoBehaviour:
   toolCSV: {fileID: 4900000, guid: 216d4d6389d0b8747bfc813a8d523182, type: 3}
   compCSV: {fileID: 0}
   boostCSV: {fileID: 0}
-  toolIcon: {fileID: 21300000, guid: e36a79dc6dba11a499f62dfdbe600a91, type: 3}
-  compIcon: {fileID: 21300000, guid: 836b78631e5264b4e9b0544bd074b97b, type: 3}
-  boostIcon: {fileID: 21300000, guid: ea724acaa00c4954cb3c886767c26c52, type: 3}
 --- !u!114 &613896521
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -29847,7 +29844,7 @@ MonoBehaviour:
     i14: 0
     i15: 0
   m_ServerOnly: 0
-  m_LocalPlayerAuthority: 0
+  m_LocalPlayerAuthority: 1
 --- !u!1 &1856331839
 GameObject:
   m_ObjectHideFlags: 0

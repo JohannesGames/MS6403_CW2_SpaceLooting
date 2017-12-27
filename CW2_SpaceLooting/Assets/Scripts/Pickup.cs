@@ -14,6 +14,7 @@ public class Pickup : NetworkBehaviour
     public ParticleSystem particleSys;
 
     [HideInInspector]
+    [SyncVar]
     public int serial;
 
     void Start()

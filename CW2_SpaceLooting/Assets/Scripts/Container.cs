@@ -18,6 +18,12 @@ public class Container : NetworkBehaviour
     [Command]
     public void CmdAddItemContainer(InventoryPickup tItem)
     {
+        RpcAddItemContainer(tItem);
+    }
+
+    [ClientRpc]
+    public void RpcAddItemContainer(InventoryPickup tItem)
+    {
         inContainer.Add(new PCControl.ItemPickups(tItem));
     }
 

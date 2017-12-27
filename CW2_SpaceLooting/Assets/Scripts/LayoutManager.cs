@@ -145,7 +145,7 @@ public class LayoutManager : NetworkBehaviour
             //// is serial unique?
             for (int j = 0; j < 1; j++)
             {
-                PU.serial = Random.Range(1000000, 999999);
+                PU.serial = Random.Range(1000000, 9999999);
                 if (serialsUsed[j] != 0)
                 {
                     if (PU.serial == serialsUsed[j])
