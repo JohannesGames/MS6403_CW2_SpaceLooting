@@ -6,30 +6,50 @@ using UnityEngine.Networking;
 public class Container : NetworkBehaviour
 {
 
-    public class SyncInContainer : SyncListStruct<PCControl.ItemPickups>
-    {
-    }
+    //public class SyncInContainer : SyncListStruct<PCControl.ItemPickups>
+    //{
+    //}
 
-    public SyncInContainer inContainer = new SyncInContainer();
+    //public SyncInContainer inContainer = new SyncInContainer();
 
-    //[SyncVar]
-    //public List<PCControl.ItemPickups> inContainer = new List<PCControl.ItemPickups>();
+    public static int maxContainerSize = 10;
+
+    [SyncVar]
+    public PCControl.ItemPickups[] inContainer = new PCControl.ItemPickups[maxContainerSize];
+
+    
 
     [Command]
     public void CmdAddItemContainer(InventoryPickup tItem)
     {
-        RpcAddItemContainer(tItem);
+        //RpcAddItemContainer(tItem);
+        //inContainer.Add(new PCControl.ItemPickups(tItem));
     }
 
     [ClientRpc]
     public void RpcAddItemContainer(InventoryPickup tItem)
     {
-        inContainer.Add(new PCControl.ItemPickups(tItem));
+        //inContainer.Add(new PCControl.ItemPickups(tItem));
     }
 
     public void RemoveItemContainer(InventoryPickup tItem)
     {
         PCControl.ItemPickups cp = new PCControl.ItemPickups(tItem);
-        inContainer.Remove(cp);
+        //inContainer.Remove(cp);
+    }
+
+    public int FindNextEmpty
+    {
+        get
+        {
+            for (int i = 0; i < inContainer.Length; i++)
+            {
+                //if (inContainer[i] == null)
+                //{
+                //    return i;
+                //}
+            }
+            return -1;
+        }
     }
 }

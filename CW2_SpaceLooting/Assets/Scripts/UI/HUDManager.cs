@@ -144,7 +144,8 @@ public class HUDManager : MonoBehaviour
     public void OpenContainerPanel(Container con)
     {
         openContainer = con;
-        con.inContainer.Clear();
+        int index = con.FindNextEmpty;
+        //con.inContainer.Clear();
         UpdateContainer();
 
         containerPanel.gameObject.SetActive(true);
@@ -287,14 +288,14 @@ public class HUDManager : MonoBehaviour
 
     public void MoveFromContainer(InventoryPickup tItem)
     {
-        for (int i = 0; i < openContainer.inContainer.Count; i++)    // container to PC inventory
-        {
-            if (openContainer.inContainer[i].serial == tItem.serial)
-            {
-                openContainer.inContainer.RemoveAt(i);
-                pcInv.inInventory.Add(tItem);
-            }
-        }
+        //for (int i = 0; i < openContainer.inContainer.Count; i++)    // container to PC inventory
+        //{
+        //    if (openContainer.inContainer[i].serial == tItem.serial)
+        //    {
+        //        openContainer.inContainer.RemoveAt(i);
+        //        pcInv.inInventory.Add(tItem);
+        //    }
+        //}
         UpdateContainer();
         UpdateInventory();
     }
