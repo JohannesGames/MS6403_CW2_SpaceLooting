@@ -9,6 +9,7 @@ public class PCControl : NetworkBehaviour
 
     public struct ItemPickups
     {
+
         public ItemPickups(string _name, int _type, int _serial)
         {
             itemName = _name;

@@ -15,9 +15,7 @@ public class Container : NetworkBehaviour
     public static int maxContainerSize = 10;
 
     [SyncVar]
-    public PCControl.ItemPickups[] inContainer = new PCControl.ItemPickups[maxContainerSize];
-
-    
+    public PCControl.ItemPickups[] inContainer = new PCControl.ItemPickups[10];
 
     [Command]
     public void CmdAddItemContainer(InventoryPickup tItem)
@@ -44,10 +42,10 @@ public class Container : NetworkBehaviour
         {
             for (int i = 0; i < inContainer.Length; i++)
             {
-                //if (inContainer[i] == null)
-                //{
-                //    return i;
-                //}
+                if (inContainer[i].itemName == null)
+                {
+                    return i;
+                }
             }
             return -1;
         }

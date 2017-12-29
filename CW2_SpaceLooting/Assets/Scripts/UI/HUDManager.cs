@@ -144,6 +144,7 @@ public class HUDManager : MonoBehaviour
     public void OpenContainerPanel(Container con)
     {
         openContainer = con;
+        con.CmdAddItemContainer(new InventoryPickup());
         int index = con.FindNextEmpty;
         //con.inContainer.Clear();
         UpdateContainer();
