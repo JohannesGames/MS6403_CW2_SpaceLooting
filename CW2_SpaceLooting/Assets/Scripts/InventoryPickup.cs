@@ -29,7 +29,7 @@ public class InventoryPickup
         serial = pu.serial;
     }
 
-    public InventoryPickup(PCControl.ItemPickups ip)
+    public InventoryPickup(LayoutManager.ItemPickups ip)
     {
         itemName = ip.itemName;
         pickupType = (ItemType)ip.pickupType;

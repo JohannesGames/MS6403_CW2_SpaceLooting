@@ -32,6 +32,7 @@ public class PrePickup
 
 public class LayoutManager : NetworkBehaviour
 {
+    public static LayoutManager LM;
     public Pickup pickupPrefab;
     public int playerNumber = 2;
     public int toolsRequired = 3;
@@ -43,17 +44,61 @@ public class LayoutManager : NetworkBehaviour
     public TextAsset compCSV;
     public TextAsset boostCSV;
     public List<PickupSpawner> spawnList = new List<PickupSpawner>();
+    public static List<ItemPickups> allPickups = new List<ItemPickups>();
     private char lineSeperater = '\n';
     private char fieldSeperator = ',';
-    
+
+    public struct ItemPickups
+    {
+
+        public ItemPickups(string _name, int _type, int _serial)
+        {
+            itemName = _name;
+            pickupType = _type;
+            serial = _serial;
+        }
+
+        public ItemPickups(InventoryPickup ip)
+        {
+            itemName = ip.itemName;
+            int typeIndex = (int)ip.pickupType;
+            pickupType = typeIndex;
+            serial = ip.serial;
+        }
+
+        public ItemPickups(Pickup pu)
+        {
+            itemName = pu.itemName;
+            int typeIndex = (int)pu.pickupType;
+            pickupType = typeIndex;
+            serial = pu.serial;
+        }
+
+        public string itemName;
+
+        public int pickupType;
+
+        public int serial;
+    }
+
     void Start()
     {
         if (!isServer)
         {
             return;
         }
+        // Singleton
+        if (!LM)
+        {
+            LM = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+        //
         DontDestroyOnLoad(this);
-        
+
         SpawnPickups(InventoryPickup.ItemType.tool);
 
         //foreach (InventoryPickup.ItemType _type in System.Enum.GetValues(typeof(InventoryPickup.ItemType))) // iterate through all pickup types and spawn all the objects
@@ -181,12 +226,24 @@ public class LayoutManager : NetworkBehaviour
                     PU.name = toBeSpawned[i].itemName + " - BOOST";
                     break;
             }
-
+            allPickups.Add(new ItemPickups(PU));
             NetworkServer.Spawn(PU.gameObject);
         }
 
         // check enough unique ones (playerNumber * toolsRequired * 2)?
-}
+    }
+
+    public ItemPickups GetItemFromSerial(int itemSerial)
+    {
+        for (int i = 0; i < allPickups.Count; i++)
+        {
+            if (allPickups[i].serial == itemSerial)
+            {
+                return allPickups[i];
+            }
+        }
+        return new ItemPickups("error", -1, 0);
+    }
 
     //void SpawnTools()
     //{

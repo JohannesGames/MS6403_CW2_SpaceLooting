@@ -6,7 +6,7 @@ using UnityEngine.Networking;
 public class Container : NetworkBehaviour
 {
 
-    //public class SyncInContainer : SyncListStruct<PCControl.ItemPickups>
+    //public class SyncInContainer : SyncListStruct<LayoutManager.ItemPickups>
     //{
     //}
 
@@ -15,13 +15,27 @@ public class Container : NetworkBehaviour
     public static int maxContainerSize = 10;
 
     [SyncVar]
-    public PCControl.ItemPickups[] inContainer = new PCControl.ItemPickups[10];
+    public int[] inContainer = new int[maxContainerSize];
+
+    public bool AddItemContainer(int pSerial)
+    {
+        int nextIndex = FindNextEmpty;  // find next available slot in array
+        if (nextIndex <= 0 && !CheckIfRepeat(pSerial))
+        {
+            CmdAddItemContainer(pSerial, nextIndex);
+            return true;
+        }
+        else
+        {
+            print("No available spaces in container");
+            return false;
+        }
+    }
 
     [Command]
-    public void CmdAddItemContainer(InventoryPickup tItem)
+    private void CmdAddItemContainer(int puSerial, int nIndex)
     {
-        //RpcAddItemContainer(tItem);
-        //inContainer.Add(new PCControl.ItemPickups(tItem));
+            inContainer[nIndex] = puSerial;
     }
 
     [ClientRpc]
@@ -32,8 +46,20 @@ public class Container : NetworkBehaviour
 
     public void RemoveItemContainer(InventoryPickup tItem)
     {
-        PCControl.ItemPickups cp = new PCControl.ItemPickups(tItem);
+        LayoutManager.ItemPickups cp = new LayoutManager.ItemPickups(tItem);
         //inContainer.Remove(cp);
+    }
+
+    public bool CheckIfRepeat(int tSerial)
+    {
+        for (int i = 0; i < inContainer.Length; i++)
+        {
+            if (tSerial == inContainer[i])
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     public int FindNextEmpty
@@ -42,7 +68,7 @@ public class Container : NetworkBehaviour
         {
             for (int i = 0; i < inContainer.Length; i++)
             {
-                if (inContainer[i].itemName == null)
+                if (inContainer[i] == 0)
                 {
                     return i;
                 }
