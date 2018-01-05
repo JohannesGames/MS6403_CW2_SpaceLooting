@@ -16,7 +16,7 @@ public class QuickMessage
 
 public class HUDManager : MonoBehaviour
 {
-
+    
 
     // Inventory Panel
     public Button closeInventoryButton;
@@ -233,8 +233,8 @@ public class HUDManager : MonoBehaviour
             }
         }
         UpdateInventory();
-        pc.CmdDropObject(new LayoutManager.ItemPickups(iPick));
-
+        pc.CmdDropObject(new PCControl.ItemPickups(iPick));
+        
         //for (int i = 0; i < pc.pcInvenTrans.childCount; i++)    //move from PC Inventory transform in hierarchy to main hierarchy with no parent
         //{
         //    if (pc.pcInvenTrans.GetChild(i).GetComponent<Pickup>().itemName == tItem.itemName)  //find item in PC hierarchy
@@ -272,21 +272,28 @@ public class HUDManager : MonoBehaviour
 
     public void MoveToContainer(InventoryPickup tItem)
     {
-        pc.AddObjectToContainer(tItem.serial, openContainer);
+        for (int i = 0; i < pcInv.inInventory.Count; i++)    //move from the PC Inventory to the container's inventory
+        {
+            if (pcInv.inInventory[i].serial == tItem.serial)
+            {
+                openContainer.AddItemContainer(tItem);
+                pcInv.inInventory.RemoveAt(i);
+            }
+        }
         UpdateContainer();
         UpdateInventory();
     }
 
     public void MoveFromContainer(InventoryPickup tItem)
     {
-        //for (int i = 0; i < openContainer.inContainer.Count; i++)    // container to PC inventory
-        //{
-        //    if (openContainer.inContainer[i].serial == tItem.serial)
-        //    {
-        //        openContainer.inContainer.RemoveAt(i);
-        //        pcInv.inInventory.Add(tItem);
-        //    }
-        //}
+        for (int i = 0; i < openContainer.inContainer.Count; i++)    // container to PC inventory
+        {
+            if (openContainer.inContainer[i].serial == tItem.serial)
+            {
+                openContainer.inContainer.RemoveAt(i);
+                pcInv.inInventory.Add(tItem);
+            }
+        }
         UpdateContainer();
         UpdateInventory();
     }
@@ -300,22 +307,22 @@ public class HUDManager : MonoBehaviour
         if (openContainer)
         {
             ClearContainerList();
-            foreach (int puSerial in openContainer.inContainer)
+            foreach (PCControl.ItemPickups item in openContainer.inContainer)
             {
                 SingleItemWorld temp = Instantiate(containerItem, containerListContent);
-                temp.itemData = new InventoryPickup(LayoutManager.LM.GetItemFromSerial(puSerial));
+                temp.itemData = new InventoryPickup(item);
                 temp.itemButtonPickup.GetComponent<PickupItemButton>().hm = this;
                 temp.isInContainer = true;
 
-                switch (temp.itemData.pickupType)
+                switch (item.pickupType)
                 {
-                    case InventoryPickup.ItemType.tool: // if it's a tool
+                    case 0: // if it's a tool
                         temp.itemIcon.sprite = toolIcon;
                         break;
-                    case InventoryPickup.ItemType.component: // if it's a component
+                    case 1: // if it's a component
                         temp.itemIcon.sprite = compIcon;
                         break;
-                    case InventoryPickup.ItemType.boost: // if it's a boost
+                    case 2: // if it's a boost
                         temp.itemIcon.sprite = boostIcon;
                         temp.itemButtonConsume.gameObject.SetActive(true);     //only show Consume button for boosts
                         break;

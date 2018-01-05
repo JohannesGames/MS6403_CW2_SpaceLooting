@@ -7,30 +7,29 @@ using UnityEngine.AI;
 public class PCControl : NetworkBehaviour
 {
 
-    //public struct ItemPickups
-    //{
+    public struct ItemPickups
+    {
+        public ItemPickups(string _name, int _type, int _serial)
+        {
+            itemName = _name;
+            pickupType = _type;
+            serial = _serial;
+        }
 
-    //    public ItemPickups(string _name, int _type, int _serial)
-    //    {
-    //        itemName = _name;
-    //        pickupType = _type;
-    //        serial = _serial;
-    //    }
+        public ItemPickups(InventoryPickup ip)
+        {
+            itemName = ip.itemName;
+            int typeIndex = (int)ip.pickupType;
+            pickupType = typeIndex;
+            serial = ip.serial;
+        }
 
-    //    public ItemPickups(InventoryPickup ip)
-    //    {
-    //        itemName = ip.itemName;
-    //        int typeIndex = (int)ip.pickupType;
-    //        pickupType = typeIndex;
-    //        serial = ip.serial;
-    //    }
+        public string itemName;
 
-    //    public string itemName;
+        public int pickupType;
 
-    //    public int pickupType;
-
-    //    public int serial;
-    //}
+        public int serial;
+    }
 
 
     public bool isInMenu;
@@ -42,7 +41,7 @@ public class PCControl : NetworkBehaviour
     NavMeshAgent NMA_PC;
     float speedNav; //the max navmeshagent speed of the PC
     CharacterController CC;
-    PCInventory pcI;
+    //PCInventory pcI;
     public HUDManager hM;
     public LocalGameManager lgm;
     public Transform podInventory;
@@ -74,7 +73,7 @@ public class PCControl : NetworkBehaviour
         hM = Instantiate(hM);
         hM.pc = this;
         Instantiate(lgm);
-        hM.pcInv = pcI = GetComponent<PCInventory>();
+        hM.pcInv = GetComponent<PCInventory>();
         CameraAndOutline(false);
     }
 
@@ -270,7 +269,7 @@ public class PCControl : NetworkBehaviour
     }
 
     [Command]
-    public void CmdDropObject(LayoutManager.ItemPickups ip)
+    public void CmdDropObject(ItemPickups ip)
     {
         Vector3 tRot = new Vector3(30, Random.Range(0, 360), 0);    //generate random rotation to throw object
         Vector3 tPos = transform.position + Vector3.up * 2;
@@ -284,28 +283,6 @@ public class PCControl : NetworkBehaviour
         pu.transform.rotation = Quaternion.Euler(tRot);
         pu.GetComponent<Rigidbody>().AddForce(pu.transform.TransformDirection(Vector3.up) * pickupThrowStrength);   //throw it a small distance next to the PC
         NetworkServer.Spawn(pu.gameObject);
-    }
-
-    public void AddObjectToContainer(int _serial, Container _con)
-    {
-        _con.inContainer.Add(_serial);
-    }
-
-    [Command]
-    private void CmdAddObjectToContainer(int _serial, Container _con)
-    {
-        int index = _con.FindNextEmpty; // find next available index in container
-
-        if (index >= 0) // if there's space in the container
-        {
-            for (int i = 0; i < pcI.inInventory.Count; i++)
-                if (pcI.inInventory[i].serial == _serial) pcI.inInventory.RemoveAt(i);  // remove from PC's inventory
-
-            if (_con.CheckIfRepeat(_serial))    // if this object hasn't already been added
-            {
-                _con.inContainer[index] = _serial;
-            }
-        }
     }
 
     public void SetNavSpeed(float mod)

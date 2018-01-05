@@ -6,73 +6,38 @@ using UnityEngine.Networking;
 public class Container : NetworkBehaviour
 {
 
-    //public class SyncInContainer : SyncListStruct<LayoutManager.ItemPickups>
-    //{
-    //}
-
-    //public SyncInContainer inContainer = new SyncInContainer();
-
-    public static int maxContainerSize = 10;
-
-    public SyncListInt inContainer;
-
-    public bool AddItemContainer(int pSerial)
+    public class SyncInContainer : SyncListStruct<PCControl.ItemPickups>
     {
-        int nextIndex = FindNextEmpty;  // find next available slot in array
-        if (nextIndex <= 0 && !CheckIfRepeat(pSerial))
-        {
-            CmdAddItemContainer(pSerial, nextIndex);
-            return true;
-        }
-        else
-        {
-            print("No available spaces in container");
-            return false;
-        }
     }
 
-    [Command]
-    private void CmdAddItemContainer(int puSerial, int nIndex)
+    public SyncInContainer inContainer = new SyncInContainer();
+
+    //[SyncVar]
+    //public List<PCControl.ItemPickups> inContainer = new List<PCControl.ItemPickups>();
+
+    void ContainerChanged(SyncListStruct<PCControl.ItemPickups>.Operation op, int itemIndex)
     {
-            inContainer[nIndex] = puSerial;
+        Debug.Log("list changed:" + itemIndex);
     }
 
-    [ClientRpc]
-    public void RpcAddItemContainer(InventoryPickup tItem)
+    void Start()
     {
-        //inContainer.Add(new PCControl.ItemPickups(tItem));
+        if (isLocalPlayer)
+        {
+            return;
+        }
+        inContainer.Callback = ContainerChanged;
+    }
+
+
+    public void AddItemContainer(InventoryPickup tItem)
+    {
+        inContainer.Add(new PCControl.ItemPickups(tItem));
     }
 
     public void RemoveItemContainer(InventoryPickup tItem)
     {
-        LayoutManager.ItemPickups cp = new LayoutManager.ItemPickups(tItem);
-        //inContainer.Remove(cp);
-    }
-
-    public bool CheckIfRepeat(int tSerial)
-    {
-        for (int i = 0; i < inContainer.Count; i++)
-        {
-            if (tSerial == inContainer[i])
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public int FindNextEmpty
-    {
-        get
-        {
-            for (int i = 0; i < inContainer.Count; i++)
-            {
-                if (inContainer[i] == 0)
-                {
-                    return i;
-                }
-            }
-            return -1;
-        }
+        PCControl.ItemPickups cp = new PCControl.ItemPickups(tItem);
+        inContainer.Remove(cp);
     }
 }
