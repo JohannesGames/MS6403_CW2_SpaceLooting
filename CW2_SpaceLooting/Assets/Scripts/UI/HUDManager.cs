@@ -276,7 +276,7 @@ public class HUDManager : MonoBehaviour
         {
             if (pcInv.inInventory[i].serial == tItem.serial)
             {
-                openContainer.AddItemContainer(tItem);
+                pc.AddItemContainer(tItem, openContainer);
                 pcInv.inInventory.RemoveAt(i);
             }
         }

@@ -17,22 +17,39 @@ public class Container : NetworkBehaviour
 
     void ContainerChanged(SyncListStruct<PCControl.ItemPickups>.Operation op, int itemIndex)
     {
-        Debug.Log("list changed:" + itemIndex);
+        print("added " + inContainer[itemIndex].itemName);
+        //inContainer.Dirty(itemIndex);
     }
 
     void Start()
     {
-        if (isLocalPlayer)
-        {
-            return;
-        }
         inContainer.Callback = ContainerChanged;
     }
 
 
     public void AddItemContainer(InventoryPickup tItem)
     {
-        inContainer.Add(new PCControl.ItemPickups(tItem));
+        if (isClient)
+        {
+            CmdAddItemOnClient(tItem.itemName, (int)tItem.pickupType, tItem.serial);
+        }
+        else
+            inContainer.Add(new PCControl.ItemPickups(tItem));
+
+        for (int i = 0; i < inContainer.Count; i++)
+        {
+            if (inContainer[i].serial == tItem.serial)
+            {
+                inContainer.Dirty(i);
+            }
+        }
+    }
+
+    [Command]
+    private void CmdAddItemOnClient(string _name, int _type, int _serial)
+    {
+        PCControl.ItemPickups ip = new PCControl.ItemPickups(_name, _type, _serial);
+        inContainer.Add(ip);
     }
 
     public void RemoveItemContainer(InventoryPickup tItem)

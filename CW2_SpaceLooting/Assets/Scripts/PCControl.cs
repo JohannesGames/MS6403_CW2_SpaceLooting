@@ -57,7 +57,12 @@ public class PCControl : NetworkBehaviour
     public float doubleClickInterval = 0.5f;
     float doubleClickTime;   //the time by which a second click must have been inputed
     bool instantPickup; //if double clicked, pick up instantly
-    /////////
+                        /////////
+
+    public Container openContainer;
+    public string itemName;
+    public int type;
+    public int serial;
 
 
     void Start()
@@ -283,6 +288,45 @@ public class PCControl : NetworkBehaviour
         pu.transform.rotation = Quaternion.Euler(tRot);
         pu.GetComponent<Rigidbody>().AddForce(pu.transform.TransformDirection(Vector3.up) * pickupThrowStrength);   //throw it a small distance next to the PC
         NetworkServer.Spawn(pu.gameObject);
+    }
+
+    public void AddItemContainer(InventoryPickup tItem, Container _con)
+    {
+        if (isClient)
+        {
+            openContainer = _con;
+            itemName = tItem.itemName;
+            type = (int)tItem.pickupType;
+            serial = tItem.serial;
+            CmdAddItemOnClient();
+        }
+        else
+            _con.inContainer.Add(new ItemPickups(tItem));
+
+        openContainer = null;
+
+        //for (int i = 0; i < _con.inContainer.Count; i++)
+        //{
+        //    if (_con.inContainer[i].serial == tItem.serial)
+        //    {
+        //        _con.inContainer.Dirty(i);
+        //    }
+        //}
+    }
+
+    [Command]
+    public void CmdAddItemOnClient()
+    {
+        //ItemPickups ip = new ItemPickups(itemName, type, serial);
+
+        openContainer = hM.openContainer;
+
+        if (!openContainer)
+        {
+            print("No container!");
+        }
+        //else
+        //    openContainer.inContainer.Add(ip);  
     }
 
     public void SetNavSpeed(float mod)
