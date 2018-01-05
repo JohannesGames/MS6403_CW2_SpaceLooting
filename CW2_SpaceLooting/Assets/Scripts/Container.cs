@@ -14,8 +14,7 @@ public class Container : NetworkBehaviour
 
     public static int maxContainerSize = 10;
 
-    [SyncVar]
-    public int[] inContainer = new int[maxContainerSize];
+    public SyncListInt inContainer;
 
     public bool AddItemContainer(int pSerial)
     {
@@ -52,7 +51,7 @@ public class Container : NetworkBehaviour
 
     public bool CheckIfRepeat(int tSerial)
     {
-        for (int i = 0; i < inContainer.Length; i++)
+        for (int i = 0; i < inContainer.Count; i++)
         {
             if (tSerial == inContainer[i])
             {
@@ -66,7 +65,7 @@ public class Container : NetworkBehaviour
     {
         get
         {
-            for (int i = 0; i < inContainer.Length; i++)
+            for (int i = 0; i < inContainer.Count; i++)
             {
                 if (inContainer[i] == 0)
                 {

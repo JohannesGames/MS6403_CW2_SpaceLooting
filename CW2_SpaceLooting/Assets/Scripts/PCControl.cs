@@ -288,7 +288,7 @@ public class PCControl : NetworkBehaviour
 
     public void AddObjectToContainer(int _serial, Container _con)
     {
-        CmdAddObjectToContainer(_serial, _con);
+        _con.inContainer.Add(_serial);
     }
 
     [Command]
