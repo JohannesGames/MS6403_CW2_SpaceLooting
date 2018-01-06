@@ -1167,6 +1167,7 @@ MonoBehaviour:
   closeContainerPanel: {fileID: 114751355667951584}
   containerPanel: {fileID: 224471704634944300}
   containerListContent: {fileID: 224889806679898638}
+  refreshContainerPanelButton: {fileID: 0}
   repairPodPanel: {fileID: 224123117495180860}
   rp: {fileID: 0}
   inRepairPodScreen: 0
@@ -1574,7 +1575,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 224357419251578580}
   m_Direction: 0
   m_Value: 0
-  m_Size: 1
+  m_Size: 0.99999994
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:

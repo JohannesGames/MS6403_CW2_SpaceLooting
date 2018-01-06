@@ -12,11 +12,11 @@ public class RepairPod : MonoBehaviour
     public RectTransform toolsPanel;
     public List<InventoryPickup> inRepairScreen = new List<InventoryPickup>();
     public PodListItem itemSlot;
-    HUDManager hm;
+    private HUDManager hm;
 
     void Start()
     {
-        hm = GameObject.FindGameObjectWithTag("GameController").GetComponent<HUDManager>();
+        hm = GetComponent<HUDManager>();
         AddItemSlots();
     }
 
@@ -34,6 +34,7 @@ public class RepairPod : MonoBehaviour
             }
             componentsRequired[i].listIndex = i;
             componentsRequired[i].podItemType = InventoryPickup.ItemType.component;
+            componentsRequired[i].rp = this;
         }
 
         for (int i = 0; i < toolsRequired.Length; i++)
@@ -41,6 +42,7 @@ public class RepairPod : MonoBehaviour
             toolsRequired[i] = Instantiate(itemSlot, toolsPanel);
             toolsRequired[i].listIndex = i;
             toolsRequired[i].podItemType = InventoryPickup.ItemType.tool;
+            toolsRequired[i].rp = this;
         }
     }
 
@@ -58,7 +60,7 @@ public class RepairPod : MonoBehaviour
                 if (componentsRequired[i].itemInSlot == null)  //if there's space add it to the array and the pod in the hierarchy
                 {
                     inRepairScreen.Add(new InventoryPickup(tItem));
-                    hm.pcInv.inInventory.Remove(tItem);
+                    hm.pcInv.RemoveItemInventory(tItem.serial);
                     componentsRequired[i].itemInSlot = tItem;
                     componentsRequired[i].removeButton.GetComponentInChildren<Text>().text = tItem.itemName;    // display item name in repair UI TODO make prettier
                     return;
@@ -72,7 +74,7 @@ public class RepairPod : MonoBehaviour
                 if (toolsRequired[i].itemInSlot == null)  //if there's space add it to the array and the pod in the hierarchy
                 {
                     inRepairScreen.Add(new InventoryPickup(tItem));
-                    hm.pcInv.inInventory.Remove(tItem);
+                    hm.pcInv.RemoveItemInventory(tItem.serial);
                     toolsRequired[i].itemInSlot = tItem;
                     toolsRequired[i].removeButton.GetComponentInChildren<Text>().text = tItem.itemName;
                     return;
@@ -86,12 +88,12 @@ public class RepairPod : MonoBehaviour
         switch (tType)
         {
             case InventoryPickup.ItemType.tool:
-                hm.pcInv.inInventory.Add(new InventoryPickup(toolsRequired[index].itemInSlot));
+                hm.pcInv.AddItemInventory(toolsRequired[index].itemInSlot);
                 toolsRequired[index].itemInSlot = null;
                 toolsRequired[index].removeButton.GetComponentInChildren<Text>().text = "n/a";
                 break;
             case InventoryPickup.ItemType.component:
-                hm.pcInv.inInventory.Add(new InventoryPickup(componentsRequired[index].itemInSlot));
+                hm.pcInv.AddItemInventory(componentsRequired[index].itemInSlot);
                 componentsRequired[index].itemInSlot = null;
                 componentsRequired[index].removeButton.GetComponentInChildren<Text>().text = "n/a";
                 break;

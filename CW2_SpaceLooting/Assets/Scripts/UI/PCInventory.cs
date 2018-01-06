@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PCInventory : MonoBehaviour
 {
-    public List<InventoryPickup> inInventory = new List<InventoryPickup>();  //where all the PC's items are stored
+    private List<InventoryPickup> inInventory = new List<InventoryPickup>();  //where all the PC's items are stored
     PCControl pc;
 
     void Start()
@@ -18,23 +18,31 @@ public class PCInventory : MonoBehaviour
         CheckEncumbrance();
     }
 
+    public List<InventoryPickup> GetInventory() { return inInventory; }
+
     public void AddItemInventory(InventoryPickup tItem)  //called by button in UI
     {
-        inInventory.Add(new InventoryPickup(tItem));
-        //switch (tItem.pickupType)
-        //{
-        //    case InventoryPickup.ItemType.tool:
-        //        inInventory.Add(new InventoryPickup(tItem.itemName, InventoryPickup.ItemType.tool, tItem.serial));
-        //        break;
-        //    case InventoryPickup.ItemType.component:
-        //        inInventory.Add(new InventoryPickup(tItem.itemName, InventoryPickup.ItemType.component, tItem.serial));
-        //        break;
-        //    case InventoryPickup.ItemType.boost:
-        //        inInventory.Add(new InventoryPickup(tItem.itemName, InventoryPickup.ItemType.boost, tItem.serial));
-        //        break;
-        //    default:
-        //        break;
-        //}
+        if (!CheckForRepeats(tItem.serial)) // ensure no items are added more than once
+        {
+            inInventory.Add(new InventoryPickup(tItem));
+        }
+    }
+
+    bool CheckForRepeats(int _serial)
+    {
+        for (int i = 0; i < inInventory.Count; i++)
+        {
+            if (inInventory[i].serial == _serial) return true;
+        }
+        return false;
+    }
+
+    public void RemoveItemInventory(int _serial)
+    {
+        for (int i = 0; i < inInventory.Count; i++)
+        {
+            if (inInventory[i].serial == _serial) inInventory.RemoveAt(i); return;
+        }
     }
 
     void CheckEncumbrance()

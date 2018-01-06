@@ -16,7 +16,7 @@ public class QuickMessage
 
 public class HUDManager : MonoBehaviour
 {
-    
+
 
     // Inventory Panel
     public Button closeInventoryButton;
@@ -72,6 +72,9 @@ public class HUDManager : MonoBehaviour
     public PCInventory pcInv;   //the local PC's inventory
 
     private bool menuActive;    //is a menu active
+
+    // Networking
+    public float refreshTime = .8f;
 
     void Start()
     {
@@ -206,7 +209,7 @@ public class HUDManager : MonoBehaviour
         {
             for (int i = rp.inRepairScreen.Count - 1; i >= 0; i--)
             {
-                pcInv.inInventory.Add(rp.inRepairScreen[i]);
+                pcInv.AddItemInventory(rp.inRepairScreen[i]);
                 rp.inRepairScreen.RemoveAt(i);
             }
             foreach (PodListItem item in rp.componentsRequired)
@@ -221,80 +224,27 @@ public class HUDManager : MonoBehaviour
 
     public void DropInventoryItem(InventoryPickup iPick)
     {
-        Vector3 tRot = new Vector3(30, Random.Range(0, 360), 0);    //generate random rotation to throw object
-        Vector3 tPos = pc.transform.position + Vector3.up * 2;
-
-        for (int i = 0; i < pcInv.inInventory.Count; i++)           // remove pickup from pc inventory
-        {
-            if (pcInv.inInventory[i].serial == iPick.serial)
-            {
-                pcInv.inInventory.RemoveAt(i);
-                break;
-            }
-        }
+        pcInv.RemoveItemInventory(iPick.serial);
         UpdateInventory();
         pc.CmdDropObject(new PCControl.ItemPickups(iPick));
-        
-        //for (int i = 0; i < pc.pcInvenTrans.childCount; i++)    //move from PC Inventory transform in hierarchy to main hierarchy with no parent
-        //{
-        //    if (pc.pcInvenTrans.GetChild(i).GetComponent<Pickup>().itemName == tItem.itemName)  //find item in PC hierarchy
-        //    {
-        //        Transform invTrans = pc.pcInvenTrans.GetChild(i);
-        //        invTrans.position = tPos;
-        //        invTrans.rotation = Quaternion.Euler(tRot);
-        //        invTrans.GetComponent<Rigidbody>().isKinematic = false;
-        //        invTrans.GetComponent<Pickup>().particleSys.Play();
-        //        invTrans.GetComponent<Rigidbody>().AddForce(invTrans.TransformDirection(Vector3.up) * pickupThrowStrength);   //throw it a small distance next to the PC
-        //        invTrans.parent = null;
-        //        invTrans.GetComponent<Collider>().enabled = true;
-        //        invTrans.GetComponent<MeshRenderer>().enabled = true;
-        //    }
-        //}
-
-        //if (listOfItemsInInventory.Count > 0)    //then delete it from the hierarchy and the PC inventory list
-        //{
-        //    for (int i = 0; i < listOfItemsInInventory.Count; i++)   //remove from UI hierarchy
-        //    {
-        //        if (listOfItemsInInventory[i].itemData.itemName == tItem.itemName)
-        //        {
-        //            Destroy(listOfItemsInInventory[i].gameObject);   //remove from UI hierarchy
-        //            listOfItemsInInventory.RemoveAt(i);
-        //            for (int j = 0; j < pcInv.inInventory.Count; j++)   //remove from PCInventory list<>
-        //            {
-        //                if (pcInv.inInventory[j].itemName == tItem.itemName)
-        //                    pcInv.inInventory.RemoveAt(j);  //remove from PCInventory list<>
-        //            }
-        //            break;
-        //        }
-        //    }
-        //}
     }
 
     public void MoveToContainer(InventoryPickup tItem)
     {
-        for (int i = 0; i < pcInv.inInventory.Count; i++)    //move from the PC Inventory to the container's inventory
-        {
-            if (pcInv.inInventory[i].serial == tItem.serial)
-            {
-                pc.AddItemContainer(tItem, openContainer);
-                pcInv.inInventory.RemoveAt(i);
-            }
-        }
-        UpdateContainer();
+        pc.CmdAddItemToContainer(openContainer.gameObject, new PCControl.ItemPickups(tItem));
+        pcInv.RemoveItemInventory(tItem.serial);
+
+        Invoke("UpdateContainer", refreshTime);
         UpdateInventory();
+
     }
 
     public void MoveFromContainer(InventoryPickup tItem)
     {
-        for (int i = 0; i < openContainer.inContainer.Count; i++)    // container to PC inventory
-        {
-            if (openContainer.inContainer[i].serial == tItem.serial)
-            {
-                openContainer.inContainer.RemoveAt(i);
-                pcInv.inInventory.Add(tItem);
-            }
-        }
-        UpdateContainer();
+        pc.CmdRemoveItemFromContainer(openContainer.gameObject, new PCControl.ItemPickups(tItem));
+        pcInv.AddItemInventory(tItem);
+
+        Invoke("UpdateContainer", refreshTime);
         UpdateInventory();
     }
 
@@ -335,7 +285,7 @@ public class HUDManager : MonoBehaviour
     public void UpdateInventory()
     {
         ClearInventoryList();
-        foreach (InventoryPickup item in pcInv.inInventory)  //used foreach because its slightly neater
+        foreach (InventoryPickup item in pcInv.GetInventory())  //used foreach because its slightly neater
         {
             if (!inRepairPodScreen)
             {
@@ -375,8 +325,6 @@ public class HUDManager : MonoBehaviour
                     if (!repeat)    // if no other of this pickup have been added to repair screen
                     {
                         ListItemInventory temp = Instantiate(listItem, inventoryListContent);   //create new UI element in the inventory list
-                        temp.hm = this;
-                        InventoryPickup tempData = temp.GetComponent<InventoryPickup>();
                         temp.hm = this;
                         switch (item.pickupType)
                         {

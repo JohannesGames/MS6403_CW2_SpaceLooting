@@ -33,7 +33,8 @@ public class PCControl : NetworkBehaviour
 
 
     public bool isInMenu;
-    public GameObject GO_CameraContainer;
+    public GameObject cameraContainer;
+    public GameObject escapePod;
     public Light LI_Point;
     public float FL_Gravity;
     CameraFollow CF_Camera;
@@ -57,12 +58,7 @@ public class PCControl : NetworkBehaviour
     public float doubleClickInterval = 0.5f;
     float doubleClickTime;   //the time by which a second click must have been inputed
     bool instantPickup; //if double clicked, pick up instantly
-                        /////////
-
-    public Container openContainer;
-    public string itemName;
-    public int type;
-    public int serial;
+    /////////
 
 
     void Start()
@@ -80,6 +76,9 @@ public class PCControl : NetworkBehaviour
         Instantiate(lgm);
         hM.pcInv = GetComponent<PCInventory>();
         CameraAndOutline(false);
+        CmdSpawnEscapePod();
+        GetComponent<AudioListener>().enabled = true;
+        AudioListener.volume = 0;
     }
 
     void FixedUpdate()
@@ -117,11 +116,24 @@ public class PCControl : NetworkBehaviour
         CO_InRadius.Clear();
     }
 
+    [Command]
+    void CmdSpawnEscapePod()
+    {
+        // Spawn escape pod and set it to relevant layer
+        escapePod = Instantiate(escapePod, transform.position, Quaternion.identity);
+        NetworkServer.Spawn(escapePod);
+        int podLayer = LayerMask.NameToLayer("Pod");
+        escapePod.layer = podLayer;
+        for (int i = 0; i < escapePod.transform.childCount; i++)
+            escapePod.transform.GetChild(i).gameObject.layer = podLayer;
+        //
+    }
+
     void CameraAndOutline(bool isLocal)
     {
         if (isLocal)
         {
-            CF_Camera = Instantiate(GO_CameraContainer, transform.position, transform.rotation).GetComponent<CameraFollow>();
+            CF_Camera = Instantiate(cameraContainer, transform.position, transform.rotation).GetComponent<CameraFollow>();
             CF_Camera.GO_PC = gameObject;
             Demo pcCameraOutlineScript = CF_Camera.pcCamera.GetComponent<Demo>();
             Outline pcO = GetComponentInChildren<Outline>();
@@ -261,7 +273,8 @@ public class PCControl : NetworkBehaviour
     public void PickupObject(GameObject obj)    // this is called when picking up from the game world
     {
         Pickup toPickUp = obj.GetComponent<Pickup>();
-        hM.pcInv.inInventory.Add(new InventoryPickup(toPickUp.itemName, toPickUp.pickupType, toPickUp.serial));
+        hM.pcInv.AddItemInventory(new InventoryPickup(toPickUp));
+        //hM.pcInv.inInventory.Add(new InventoryPickup(toPickUp.itemName, toPickUp.pickupType, toPickUp.serial));
         CmdPickupObject(obj);
         hM.AddMessage("Picked up: " + toPickUp.itemName, true);
         GO_PickupNext = null;
@@ -270,7 +283,7 @@ public class PCControl : NetworkBehaviour
     [Command]
     void CmdPickupObject(GameObject obj)
     {
-        Destroy(obj);
+        NetworkServer.Destroy(obj);
     }
 
     [Command]
@@ -290,43 +303,44 @@ public class PCControl : NetworkBehaviour
         NetworkServer.Spawn(pu.gameObject);
     }
 
-    public void AddItemContainer(InventoryPickup tItem, Container _con)
+    [Command]
+    public void CmdAddItemToContainer(GameObject _con, ItemPickups ip)
     {
-        if (isClient)
+
+        Container tCon = _con.GetComponent<Container>();
+
+        if (tCon)
         {
-            openContainer = _con;
-            itemName = tItem.itemName;
-            type = (int)tItem.pickupType;
-            serial = tItem.serial;
-            CmdAddItemOnClient();
+            tCon.inContainer.Add(ip);
         }
         else
-            _con.inContainer.Add(new ItemPickups(tItem));
+        {
+            Debug.LogError("Attempted to add to non-existent container");
+        }
 
-        openContainer = null;
-
-        //for (int i = 0; i < _con.inContainer.Count; i++)
-        //{
-        //    if (_con.inContainer[i].serial == tItem.serial)
-        //    {
-        //        _con.inContainer.Dirty(i);
-        //    }
-        //}
     }
 
     [Command]
-    public void CmdAddItemOnClient()
+    public void CmdRemoveItemFromContainer(GameObject _con, ItemPickups ip)
     {
-        //ItemPickups ip = new ItemPickups(itemName, type, serial);
+        Container tCon = _con.GetComponent<Container>();
 
-        openContainer = hM.openContainer;
-
-        if (!openContainer)
+        if (tCon)
         {
-            print("No container!");
+            for (int i = 0; i < tCon.inContainer.Count; i++)
+            {
+                if (tCon.inContainer[i].serial == ip.serial)
+                {
+                    tCon.inContainer.RemoveAt(i);
+                    return;
+                }
+            }
+            print("No such item in this container");
         }
-        //else
-        //    openContainer.inContainer.Add(ip);  
+        else
+        {
+            Debug.LogError("Attempted to remove from non-existent container");
+        }
     }
 
     public void SetNavSpeed(float mod)

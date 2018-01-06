@@ -7,13 +7,12 @@ public class PodListItem : MonoBehaviour
     public InventoryPickup itemInSlot;
     public Button removeButton;
     public int listIndex = -1;
-    RepairPod rp;
+    public RepairPod rp;
     public Image icon;
     public InventoryPickup.ItemType podItemType;
     // Use this for initialization
     void Start()
     {
-        rp = GameObject.FindGameObjectWithTag("GameController").GetComponent<RepairPod>();
         removeButton.onClick.AddListener(RemoveFromSlot);
     }
 
@@ -25,7 +24,7 @@ public class PodListItem : MonoBehaviour
 
     public void RemoveFromSlot()
     {
-        if (itemInSlot == null)
+        if (itemInSlot != null)
         {
             rp.RemoveItem(listIndex, podItemType);
             rp.GetComponent<HUDManager>().UpdateInventory();

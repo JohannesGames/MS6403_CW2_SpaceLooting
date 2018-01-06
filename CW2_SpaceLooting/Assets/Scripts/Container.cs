@@ -17,8 +17,7 @@ public class Container : NetworkBehaviour
 
     void ContainerChanged(SyncListStruct<PCControl.ItemPickups>.Operation op, int itemIndex)
     {
-        print("added " + inContainer[itemIndex].itemName);
-        //inContainer.Dirty(itemIndex);
+        //print(op);
     }
 
     void Start()

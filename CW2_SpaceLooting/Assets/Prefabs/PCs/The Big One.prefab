@@ -44,21 +44,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!1 &1215687225110708
-GameObject:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  serializedVersion: 5
-  m_Component:
-  - component: {fileID: 4963334820417674}
-  m_Layer: 17
-  m_Name: Inventory
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
 --- !u!1 &1317427893224328
 GameObject:
   m_ObjectHideFlags: 0
@@ -104,11 +89,10 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1879537341438234}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -1.27, y: 1.26, z: -0.3}
+  m_LocalPosition: {x: 1.9495001, y: 0.25, z: 3.1325285}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4169191992311158}
-  - {fileID: 4963334820417674}
   - {fileID: 4610772718841810}
   - {fileID: 4805804447155622}
   m_Father: {fileID: 0}
@@ -138,7 +122,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4044840163673010}
-  m_RootOrder: 2
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &4805804447155622
 Transform:
@@ -151,20 +135,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4044840163673010}
-  m_RootOrder: 3
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!4 &4963334820417674
-Transform:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1215687225110708}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 4044840163673010}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!23 &23228195413308034
 MeshRenderer:
@@ -346,8 +317,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isInMenu: 0
-  GO_CameraContainer: {fileID: 1800410202692166, guid: 08506de0b3ab1d64380dadd1a61e74b0,
+  cameraContainer: {fileID: 1800410202692166, guid: 08506de0b3ab1d64380dadd1a61e74b0,
     type: 2}
+  escapePod: {fileID: 1179498873279780, guid: 983a4a41469474b4ea26b5191d2f53d2, type: 2}
   LI_Point: {fileID: 108191797683479830}
   FL_Gravity: 0
   hM: {fileID: 114216866977420888, guid: 0d6661e9241f115418a8624db5f479a0, type: 2}
@@ -356,7 +328,7 @@ MonoBehaviour:
   GO_PickupNext: {fileID: 0}
   CO_InRadius: []
   FL_Reach: 1.5
-  pcInvenTrans: {fileID: 4963334820417674}
+  pcInvenTrans: {fileID: 0}
   pickupPrefab: {fileID: 114116011835649338, guid: 59f93d58be2e50f4ebf161e8c412174e,
     type: 2}
   outlineColour: {r: 0, g: 0.58431375, b: 1, a: 1}
