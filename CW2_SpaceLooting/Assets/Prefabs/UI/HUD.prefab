@@ -1167,7 +1167,6 @@ MonoBehaviour:
   closeContainerPanel: {fileID: 114751355667951584}
   containerPanel: {fileID: 224471704634944300}
   containerListContent: {fileID: 224889806679898638}
-  refreshContainerPanelButton: {fileID: 0}
   repairPodPanel: {fileID: 224123117495180860}
   rp: {fileID: 0}
   inRepairPodScreen: 0
@@ -1178,6 +1177,7 @@ MonoBehaviour:
   pickupThrowStrength: 500
   pc: {fileID: 0}
   pcInv: {fileID: 0}
+  refreshTime: 0.1
 --- !u!114 &114227037903632650
 MonoBehaviour:
   m_ObjectHideFlags: 1

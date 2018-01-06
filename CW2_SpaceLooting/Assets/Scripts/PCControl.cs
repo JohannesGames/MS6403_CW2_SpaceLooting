@@ -42,7 +42,7 @@ public class PCControl : NetworkBehaviour
     NavMeshAgent NMA_PC;
     float speedNav; //the max navmeshagent speed of the PC
     CharacterController CC;
-    //PCInventory pcI;
+    PCInventory pcI;
     public HUDManager hM;
     public LocalGameManager lgm;
     public Transform podInventory;
@@ -58,8 +58,9 @@ public class PCControl : NetworkBehaviour
     public float doubleClickInterval = 0.5f;
     float doubleClickTime;   //the time by which a second click must have been inputed
     bool instantPickup; //if double clicked, pick up instantly
-    /////////
+                        /////////
 
+    Container openContainer;
 
     void Start()
     {
@@ -74,7 +75,7 @@ public class PCControl : NetworkBehaviour
         hM = Instantiate(hM);
         hM.pc = this;
         Instantiate(lgm);
-        hM.pcInv = GetComponent<PCInventory>();
+        hM.pcInv = pcI = GetComponent<PCInventory>();
         CameraAndOutline(false);
         CmdSpawnEscapePod();
         GetComponent<AudioListener>().enabled = true;
@@ -209,7 +210,7 @@ public class PCControl : NetworkBehaviour
             LI_Point.transform.parent.gameObject.SetActive(true);
         }
     }
-#endregion
+    #endregion
 
     void CheckForPickups()  //check if PC is within reach of any pickups or containers
     {
@@ -263,7 +264,7 @@ public class PCControl : NetworkBehaviour
                             GO_PickupNext = null;
                             break;
                         }
-                        
+
                     }
                 }
             }
@@ -274,7 +275,6 @@ public class PCControl : NetworkBehaviour
     {
         Pickup toPickUp = obj.GetComponent<Pickup>();
         hM.pcInv.AddItemInventory(new InventoryPickup(toPickUp));
-        //hM.pcInv.inInventory.Add(new InventoryPickup(toPickUp.itemName, toPickUp.pickupType, toPickUp.serial));
         CmdPickupObject(obj);
         hM.AddMessage("Picked up: " + toPickUp.itemName, true);
         GO_PickupNext = null;
@@ -304,13 +304,49 @@ public class PCControl : NetworkBehaviour
     }
 
     [Command]
+    public void CmdAccessContainer(GameObject _con)
+    {
+        Container tCon = _con.GetComponent<Container>();
+
+        bool repeatCheck = false;
+        for (int i = 0; i < tCon.playersAccessing.Count; i++)
+        {
+            if (GetInstanceID() == tCon.playersAccessing[i].GetInstanceID())
+            {
+                repeatCheck = true;
+            }
+        }
+        if (!repeatCheck) tCon.playersAccessing.Add(this.gameObject);
+
+        tCon.RpcAddPlayers(this.gameObject);
+    }
+
+    [Command]
+    public void CmdExitContainer(GameObject _con)
+    {
+        Container tCon = _con.GetComponent<Container>();
+        
+        for (int i = 0; i < tCon.playersAccessing.Count; i++)
+        {
+            if (GetInstanceID() == tCon.playersAccessing[i].GetInstanceID())
+            {
+                tCon.playersAccessing.RemoveAt(i);
+            }
+        }
+
+        tCon.RpcRemovePlayer(this.gameObject);
+    }
+
+    [Command]
     public void CmdAddItemToContainer(GameObject _con, ItemPickups ip)
     {
-
         Container tCon = _con.GetComponent<Container>();
 
         if (tCon)
         {
+            for (int i = 0; i < tCon.inContainer.Count; i++)  // ensure no repeats
+                if (tCon.inContainer[i].serial == ip.serial) return;
+
             tCon.inContainer.Add(ip);
         }
         else
@@ -318,6 +354,7 @@ public class PCControl : NetworkBehaviour
             Debug.LogError("Attempted to add to non-existent container");
         }
 
+        tCon.RpcUpdateAllPlayers();
     }
 
     [Command]
@@ -341,6 +378,8 @@ public class PCControl : NetworkBehaviour
         {
             Debug.LogError("Attempted to remove from non-existent container");
         }
+
+        tCon.RpcUpdateAllPlayers();
     }
 
     public void SetNavSpeed(float mod)

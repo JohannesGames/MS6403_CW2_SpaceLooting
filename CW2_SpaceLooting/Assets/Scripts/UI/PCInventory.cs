@@ -41,7 +41,11 @@ public class PCInventory : MonoBehaviour
     {
         for (int i = 0; i < inInventory.Count; i++)
         {
-            if (inInventory[i].serial == _serial) inInventory.RemoveAt(i); return;
+            if (inInventory[i].serial == _serial)
+            {
+                inInventory.RemoveAt(i);
+                return;
+            }
         }
     }
 

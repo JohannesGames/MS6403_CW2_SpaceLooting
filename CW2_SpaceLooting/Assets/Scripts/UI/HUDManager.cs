@@ -146,6 +146,7 @@ public class HUDManager : MonoBehaviour
 
     public void OpenContainerPanel(Container con)
     {
+        pc.CmdAccessContainer(con.gameObject);
         openContainer = con;
         UpdateContainer();
 
@@ -192,6 +193,8 @@ public class HUDManager : MonoBehaviour
 
     public void CloseContainerPanel()
     {
+        pc.CmdExitContainer(openContainer.gameObject);
+
         containerPanel.gameObject.SetActive(false);
         closeContainerPanel.gameObject.SetActive(false);
         openInventoryButton.gameObject.SetActive(true);
@@ -234,9 +237,8 @@ public class HUDManager : MonoBehaviour
         pc.CmdAddItemToContainer(openContainer.gameObject, new PCControl.ItemPickups(tItem));
         pcInv.RemoveItemInventory(tItem.serial);
 
-        Invoke("UpdateContainer", refreshTime);
         UpdateInventory();
-
+        InvokeUpdateContainer();
     }
 
     public void MoveFromContainer(InventoryPickup tItem)
@@ -244,13 +246,18 @@ public class HUDManager : MonoBehaviour
         pc.CmdRemoveItemFromContainer(openContainer.gameObject, new PCControl.ItemPickups(tItem));
         pcInv.AddItemInventory(tItem);
 
-        Invoke("UpdateContainer", refreshTime);
         UpdateInventory();
+        InvokeUpdateContainer();
     }
 
     #endregion
 
     #region UPDATE UI LISTS
+
+    public void InvokeUpdateContainer()
+    {
+        Invoke("UpdateContainer", refreshTime);
+    }
 
     public void UpdateContainer()
     {

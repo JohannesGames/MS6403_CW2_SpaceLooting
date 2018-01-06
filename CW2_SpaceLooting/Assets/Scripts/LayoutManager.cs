@@ -32,6 +32,7 @@ public class PrePickup
 
 public class LayoutManager : NetworkBehaviour
 {
+
     public Pickup pickupPrefab;
     public int playerNumber = 2;
     public int toolsRequired = 3;
@@ -50,6 +51,7 @@ public class LayoutManager : NetworkBehaviour
     {
         if (!isServer)
         {
+            Destroy(gameObject);
             return;
         }
         DontDestroyOnLoad(this);
