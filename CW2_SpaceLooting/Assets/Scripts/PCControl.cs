@@ -369,6 +369,7 @@ public class PCControl : NetworkBehaviour
                 if (tCon.inContainer[i].serial == ip.serial)
                 {
                     tCon.inContainer.RemoveAt(i);
+                    tCon.RpcUpdateAllPlayers();
                     return;
                 }
             }
@@ -378,8 +379,6 @@ public class PCControl : NetworkBehaviour
         {
             Debug.LogError("Attempted to remove from non-existent container");
         }
-
-        tCon.RpcUpdateAllPlayers();
     }
 
     public void SetNavSpeed(float mod)

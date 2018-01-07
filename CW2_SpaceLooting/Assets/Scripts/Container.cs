@@ -17,13 +17,13 @@ public class Container : NetworkBehaviour
     //[SyncVar]
     //public List<PCControl.ItemPickups> inContainer = new List<PCControl.ItemPickups>();
 
-    void ContainerChanged(SyncListStruct<PCControl.ItemPickups>.Operation op, int itemIndex)
+    void ContainerChanged(SyncListStruct<PCControl.ItemPickups>.Operation op, int itemIndex)    //TODO decide whether this is necessary
     {
         
     }
 
     [ClientRpc]
-    public void RpcUpdateAllPlayers()
+    public void RpcUpdateAllPlayers()   // TODO should this be in the Callback?
     {
         foreach (GameObject item in playersAccessing)
         {
@@ -34,7 +34,7 @@ public class Container : NetworkBehaviour
 
     void Start()
     {
-        inContainer.Callback = ContainerChanged;
+        //inContainer.Callback = ContainerChanged;
     }
 
     [ClientRpc]
@@ -61,34 +61,4 @@ public class Container : NetworkBehaviour
             }
         }
     }
-
-
-    //public void AddItemContainer(InventoryPickup tItem)
-    //{
-    //    if (isClient)
-    //    {
-    //        CmdAddItemOnClient(tItem.itemName, (int)tItem.pickupType, tItem.serial);
-    //    }
-
-    //    for (int i = 0; i < inContainer.Count; i++)
-    //    {
-    //        if (inContainer[i].serial == tItem.serial)
-    //        {
-    //            inContainer.Dirty(i);
-    //        }
-    //    }
-    //}
-
-    //[Command]
-    //private void CmdAddItemOnClient(string _name, int _type, int _serial)
-    //{
-    //    PCControl.ItemPickups ip = new PCControl.ItemPickups(_name, _type, _serial);
-    //    inContainer.Add(ip);
-    //}
-
-    //public void RemoveItemContainer(InventoryPickup tItem)
-    //{
-    //    PCControl.ItemPickups cp = new PCControl.ItemPickups(tItem);
-    //    inContainer.Remove(cp);
-    //}
 }

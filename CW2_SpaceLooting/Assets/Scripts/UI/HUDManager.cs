@@ -16,7 +16,7 @@ public class QuickMessage
 
 public class HUDManager : MonoBehaviour
 {
-
+    public RectTransform mainWindow;
 
     // Inventory Panel
     public Button closeInventoryButton;
@@ -44,7 +44,7 @@ public class HUDManager : MonoBehaviour
     [HideInInspector]
     public Container openContainer = null;
     public SingleItemWorld containerItem;
-    public Button closeContainerPanel;
+    //public Button closeContainerPanel;
     public RectTransform containerPanel;
     public RectTransform containerListContent;
     /////////////
@@ -55,7 +55,7 @@ public class HUDManager : MonoBehaviour
     public RepairPod rp;
     [HideInInspector]
     public bool inRepairPodScreen;
-
+    public Slider repairProgress;
     /////////////
 
     // Quick Message Panel
@@ -123,7 +123,7 @@ public class HUDManager : MonoBehaviour
                 temp.itemIcon.sprite = boostIcon;
                 break;
         }
-
+        
         singleItemPanel.gameObject.SetActive(true); //show panel
         closeSingleItemButton.gameObject.SetActive(true);   //show close inventory button
         openInventoryButton.gameObject.SetActive(false);
@@ -136,6 +136,7 @@ public class HUDManager : MonoBehaviour
     {
         UpdateInventory();
 
+        mainWindow.gameObject.SetActive(true);
         inventoryPanel.gameObject.SetActive(true); //show panel
         closeInventoryButton.gameObject.SetActive(true);
         openInventoryButton.gameObject.SetActive(false);
@@ -150,6 +151,7 @@ public class HUDManager : MonoBehaviour
         openContainer = con;
         UpdateContainer();
 
+        mainWindow.gameObject.SetActive(true);
         containerPanel.gameObject.SetActive(true);
         OpenInventoryPanel();
     }
@@ -157,7 +159,9 @@ public class HUDManager : MonoBehaviour
     public void OpenRepairPodPanel()
     {
         inRepairPodScreen = true;
+        mainWindow.gameObject.SetActive(true);
         repairPodPanel.gameObject.SetActive(true);
+        rp.UpdateProgressSlider();
         OpenInventoryPanel();
     }
     #endregion
@@ -166,13 +170,15 @@ public class HUDManager : MonoBehaviour
 
     public void CloseInventory()
     {
+        mainWindow.gameObject.SetActive(false);
         inventoryPanel.gameObject.SetActive(false);
+        containerPanel.gameObject.SetActive(false);
         closeInventoryButton.gameObject.SetActive(false);
         ClearInventoryList();
         openInventoryButton.gameObject.SetActive(true);
         menuActive = false;
         //closeInventorySFX.Play();
-        CloseContainerPanel();
+        //CloseContainerPanel();
         CloseRepairPodPanel();
     }
 
@@ -191,21 +197,24 @@ public class HUDManager : MonoBehaviour
         //closeSingleItemSFX.Play();
     }
 
-    public void CloseContainerPanel()
-    {
-        pc.CmdExitContainer(openContainer.gameObject);
+    //public void CloseContainerPanel()
+    //{
+    //    if (openContainer)
+    //        pc.CmdExitContainer(openContainer.gameObject);
 
-        containerPanel.gameObject.SetActive(false);
-        closeContainerPanel.gameObject.SetActive(false);
-        openInventoryButton.gameObject.SetActive(true);
-        ClearContainerList();
-        menuActive = false;
-        openContainer = null;
-    }
+    //    mainWindow.gameObject.SetActive(false);
+    //    containerPanel.gameObject.SetActive(false);
+    //    closeContainerPanel.gameObject.SetActive(false);
+    //    openInventoryButton.gameObject.SetActive(true);
+    //    ClearContainerList();
+    //    menuActive = false;
+    //    openContainer = null;
+    //}
 
     void CloseRepairPodPanel()
     {
         inRepairPodScreen = false;
+        mainWindow.gameObject.SetActive(false);
         repairPodPanel.gameObject.SetActive(false);
         rp.ResetText();
         if (rp.inRepairScreen.Count > 0)

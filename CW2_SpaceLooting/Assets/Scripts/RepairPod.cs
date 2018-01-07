@@ -18,6 +18,7 @@ public class RepairPod : MonoBehaviour
     {
         hm = GetComponent<HUDManager>();
         AddItemSlots();
+        hm.repairProgress.maxValue = componentsRequired.Length + toolsRequired.Length;
     }
 
     void AddItemSlots()
@@ -46,11 +47,6 @@ public class RepairPod : MonoBehaviour
         }
     }
 
-    void Update()
-    {
-
-    }
-
     public void AddItem(InventoryPickup tItem)
     {
         if (tItem.pickupType == InventoryPickup.ItemType.component)  //if it's a component add it to the array
@@ -63,7 +59,7 @@ public class RepairPod : MonoBehaviour
                     hm.pcInv.RemoveItemInventory(tItem.serial);
                     componentsRequired[i].itemInSlot = tItem;
                     componentsRequired[i].removeButton.GetComponentInChildren<Text>().text = tItem.itemName;    // display item name in repair UI TODO make prettier
-                    return;
+                    break;
                 }
             }
         }
@@ -77,10 +73,11 @@ public class RepairPod : MonoBehaviour
                     hm.pcInv.RemoveItemInventory(tItem.serial);
                     toolsRequired[i].itemInSlot = tItem;
                     toolsRequired[i].removeButton.GetComponentInChildren<Text>().text = tItem.itemName;
-                    return;
+                    break;
                 }
             }
         }
+        UpdateProgressSlider();
     }
 
     public void RemoveItem(int index, InventoryPickup.ItemType tType) //type = 1 means tool, = 0 means component
@@ -99,6 +96,29 @@ public class RepairPod : MonoBehaviour
                 break;
             default:
                 break;
+        }
+        UpdateProgressSlider();
+    }
+
+    public void UpdateProgressSlider()
+    {
+        hm.repairProgress.value = 0;
+        foreach (var item in toolsRequired)
+        {
+            if (item.itemInSlot != null) hm.repairProgress.value++;
+        }
+        foreach (var item in componentsRequired)
+        {
+            if (item.itemInSlot != null) hm.repairProgress.value++;
+        }
+
+        if (hm.repairProgress.value == 0)
+        {
+            hm.repairProgress.fillRect.GetComponent<Image>().color = Color.clear;
+        }
+        else
+        {
+            hm.repairProgress.fillRect.GetComponent<Image>().color = Color.cyan;
         }
     }
 
