@@ -177,8 +177,12 @@ public class HUDManager : MonoBehaviour
         ClearInventoryList();
         openInventoryButton.gameObject.SetActive(true);
         menuActive = false;
+        if (openContainer)
+        {
+            pc.CmdExitContainer(openContainer.gameObject);
+            openContainer = null;
+        }
         //closeInventorySFX.Play();
-        //CloseContainerPanel();
         CloseRepairPodPanel();
     }
 
