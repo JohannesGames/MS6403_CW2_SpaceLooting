@@ -120,6 +120,11 @@ public class RepairPod : MonoBehaviour
         {
             hm.repairProgress.fillRect.GetComponent<Image>().color = Color.cyan;
         }
+
+        if (hm.repairProgress.value == hm.repairProgress.maxValue)  // has player completed?
+        {
+            hm.OpenLaunchPanel();
+        }
     }
 
     public void ResetText() //reset the text on the item slots in the repair screen

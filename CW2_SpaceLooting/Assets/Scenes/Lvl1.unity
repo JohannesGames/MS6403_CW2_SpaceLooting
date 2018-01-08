@@ -15255,9 +15255,9 @@ MonoBehaviour:
   compsRequired: 6
   boostsPerPlayer: 5
   itemMulitplier: 2
-  toolCSV: {fileID: 4900000, guid: 216d4d6389d0b8747bfc813a8d523182, type: 3}
-  compCSV: {fileID: 0}
-  boostCSV: {fileID: 0}
+  toolCSV: {fileID: 4900000, guid: dbd19afba7c06124c9bb825c541ab6ce, type: 3}
+  compCSV: {fileID: 4900000, guid: 211215ad76d331340bf4bbfc720ec7ef, type: 3}
+  boostCSV: {fileID: 4900000, guid: 31edec2c92c4f3b4f95a44aab4a5e5cc, type: 3}
 --- !u!114 &613896521
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15629,7 +15629,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1738472570}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
 --- !u!199 &695929675
 ParticleSystemRenderer:
@@ -15745,7 +15745,7 @@ ParticleSystem:
   moveWithTransform: 0
   moveWithCustomTransform: {fileID: 0}
   scalingMode: 1
-  randomSeed: 2132410886
+  randomSeed: -1357956806
   InitialModule:
     serializedVersion: 3
     enabled: 1
@@ -24676,34 +24676,6 @@ MeshFilter:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1266317421}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!1 &1273220929
-GameObject:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  serializedVersion: 5
-  m_Component:
-  - component: {fileID: 1273220930}
-  m_Layer: 15
-  m_Name: Inventory
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1273220930
-Transform:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1273220929}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 1738472570}
-  m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1274092897
 GameObject:
   m_ObjectHideFlags: 0
@@ -29779,7 +29751,6 @@ Transform:
   m_LocalPosition: {x: 4.59, y: 1.25, z: -4.52}
   m_LocalScale: {x: 1, y: 2, z: 1}
   m_Children:
-  - {fileID: 1273220930}
   - {fileID: 695929674}
   m_Father: {fileID: 0}
   m_RootOrder: 8

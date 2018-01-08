@@ -57,6 +57,7 @@ public class LayoutManager : NetworkBehaviour
         DontDestroyOnLoad(this);
         
         SpawnPickups(InventoryPickup.ItemType.tool);
+        SpawnPickups(InventoryPickup.ItemType.component);
 
         //foreach (InventoryPickup.ItemType _type in System.Enum.GetValues(typeof(InventoryPickup.ItemType))) // iterate through all pickup types and spawn all the objects
         //{
@@ -68,8 +69,19 @@ public class LayoutManager : NetworkBehaviour
     {
         string[] pickupCSV = GetPickupCSV(_type);
 
-        pickupCSV = toolCSV.text.Split(lineSeperater);
-
+        //switch (_type)
+        //{
+        //    case InventoryPickup.ItemType.tool:
+        //        pickupCSV = toolCSV.text.Split(lineSeperater);
+        //        break;
+        //    case InventoryPickup.ItemType.component:
+        //        pickupCSV = compCSV.text.Split(lineSeperater);
+        //        break;
+        //    case InventoryPickup.ItemType.boost:
+        //        pickupCSV = boostCSV.text.Split(lineSeperater);
+        //        break;
+        //}
+        
         spawnList.Clear();
         foreach (string pickup in pickupCSV)
         {

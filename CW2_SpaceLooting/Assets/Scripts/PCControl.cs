@@ -280,6 +280,8 @@ public class PCControl : NetworkBehaviour
         GO_PickupNext = null;
     }
 
+    #region Commands
+
     [Command]
     void CmdPickupObject(GameObject obj)
     {
@@ -379,6 +381,13 @@ public class PCControl : NetworkBehaviour
         {
             Debug.LogError("Attempted to remove from non-existent container");
         }
+    }
+
+#endregion
+
+    public void LaunchPod()
+    {
+        print("Launching Hooray!");
     }
 
     public void SetNavSpeed(float mod)

@@ -63,7 +63,11 @@ public class HUDManager : MonoBehaviour
     public float displayTime = 3;
     public Text msgPrefab;
     List<QuickMessage> allCurrentMessages = new List<QuickMessage>();  //all messages currently displayed
+    /////////////
 
+    // Launch Panel
+    public RectTransform launchPanel;
+    private Button launchButton;
     /////////////
 
     public float pickupThrowStrength;   //the strength with which pickups are thrown from the player when dropped
@@ -79,6 +83,8 @@ public class HUDManager : MonoBehaviour
     void Start()
     {
         rp = GetComponent<RepairPod>();
+        launchButton = launchPanel.GetComponentInChildren<Button>();
+        launchButton.onClick.AddListener(pc.LaunchPod);
         openInventoryButton.onClick.AddListener(OpenInventoryPanel);
         closeInventoryButton.onClick.AddListener(CloseInventory);
         closeSingleItemButton.onClick.AddListener(CloseSingleItem);
@@ -164,6 +170,11 @@ public class HUDManager : MonoBehaviour
         rp.UpdateProgressSlider();
         OpenInventoryPanel();
     }
+
+    public void OpenLaunchPanel()
+    {
+        launchPanel.gameObject.SetActive(true);
+    }
     #endregion
 
     #region CLOSE UI ELEMENTS
@@ -174,6 +185,7 @@ public class HUDManager : MonoBehaviour
         inventoryPanel.gameObject.SetActive(false);
         containerPanel.gameObject.SetActive(false);
         closeInventoryButton.gameObject.SetActive(false);
+        launchPanel.gameObject.SetActive(false);
         ClearInventoryList();
         openInventoryButton.gameObject.SetActive(true);
         menuActive = false;
