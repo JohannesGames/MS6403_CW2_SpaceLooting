@@ -46,5 +46,9 @@ public class JB_LobbyList : MonoBehaviour
             player.hostAcceptName.gameObject.SetActive(true);
             player.hostLaunchButton.transform.parent.gameObject.SetActive(true);
         }
+        else
+        {
+            print("client joined list");
+        }
     }
 }

@@ -14,10 +14,14 @@ public class JB_LobbyManager : NetworkLobbyManager
     public RectTransform lobbyScreen;
     public RectTransform clientScreen;
     public RectTransform hostScreen;
+    public RectTransform playerSelectScreen;
+    public GameObject selectableModels;
     public Button backButton;
     private RectTransform currentPanel;
 
     //ulong currentMatchNetworkID;
+
+    string currentIP = "127.0.0.1";
 
     protected Prototype.NetworkLobby.LobbyHook lobbyHooks;
 
@@ -26,6 +30,7 @@ public class JB_LobbyManager : NetworkLobbyManager
     {
         instance = this;
         currentPanel = startScreen;
+        networkAddress = currentIP;
     }
 
     // Update is called once per frame
@@ -120,12 +125,34 @@ public class JB_LobbyManager : NetworkLobbyManager
 
     public void ChangeToPlayScene()
     {
-        startScreen.transform.parent.gameObject.SetActive(false);
         ServerChangeScene(playScene);
-        //base.OnLobbyServerPlayersReady();
+
+        StartCoroutine(FindNetworkManager());
+
+        startScreen.transform.parent.gameObject.SetActive(false);
+
+        //ChangeTo(playerSelectScreen);
+        //selectableModels = Instantiate(selectableModels);
     }
 
+    IEnumerator FindNetworkManager()
+    {
+        NetworkManager newNM = null;
 
+        while (!newNM)
+        {
+            newNM = FindObjectOfType<NetworkManager>();
+            print("looking");
+            yield return null;
+        }
+
+        print("found it!");
+    }
+
+    public override bool OnLobbyServerSceneLoadedForPlayer(GameObject lobbyPlayer, GameObject gamePlayer)
+    {
+        return true;
+    }
 
     #region Back Button
     public delegate void BackButtonDelegate();

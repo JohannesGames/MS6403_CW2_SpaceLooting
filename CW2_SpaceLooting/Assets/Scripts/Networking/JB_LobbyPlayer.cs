@@ -53,6 +53,8 @@ public class JB_LobbyPlayer : NetworkLobbyPlayer
         else
         {
             print("Player entered lobby");
+
+            JB_LobbyList.instance.AddPlayer(this);
         }
     }
 
