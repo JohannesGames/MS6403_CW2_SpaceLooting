@@ -1,0 +1,13 @@
+Make component CSV
+
+Make boost CSV
+
+Randomly spawn all pickups
+
+Make a Room class, containing loot spots and containers
+
+Make start screen + play instructions
+
+Make a lobby
+
+Make a You Win screen
