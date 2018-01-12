@@ -12,11 +12,13 @@ public class JB_LobbyManager : NetworkLobbyManager
 
     public RectTransform startScreen;
     public RectTransform lobbyScreen;
-    public RectTransform clientScreen;
+    //public RectTransform clientScreen;
     public RectTransform hostScreen;
     public RectTransform playerSelectScreen;
     public GameObject selectableModels;
     public Button backButton;
+    public Text playerCount;
+    public Button readyButton;
     private RectTransform currentPanel;
 
     //ulong currentMatchNetworkID;
@@ -33,12 +35,6 @@ public class JB_LobbyManager : NetworkLobbyManager
         networkAddress = currentIP;
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
-
     public void OnClickHost()
     {
         StartHost();
@@ -47,17 +43,27 @@ public class JB_LobbyManager : NetworkLobbyManager
     public override void OnStartHost()
     {
         base.OnStartHost();
-        
+
         backDelegate = BackButtonStopHostClbk;
         ChangeTo(lobbyScreen);
         hostScreen.gameObject.SetActive(true);
+
+        print("Lobby Manager: Start Host");
+    }
+
+    public override void OnLobbyClientEnter()
+    {
+        base.OnLobbyClientEnter();
+
+        print("Lobby Manager: OnClientEnter");
     }
 
     public void OnClickJoin()
     {
         ChangeTo(lobbyScreen);
-        clientScreen.gameObject.SetActive(true);
         StartClient();
+
+        print("Lobby Manager: Joined Clicked");
     }
 
     private void ChangeTo(RectTransform newPanel)
@@ -100,8 +106,11 @@ public class JB_LobbyManager : NetworkLobbyManager
     //}
 
     // When ready to go
+
     public override void OnLobbyServerPlayersReady()
     {
+        print("Lobby Manager: Server Players Almost Ready");
+
         bool allready = true;
         for (int i = 0; i < lobbySlots.Length; ++i)
         {
@@ -109,9 +118,10 @@ public class JB_LobbyManager : NetworkLobbyManager
                 allready &= lobbySlots[i].readyToBegin;
         }
 
+        
         if (allready)   // if everyone is ready allow host to press LAUNCH
         {
-            print("all ready");
+            print("Lobby Manager: All Ready");
             for (int i = 0; i < lobbySlots.Length; ++i)
             {
                 JB_LobbyPlayer p = lobbySlots[i] as JB_LobbyPlayer;
@@ -129,7 +139,7 @@ public class JB_LobbyManager : NetworkLobbyManager
 
         StartCoroutine(FindNetworkManager());
 
-        startScreen.transform.parent.gameObject.SetActive(false);
+        startScreen.transform.parent.GetComponent<Canvas>().enabled = false;
 
         //ChangeTo(playerSelectScreen);
         //selectableModels = Instantiate(selectableModels);

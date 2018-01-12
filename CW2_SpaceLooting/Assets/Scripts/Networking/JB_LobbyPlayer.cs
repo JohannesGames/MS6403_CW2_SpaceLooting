@@ -5,8 +5,8 @@ using UnityEngine.Networking;
 
 public class JB_LobbyPlayer : NetworkLobbyPlayer
 {
-
     // Client UI elements
+    public ClientScreen clientScreen;
     public InputField nameInput;
     public Button readyButton;
     public Text playerCount;
@@ -23,11 +23,7 @@ public class JB_LobbyPlayer : NetworkLobbyPlayer
     public Sprite playerNotReady;
     public Sprite playerReadyUp;
 
-
     public string playerName = "";
-
-    [SyncVar]
-    public bool isHosting;
 
     [SyncVar]
     public bool isReady;
@@ -42,40 +38,40 @@ public class JB_LobbyPlayer : NetworkLobbyPlayer
     {
         base.OnClientEnterLobby();
 
-        if (isServer)
+        if (!isClient)
         {
-            print("Host started game lobby");
+            print("Lobby Player: Host Started Game Lobby");
 
-            CmdStartHosting();
+            //CmdStartHosting();
 
             JB_LobbyList.instance.AddPlayer(this);
         }
+
         else
         {
-            print("Player entered lobby");
+            print("Lobby Player: Player Entered Lobby");
+
+            if (localPlayerAuthority)
+            {
+                clientScreen = Instantiate(clientScreen, JB_LobbyList.instance.transform);
+                clientScreen.readyButton.onClick.AddListener(OnReadyClicked);
+                JB_LobbyManager.instance.playerCount = clientScreen.playerCount;
+            }
 
             JB_LobbyList.instance.AddPlayer(this);
         }
     }
 
-    [Command]
-    void CmdStartHosting()
-    {
-        isHosting = true;
-    }
-
-    public override void OnClientReady(bool readyState)
-    {
-        if (readyState)
-        {
-
-        }
-    }
+    //[Command]
+    //void CmdStartHosting()
+    //{
+    //    isHosting = true;
+    //}
 
     public void OnReadyClicked()
     {
-        print("ready");
-        CmdSetReady();
+        print("Lobby Player: Ready");
+        //CmdSetReady();
         SendReadyToBeginMessage();
     }
 

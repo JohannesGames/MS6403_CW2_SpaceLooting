@@ -12,31 +12,35 @@ public class JB_LobbyList : MonoBehaviour
 
     public RectTransform playerList;
     private VerticalLayoutGroup layout;
-    private List<JB_LobbyPlayer> allPlyers = new List<JB_LobbyPlayer>();
+    private List<JB_LobbyPlayer> allPlayers = new List<JB_LobbyPlayer>();
 
     void OnEnable()
     {
         instance = this;
         layout = playerList.GetComponent<VerticalLayoutGroup>();
     }
-    
+
     void Update()
     {
         if (layout)
-            layout.childAlignment = Time.frameCount % 2 == 0 
+            layout.childAlignment = Time.frameCount % 2 == 0
                 ? TextAnchor.UpperCenter : TextAnchor.UpperLeft;
     }
 
     public void AddPlayer(JB_LobbyPlayer player)
     {
-        if (allPlyers.Contains(player))
+        print("Lobby List: Adding Players");
+
+        if (allPlayers.Contains(player))
             return;
 
-        allPlyers.Add(player);
+        allPlayers.Add(player);
 
         player.transform.SetParent(playerList, false);
 
-        if (player.isHosting)
+        //JB_LobbyManager.instance.playerCount.text = allPlayers.Count.ToString();
+
+        if (player.isServer)
         {
             player.hostImage.gameObject.SetActive(true);
             player.clientImage.gameObject.SetActive(false);
@@ -46,9 +50,10 @@ public class JB_LobbyList : MonoBehaviour
             player.hostAcceptName.gameObject.SetActive(true);
             player.hostLaunchButton.transform.parent.gameObject.SetActive(true);
         }
+
         else
         {
-            print("client joined list");
+            print("Lobby List: Client Joined List");
         }
     }
 }
