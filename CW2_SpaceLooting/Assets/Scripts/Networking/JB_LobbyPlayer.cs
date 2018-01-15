@@ -51,7 +51,7 @@ public class JB_LobbyPlayer : NetworkLobbyPlayer
         {
             print("Lobby Player: Player Entered Lobby");
 
-            if (localPlayerAuthority)
+            if (!NetworkServer.active)
             {
                 clientScreen = Instantiate(clientScreen, JB_LobbyList.instance.transform);
                 clientScreen.readyButton.onClick.AddListener(OnReadyClicked);
