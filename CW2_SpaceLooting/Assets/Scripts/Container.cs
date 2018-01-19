@@ -14,6 +14,8 @@ public class Container : NetworkBehaviour
 
     public List<GameObject> playersAccessing = new List<GameObject>();
 
+    public ParticleSystem containerParticle;
+
     //[SyncVar]
     //public List<PCControl.ItemPickups> inContainer = new List<PCControl.ItemPickups>();
 
@@ -40,6 +42,7 @@ public class Container : NetworkBehaviour
     [ClientRpc]
     public void RpcAddPlayers(GameObject _pc)
     {
+        containerParticle.Stop();
         for (int i = 0; i < playersAccessing.Count; i++)
         {
             if (_pc.GetInstanceID() == playersAccessing[i].GetInstanceID())

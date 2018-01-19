@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.AI;
 
 // http://www.theappguruz.com/blog/unity-csv-parsing-unity used for reference
 
@@ -44,8 +45,49 @@ public class LayoutManager : NetworkBehaviour
     public TextAsset compCSV;
     public TextAsset boostCSV;
     public List<PickupSpawner> spawnList = new List<PickupSpawner>();
+    private List<int> serialsUsed = new List<int>();
     private char lineSeperater = '\n';
     private char fieldSeperator = ',';
+
+    // Possible Layouts
+    [Header("Possible Layouts")]
+    public TextAsset[] twoPlayerLayouts;
+    public TextAsset[] threePlayerLayouts;
+    public TextAsset[] fourPlayerLayouts;
+    public TextAsset[] fivePlayerLayouts;
+    public TextAsset[] sixPlayerLayouts;
+    public TextAsset[] sevenPlayerLayouts;
+    public TextAsset[] eightPlayerLayouts;
+    public TextAsset[] ninePlayerLayouts;
+
+    private TextAsset currentLayout;
+    private int roomRows;
+    private int roomColumns;
+    private List<int> mustHaveRooms = new List<int>();                              // the array indices of the rooms in the allRooms Room[] array that must be included at least once
+    private Dictionary<string, int> roomTypeCount = new Dictionary<string, int>();  // counts how many of each room has been spawned to check room number limits
+    private List<string> crossroadCoordinates = new List<string>();
+    private int podRoomRow;
+    private int podRoomColumn;
+    private int totalRoomNumber;
+    private int totalRoomCount = 0; // TODO delete when unnecessary
+
+    // Navmesh
+    [Header("Navigation")]
+    public List<NavMeshSurface> allSurfaces = new List<NavMeshSurface>();
+
+    // Room prefabs
+    [Header("Room Prefabs")]
+    [Tooltip("0: Crossroad")]
+    public Room[] allRooms;
+
+    //public Room crossroad;
+    //public Room canteen;
+    //public Room barracks;
+    //public Room medBay;
+    //public Room storage;
+    //public Room weaponStation;
+    //public Room bridge;
+    //public Room comms;
     
     void Start()
     {
@@ -55,6 +97,8 @@ public class LayoutManager : NetworkBehaviour
             return;
         }
         DontDestroyOnLoad(this);
+
+        SpawnRooms();
         
         SpawnPickups(InventoryPickup.ItemType.tool);
         SpawnPickups(InventoryPickup.ItemType.component);
@@ -65,22 +109,240 @@ public class LayoutManager : NetworkBehaviour
         //}
     }
 
+    #region Room Spawning
+
+    void SpawnRooms()
+    {
+        currentLayout = PickLayout(playerNumber);                                   // pick a CSV layout file depending on the number of players
+        string[,] finalRoomLayout = SplitRoomCSV();                                 // get a 2D string array describing the level layout
+        List<string> roomCoordinates = new List<string>();                              // where all the rooms are
+        int roomCount = 0;
+        GetAllRoomIndices(finalRoomLayout, ref roomCoordinates, ref roomCount);         // find where all the rooms are
+        SpawnCrossroads();
+        SpawnMustHaves(ref roomCoordinates);
+        SpawnAllRooms(ref roomCoordinates);
+
+        // Build Navmeshes
+        for (int i = 0; i < allSurfaces.Count; i++)
+        {
+            if (allSurfaces[i])
+            {
+                allSurfaces[i].BuildNavMesh();
+            }
+        }
+        print("all navmeshes built");
+        //
+    }
+
+    TextAsset PickLayout(int playerNum)
+    {
+        switch (playerNum)
+        {
+            case 2:
+                return twoPlayerLayouts[Random.Range(0,twoPlayerLayouts.Length)];
+            case 3:
+                return threePlayerLayouts[Random.Range(0, twoPlayerLayouts.Length)];
+            case 4:
+                return fourPlayerLayouts[Random.Range(0, twoPlayerLayouts.Length)];
+            case 5:
+                return fivePlayerLayouts[Random.Range(0, twoPlayerLayouts.Length)];
+            case 6:
+                return sixPlayerLayouts[Random.Range(0, twoPlayerLayouts.Length)];
+            case 7:
+                return sevenPlayerLayouts[Random.Range(0, twoPlayerLayouts.Length)];
+            case 8:
+                return eightPlayerLayouts[Random.Range(0, twoPlayerLayouts.Length)];
+            case 9:
+                return ninePlayerLayouts[Random.Range(0, twoPlayerLayouts.Length)];
+            default:
+                return twoPlayerLayouts[Random.Range(0, twoPlayerLayouts.Length)];
+        }
+    }
+
+    string[,] SplitRoomCSV()
+    {
+        string[] _roomRows = currentLayout.text.Split(lineSeperater);    // gets the number of rows
+        string[] _roomColumns = _roomRows[0].Split(fieldSeperator);       // gets the number of columns
+
+        string[,] roomRowsAndColumns = new string[_roomRows.Length, _roomColumns.Length]; // creates the 2d array of the correct size
+
+        roomRows = roomRowsAndColumns.GetUpperBound(0);
+        roomColumns = roomRowsAndColumns.GetUpperBound(1);
+
+        for (int i = 0; i < roomRows; i++)
+        {
+            _roomColumns = _roomRows[i].Split(fieldSeperator);
+            for (int j = 0; j < roomColumns; j++)
+            {
+                roomRowsAndColumns[i, j] = _roomColumns[j];  // populates the array
+            }
+        }
+
+        return roomRowsAndColumns;
+    }
+
+    void GetAllRoomIndices(string[,] _roomLayout, ref List<string> _roomCoordinates, ref int _roomCount)
+    {
+        for (int i = 0; i < roomRows; i++)
+        {
+            for (int j = 0; j < roomColumns; j++)
+            {
+                if (_roomLayout[i,j] == "r")            // if this is a room index
+                {
+                    _roomCount++;
+                    _roomCoordinates.Add(System.String.Format("{0},{1}", i, j));
+                }
+                else if (_roomLayout[i, j] == "pr")     // if it's the pod room
+                {
+                    podRoomRow = i;
+                    podRoomColumn = j;
+                }
+                else if (_roomLayout[i, j] == "cr")     // if it's a crossroad
+                {
+                    crossroadCoordinates.Add(System.String.Format("{0},{1}", i, j));
+                }
+            }
+        }
+
+        totalRoomNumber = _roomCoordinates.Count;
+    }
+
+    void SpawnCrossroads()
+    {
+        if (crossroadCoordinates.Count == 0) return;
+        
+        string[] indices = new string[2];
+        Vector3 pos = new Vector3();
+
+        for (int i = crossroadCoordinates.Count - 1; i >= 0; i--)
+        {
+            indices = crossroadCoordinates[i].Split(fieldSeperator);
+            pos.z = (podRoomRow - System.Int32.Parse(indices[0])) * 28;
+            pos.x = (System.Int32.Parse(indices[1]) - podRoomColumn) * 28;
+            Room newCR = Instantiate(allRooms[0], pos, Quaternion.identity);
+            if (newCR.surface)
+            {
+                allSurfaces.Add(newCR.surface);
+            }
+            else
+            {
+                Debug.LogError("No surface on " + newCR.roomName);
+            }
+
+            crossroadCoordinates.RemoveAt(i);
+        }
+    }
+
+    void SpawnMustHaves(ref List<string> _roomCoordinates)
+    {
+        GetMustHaveRooms();                             // find all the rooms that must be included at least once
+        if (mustHaveRooms.Count == 0) return;
+
+        int arrayPos;
+        string[] indices = new string[2];
+        Vector3 pos = new Vector3();
+
+        foreach (int _roomIndex in mustHaveRooms)       // for each must-have room put it in a random room location
+        {
+            arrayPos = Random.Range(0, _roomCoordinates.Count);        // pick random position
+            indices = _roomCoordinates[arrayPos].Split(fieldSeperator);    // get the string index
+            pos.z = (podRoomRow - System.Int32.Parse(indices[0])) * 28;
+            pos.x = (System.Int32.Parse(indices[1]) - podRoomColumn) * 28;
+            Room newRoom = Instantiate(allRooms[_roomIndex], pos, Quaternion.identity);
+            roomTypeCount.Add(allRooms[_roomIndex].roomName, 1);
+            totalRoomCount++;
+            if (newRoom.surface)
+            {
+                allSurfaces.Add(newRoom.surface);
+            }
+            else
+            {
+                Debug.LogError("No surface on " + newRoom.roomName);
+            }
+
+            _roomCoordinates.RemoveAt(arrayPos);    // remove the used room coordinate
+        }
+    }
+
+    void GetMustHaveRooms()
+    {
+        for (int i = 0; i < allRooms.Length; i++)
+        {
+            if (allRooms[i].mustHaveOne)
+            {
+                mustHaveRooms.Add(i);
+            }
+        }
+    }
+
+    void SpawnAllRooms(ref List<string> _roomCoordinates)
+    {
+        if (_roomCoordinates.Count == 0) return;
+
+        string[] indices = new string[2];
+
+        Vector3 pos = new Vector3();
+
+        for (int i = _roomCoordinates.Count - 1; i >= 0; i--)
+        {
+            int roomIndex = 0;
+
+            // get random room
+            for (int j = 0; j < 1; j++)
+            {
+                roomIndex = Random.Range(1, allRooms.Length);
+                if (!CanAddRoom(allRooms[roomIndex]))   // if this room can't be added generate another room
+                {
+                    j = -1;
+                }
+            }
+            //
+            indices = _roomCoordinates[i].Split(fieldSeperator);
+            pos.z = (podRoomRow - System.Int32.Parse(indices[0])) * 28;
+            pos.x = (System.Int32.Parse(indices[1]) - podRoomColumn) * 28;
+
+            Room newRoom = Instantiate(allRooms[roomIndex], pos, Quaternion.identity);
+
+            if (newRoom.surface)
+            {
+                allSurfaces.Add(newRoom.surface);
+            }
+            else
+            {
+                Debug.LogError("No surface on " + newRoom.roomName);
+            }
+            
+            _roomCoordinates.RemoveAt(i);
+            totalRoomCount++;
+        }
+    }
+
+    bool CanAddRoom(Room _room)                      // check that room number is within limits and update list of added rooms
+    {
+        if (roomTypeCount.ContainsKey(_room.roomName))  // if this room has been spawned before increment the value after checking limits
+        {
+            if (_room.limit != 0 && roomTypeCount[_room.roomName] >= _room.limit)   // if an explicit limit has been set and there are at least as many rooms of that type, do not spawn
+            {
+                return false;
+            }
+            if (_room.percentLimit != 0 && roomTypeCount[_room.roomName] / totalRoomNumber >= _room.percentLimit / 100) // if the percent limit has been reached, don't spawn
+            {
+                return false;
+            }
+            roomTypeCount[_room.roomName]++;
+        }
+        else                                        // else add this room to the room type counter
+        {
+            roomTypeCount.Add(_room.roomName, 1);
+        }
+        return true;
+    }
+
+# endregion
+
     void ReadPickupData(InventoryPickup.ItemType _type)
     {
         string[] pickupCSV = GetPickupCSV(_type);
-
-        //switch (_type)
-        //{
-        //    case InventoryPickup.ItemType.tool:
-        //        pickupCSV = toolCSV.text.Split(lineSeperater);
-        //        break;
-        //    case InventoryPickup.ItemType.component:
-        //        pickupCSV = compCSV.text.Split(lineSeperater);
-        //        break;
-        //    case InventoryPickup.ItemType.boost:
-        //        pickupCSV = boostCSV.text.Split(lineSeperater);
-        //        break;
-        //}
         
         spawnList.Clear();
         foreach (string pickup in pickupCSV)
@@ -150,8 +412,6 @@ public class LayoutManager : NetworkBehaviour
             }
         }
 
-        int[] serialsUsed = new int[playerNumber * toolsRequired * itemMulitplier];  // for checking that all pickups have unique serials
-
         for (int i = 0; i < toBeSpawned.Length; i++)    // spawn chosen tools. TODO disperse all pickups around level
         {
             var PU = Instantiate(pickupPrefab);
@@ -160,21 +420,20 @@ public class LayoutManager : NetworkBehaviour
             for (int j = 0; j < 1; j++)
             {
                 PU.serial = Random.Range(1000000, 9999999);
-                if (serialsUsed[j] != 0)
+                if (serialsUsed.Count > 0 && serialsUsed[j] != 0)
                 {
                     if (PU.serial == serialsUsed[j])
                     {
                         j = -1;
-                        break;
                     }
                 }
             }
             ////
 
             //// add new serial to serialsUsed array
-            for (int j = 0; j < serialsUsed.Length; j++)
+            for (int j = 0; j < serialsUsed.Count; j++)
             {
-                if (serialsUsed[j] == 0) serialsUsed[j] = PU.serial;
+                serialsUsed.Add(PU.serial);
             }
             ////
 

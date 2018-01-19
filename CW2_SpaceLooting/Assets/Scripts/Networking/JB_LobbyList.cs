@@ -40,20 +40,20 @@ public class JB_LobbyList : MonoBehaviour
 
         //JB_LobbyManager.instance.playerCount.text = allPlayers.Count.ToString();
 
-        if (player.isServer)
-        {
-            player.hostImage.gameObject.SetActive(true);
-            player.clientImage.gameObject.SetActive(false);
-            player.hostNameInput.gameObject.SetActive(true);
-            player.clientName.gameObject.SetActive(false);
-            player.playerReadyState.gameObject.SetActive(false);
-            player.hostAcceptName.gameObject.SetActive(true);
-            player.hostLaunchButton.transform.parent.gameObject.SetActive(true);
-        }
+        //if (player.isServer)
+        //{
+        //    player.hostImage.gameObject.SetActive(true);
+        //    player.clientImage.gameObject.SetActive(false);
+        //    player.hostNameInput.gameObject.SetActive(true);
+        //    player.clientName.gameObject.SetActive(false);
+        //    player.playerReadyState.gameObject.SetActive(false);
+        //    player.hostAcceptName.gameObject.SetActive(true);
+        //    player.hostLaunchButton.transform.parent.gameObject.SetActive(true);
+        //}
 
-        else
-        {
-            print("Lobby List: Client Joined List");
-        }
+        //else
+        //{
+        //    print("Lobby List: Client Joined List");
+        //}
     }
 }

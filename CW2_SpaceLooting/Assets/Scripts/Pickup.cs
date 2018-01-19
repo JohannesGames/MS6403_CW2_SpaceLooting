@@ -9,20 +9,9 @@ public class Pickup : NetworkBehaviour
     public string itemName;
 
     public InventoryPickup.ItemType pickupType;
-
-    [HideInInspector]
     public ParticleSystem particleSys;
 
     [HideInInspector]
     [SyncVar]
     public int serial;
-
-    void Start()
-    {
-        if (!isLocalPlayer)
-        {
-            return;
-        }
-        particleSys = GetComponentInChildren<ParticleSystem>();
-    }
 }

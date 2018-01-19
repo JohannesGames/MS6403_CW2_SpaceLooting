@@ -68,6 +68,7 @@ public class PCControl : NetworkBehaviour
         {
             return;
         }
+        Destroy(Camera.main.gameObject);
         CameraAndOutline(true);
         NMA_PC = GetComponent<NavMeshAgent>();
         speedNav = NMA_PC.speed;

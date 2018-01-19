@@ -24,6 +24,7 @@ public class Doors : MonoBehaviour
 
     void Start()
     {
+        doorSlide.GetComponent<MeshRenderer>().enabled = true;
         closePos = doorSlide.transform.localPosition;
         openPos = new Vector3(closePos.x, openPosY, closePos.z);
         closeScale = doorSlide.transform.localScale;

@@ -6,7 +6,7 @@ using UnityEngine.Networking;
 public class JB_LobbyPlayer : NetworkLobbyPlayer
 {
     // Client UI elements
-    public ClientScreen clientScreen;
+    private ClientScreen clientScreen;
     public InputField nameInput;
     public Button readyButton;
     public Text playerCount;
@@ -27,6 +27,9 @@ public class JB_LobbyPlayer : NetworkLobbyPlayer
 
     [SyncVar]
     public bool isReady;
+
+    [SyncVar]
+    public bool isHosting;
 
     void Start()
     {
@@ -51,14 +54,60 @@ public class JB_LobbyPlayer : NetworkLobbyPlayer
         {
             print("Lobby Player: Player Entered Lobby");
 
-            if (!NetworkServer.active)
+            JB_LobbyList.instance.AddPlayer(this);
+        }
+    }
+
+    public override void OnStartAuthority()
+    {
+        base.OnStartAuthority();
+        isHosting = true;
+        if (!NetworkServer.active && !clientScreen)
+        {
+            ClientScreen go = Resources.Load("Client Panel") as ClientScreen;
+            clientScreen = Instantiate(go, JB_LobbyManager.instance.lobbyScreen);
+
+            clientScreen.readyButton.onClick.AddListener(OnReadyClicked);
+            UpdatePlayerInfo();
+        }
+        else
+        {
+            hostImage.gameObject.SetActive(true);
+            clientImage.gameObject.SetActive(false);
+            hostNameInput.gameObject.SetActive(true);
+            clientName.gameObject.SetActive(false);
+            playerReadyState.gameObject.SetActive(false);
+            hostAcceptName.gameObject.SetActive(true);
+            hostLaunchButton.transform.parent.gameObject.SetActive(true);
+        }
+    }
+
+    public void UpdatePlayerInfo()
+    {
+        if (clientScreen)
+        {
+            int count = 0;
+            for (int i = 0; i < JB_LobbyManager.instance.lobbySlots.Length; i++)
             {
-                clientScreen = Instantiate(clientScreen, JB_LobbyList.instance.transform);
-                clientScreen.readyButton.onClick.AddListener(OnReadyClicked);
-                JB_LobbyManager.instance.playerCount = clientScreen.playerCount;
+                if (JB_LobbyManager.instance.lobbySlots[i])
+                {
+                    count++;
+                }
+            }
+            clientScreen.playerCount.text = count.ToString();
+        }
+        else
+        {
+            if (isReady)
+            {
+                playerReadyState.sprite = playerReadyUp;
+            }
+            else
+            {
+                playerReadyState.sprite = playerNotReady;
             }
 
-            JB_LobbyList.instance.AddPlayer(this);
+            clientName.text = nameInput.text;
         }
     }
 
