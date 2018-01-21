@@ -93,15 +93,9 @@ public class LayoutManager : NetworkBehaviour
     {
         if (!isServer)
         {
-            Destroy(gameObject);
             return;
         }
         DontDestroyOnLoad(this);
-
-        SpawnRooms();
-        
-        SpawnPickups(InventoryPickup.ItemType.tool);
-        SpawnPickups(InventoryPickup.ItemType.component);
 
         //foreach (InventoryPickup.ItemType _type in System.Enum.GetValues(typeof(InventoryPickup.ItemType))) // iterate through all pickup types and spawn all the objects
         //{
@@ -109,10 +103,20 @@ public class LayoutManager : NetworkBehaviour
         //}
     }
 
-    #region Room Spawning
+    public void BeginTheSpawning()
+    {
 
+        SpawnRooms();
+
+        SpawnPickups(InventoryPickup.ItemType.tool);
+        SpawnPickups(InventoryPickup.ItemType.component);
+    }
+
+    #region Room Spawning
+    
     void SpawnRooms()
     {
+        print("spawning rooms");
         currentLayout = PickLayout(playerNumber);                                   // pick a CSV layout file depending on the number of players
         string[,] finalRoomLayout = SplitRoomCSV();                                 // get a 2D string array describing the level layout
         List<string> roomCoordinates = new List<string>();                              // where all the rooms are
@@ -121,17 +125,8 @@ public class LayoutManager : NetworkBehaviour
         SpawnCrossroads();
         SpawnMustHaves(ref roomCoordinates);
         SpawnAllRooms(ref roomCoordinates);
-
-        // Build Navmeshes
-        for (int i = 0; i < allSurfaces.Count; i++)
-        {
-            if (allSurfaces[i])
-            {
-                allSurfaces[i].BuildNavMesh();
-            }
-        }
-        print("all navmeshes built");
-        //
+        RpcBuildNavmeshes();
+        
     }
 
     TextAsset PickLayout(int playerNum)
@@ -219,15 +214,7 @@ public class LayoutManager : NetworkBehaviour
             indices = crossroadCoordinates[i].Split(fieldSeperator);
             pos.z = (podRoomRow - System.Int32.Parse(indices[0])) * 28;
             pos.x = (System.Int32.Parse(indices[1]) - podRoomColumn) * 28;
-            Room newCR = Instantiate(allRooms[0], pos, Quaternion.identity);
-            if (newCR.surface)
-            {
-                allSurfaces.Add(newCR.surface);
-            }
-            else
-            {
-                Debug.LogError("No surface on " + newCR.roomName);
-            }
+            RpcSpawnRoomOnClient(0, pos);
 
             crossroadCoordinates.RemoveAt(i);
         }
@@ -248,17 +235,9 @@ public class LayoutManager : NetworkBehaviour
             indices = _roomCoordinates[arrayPos].Split(fieldSeperator);    // get the string index
             pos.z = (podRoomRow - System.Int32.Parse(indices[0])) * 28;
             pos.x = (System.Int32.Parse(indices[1]) - podRoomColumn) * 28;
-            Room newRoom = Instantiate(allRooms[_roomIndex], pos, Quaternion.identity);
+            RpcSpawnRoomOnClient(_roomIndex, pos);
             roomTypeCount.Add(allRooms[_roomIndex].roomName, 1);
             totalRoomCount++;
-            if (newRoom.surface)
-            {
-                allSurfaces.Add(newRoom.surface);
-            }
-            else
-            {
-                Debug.LogError("No surface on " + newRoom.roomName);
-            }
 
             _roomCoordinates.RemoveAt(arrayPos);    // remove the used room coordinate
         }
@@ -301,19 +280,26 @@ public class LayoutManager : NetworkBehaviour
             pos.z = (podRoomRow - System.Int32.Parse(indices[0])) * 28;
             pos.x = (System.Int32.Parse(indices[1]) - podRoomColumn) * 28;
 
-            Room newRoom = Instantiate(allRooms[roomIndex], pos, Quaternion.identity);
-
-            if (newRoom.surface)
-            {
-                allSurfaces.Add(newRoom.surface);
-            }
-            else
-            {
-                Debug.LogError("No surface on " + newRoom.roomName);
-            }
+            RpcSpawnRoomOnClient(roomIndex, pos);
             
             _roomCoordinates.RemoveAt(i);
             totalRoomCount++;
+        }
+    }
+
+    [ClientRpc]
+    void RpcSpawnRoomOnClient(int roomIndex, Vector3 pos)
+    {
+        print("spawning room now");
+        Room newRoom = Instantiate(allRooms[roomIndex], pos, Quaternion.identity);
+
+        if (newRoom.surface)
+        {
+            allSurfaces.Add(newRoom.surface);
+        }
+        else
+        {
+            Debug.LogError("No surface on " + newRoom.roomName);
         }
     }
 
@@ -338,7 +324,22 @@ public class LayoutManager : NetworkBehaviour
         return true;
     }
 
-# endregion
+    [ClientRpc]
+    void RpcBuildNavmeshes()
+    {
+        // Build Navmeshes
+        for (int i = 0; i < allSurfaces.Count; i++)
+        {
+            if (allSurfaces[i])
+            {
+                allSurfaces[i].BuildNavMesh();
+            }
+        }
+        print("all navmeshes built");
+        //
+    }
+
+    #endregion
 
     void ReadPickupData(InventoryPickup.ItemType _type)
     {

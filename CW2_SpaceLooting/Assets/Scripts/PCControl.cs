@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.AI;
+using UnityEngine.UI;
 
 public class PCControl : NetworkBehaviour
 {
@@ -32,6 +33,23 @@ public class PCControl : NetworkBehaviour
     }
 
 
+    // For host
+    List<GameObject> allPlayers = new List<GameObject>();
+    [HideInInspector]
+    [SyncVar]
+    public bool isHost;
+    [HideInInspector]
+    [SyncVar]
+    public bool isReady;
+    [HideInInspector]
+    [SyncVar (hook = "OnChangePlayerReady")]
+    public int playersReady;
+    [HideInInspector]
+    [SyncVar]
+    public int playerCount;
+    //
+    public GameObject playerSelectPrefab;
+    private PlayerSelection playerSelectScreen;
     public bool isInMenu;
     public GameObject cameraContainer;
     public GameObject escapePod;
@@ -60,8 +78,6 @@ public class PCControl : NetworkBehaviour
     bool instantPickup; //if double clicked, pick up instantly
                         /////////
 
-    Container openContainer;
-
     void Start()
     {
         if (!isLocalPlayer)
@@ -73,14 +89,29 @@ public class PCControl : NetworkBehaviour
         NMA_PC = GetComponent<NavMeshAgent>();
         speedNav = NMA_PC.speed;
         CC = GetComponent<CharacterController>();
-        hM = Instantiate(hM);
-        hM.pc = this;
+        var psTemp = Instantiate(playerSelectPrefab);
+        playerSelectScreen = psTemp.GetComponent<PlayerSelection>();
+        playerSelectScreen.pc = this;
+        isInMenu = true;
         Instantiate(lgm);
         hM.pcInv = pcI = GetComponent<PCInventory>();
         CameraAndOutline(false);
         CmdSpawnEscapePod();
         GetComponent<AudioListener>().enabled = true;
         AudioListener.volume = 0;
+        if (isServer)
+        {
+            isHost = true;
+            playerCount = 1;
+            allPlayers.Add(this.gameObject);
+            playerSelectScreen.launchButton.GetComponentInChildren<Text>().text = "begin";
+            playerSelectScreen.hostInfo.gameObject.SetActive(true);
+            playerSelectScreen.hostInfo.text = "0 of 0 players ready";
+        }
+        else
+        {
+            Invoke("AddPlayerToGame", hM.refreshTime);
+        }
     }
 
     void FixedUpdate()
@@ -117,6 +148,83 @@ public class PCControl : NetworkBehaviour
         }
         CO_InRadius.Clear();
     }
+    
+    void AddPlayerToGame()
+    {
+        if (isServer)
+        {
+            return;
+        }
+        CmdAddPlayerToGame(this.gameObject);
+    }
+
+    public void BeginGame()
+    {
+        if (!isServer)
+        {
+            isReady = true;
+            CmdSetPlayerReady();
+            return;
+        }
+        CmdBeginGameHost();
+        //FindObjectOfType<LayoutManager>().BeginTheSpawning();
+    }
+
+    [Command]
+    public void CmdBeginGameHost()
+    {
+        foreach (GameObject player in allPlayers)
+        {
+            var _pc = player.GetComponent<PCControl>();
+            _pc.RpcClosePlayerSelectScreen();
+        }
+    }
+
+    [ClientRpc]
+    public void RpcClosePlayerSelectScreen()
+    {
+        if (!isLocalPlayer)
+        {
+            return;
+        }
+        playerSelectScreen.gameObject.SetActive(false);
+    }
+
+    [Command]
+    public void CmdSetPlayerReady()
+    {
+        playersReady++;
+    }
+
+    [ClientRpc]
+    public void RpcBeginGameAllPlayers()
+    {
+        hM = Instantiate(hM);
+        hM.pc = playerSelectScreen.pc = this;
+        // TODO set correct gameobject to PC
+    }
+
+    [Command]
+    public void CmdAddPlayerToGame(GameObject _player)
+    {
+        if (!isServer && !isLocalPlayer)
+        {
+            return;
+        }
+        allPlayers.Add(_player);
+        playerCount++;
+        playerSelectScreen.hostInfo.text = playersReady + " of " + (playerCount - 1) + " players ready";
+    }
+
+    void OnChangePlayerReady(int readyNum)
+    {
+        if (!isServer)
+        {
+            return;
+        }
+        playerCount = allPlayers.Count;
+        playerSelectScreen.hostInfo.text = readyNum + " of " + (playerCount - 1) + " players ready";
+    }
 
     [Command]
     void CmdSpawnEscapePod()
@@ -144,7 +252,7 @@ public class PCControl : NetworkBehaviour
             pcCameraOutlineScript.OutlineApply(null, pcO.gameObject);
             pcCameraOutlineScript.m_PrevMouseOn = pcO.gameObject;
 
-            CF_Camera.mainCamera.GetComponent<Demo>().m_Outlines = FindObjectsOfType<Outline>();
+            CF_Camera.pcCamera.GetComponent<Demo>().m_Outlines = FindObjectsOfType<Outline>();
         }
     }
 
