@@ -42,7 +42,7 @@ public class PCControl : NetworkBehaviour
     [SyncVar]
     public bool isReady;
     [HideInInspector]
-    [SyncVar (hook = "OnChangePlayerReady")]
+    [SyncVar(hook = "OnChangePlayerReady")]
     public int playersReady;
     [HideInInspector]
     [SyncVar]
@@ -57,7 +57,10 @@ public class PCControl : NetworkBehaviour
     public float FL_Gravity;
     CameraFollow CF_Camera;
     Vector2 V2_FingerPosition;  //where the player presses the screen
-    NavMeshAgent NMA_PC;
+    [HideInInspector]
+    public NavMeshAgent NMA_PC;
+    [HideInInspector]
+    public LayoutManagerLocal LML;
     float speedNav; //the max navmeshagent speed of the PC
     CharacterController CC;
     PCInventory pcI;
@@ -84,6 +87,7 @@ public class PCControl : NetworkBehaviour
         {
             return;
         }
+        LML = GetComponent<LayoutManagerLocal>();
         Destroy(Camera.main.gameObject);
         CameraAndOutline(true);
         NMA_PC = GetComponent<NavMeshAgent>();
@@ -94,7 +98,7 @@ public class PCControl : NetworkBehaviour
         playerSelectScreen.pc = this;
         isInMenu = true;
         Instantiate(lgm);
-        hM.pcInv = pcI = GetComponent<PCInventory>();
+        pcI = GetComponent<PCInventory>();
         CameraAndOutline(false);
         CmdSpawnEscapePod();
         GetComponent<AudioListener>().enabled = true;
@@ -110,7 +114,7 @@ public class PCControl : NetworkBehaviour
         }
         else
         {
-            Invoke("AddPlayerToGame", hM.refreshTime);
+            Invoke("AddPlayerToGame", .1f);
         }
     }
 
@@ -129,7 +133,7 @@ public class PCControl : NetworkBehaviour
         {
             return;
         }
-        if (!CC.isGrounded) //if PC is not grounded move downwards
+        if (!CC.isGrounded && NMA_PC.enabled) //if PC is not grounded move downwards
         {
             Vector3 pos = new Vector3(transform.position.x, transform.position.y - FL_Gravity, transform.position.z);
             transform.position = pos;
@@ -148,7 +152,7 @@ public class PCControl : NetworkBehaviour
         }
         CO_InRadius.Clear();
     }
-    
+
     void AddPlayerToGame()
     {
         if (isServer)
@@ -160,34 +164,39 @@ public class PCControl : NetworkBehaviour
 
     public void BeginGame()
     {
+        if (!isLocalPlayer)
+        {
+            return;
+        }
         if (!isServer)
         {
             isReady = true;
             CmdSetPlayerReady();
             return;
         }
+        CmdStartGameOnAllClients();
         CmdBeginGameHost();
-        //FindObjectOfType<LayoutManager>().BeginTheSpawning();
+        var lm = FindObjectOfType<LayoutManager>();
+        foreach (GameObject player in allPlayers)
+        {
+            lm.allPlayers.Add(player);
+        }
+        lm.BeginTheSpawning();
     }
 
     [Command]
     public void CmdBeginGameHost()
     {
-        foreach (GameObject player in allPlayers)
-        {
-            var _pc = player.GetComponent<PCControl>();
-            _pc.RpcClosePlayerSelectScreen();
-        }
+        RpcClosePlayerSelectScreen();
     }
 
     [ClientRpc]
     public void RpcClosePlayerSelectScreen()
     {
-        if (!isLocalPlayer)
+        foreach (GameObject player in allPlayers)
         {
-            return;
+            player.GetComponent<PCControl>().playerSelectScreen.gameObject.SetActive(false);
         }
-        playerSelectScreen.gameObject.SetActive(false);
     }
 
     [Command]
@@ -196,11 +205,22 @@ public class PCControl : NetworkBehaviour
         playersReady++;
     }
 
+    [Command]
+    void CmdStartGameOnAllClients()
+    {
+        RpcBeginGameAllPlayers();
+    }
+
     [ClientRpc]
     public void RpcBeginGameAllPlayers()
     {
-        hM = Instantiate(hM);
-        hM.pc = playerSelectScreen.pc = this;
+        foreach (GameObject player in allPlayers)
+        {
+            var _pc = player.GetComponent<PCControl>();
+            _pc.hM = Instantiate(_pc.hM);
+            _pc.hM.pcInv = _pc.pcI;
+            _pc.hM.pc = _pc;
+        }
         // TODO set correct gameobject to PC
     }
 
@@ -436,7 +456,7 @@ public class PCControl : NetworkBehaviour
     public void CmdExitContainer(GameObject _con)
     {
         Container tCon = _con.GetComponent<Container>();
-        
+
         for (int i = 0; i < tCon.playersAccessing.Count; i++)
         {
             if (GetInstanceID() == tCon.playersAccessing[i].GetInstanceID())
@@ -492,7 +512,7 @@ public class PCControl : NetworkBehaviour
         }
     }
 
-#endregion
+    #endregion
 
     public void LaunchPod()
     {

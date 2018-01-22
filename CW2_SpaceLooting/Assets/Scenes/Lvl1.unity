@@ -5553,6 +5553,7 @@ MonoBehaviour:
   sevenPlayerLayouts: []
   eightPlayerLayouts: []
   ninePlayerLayouts: []
+  allPlayers: []
   allSurfaces:
   - {fileID: 692416416}
   - {fileID: 2024725102}

@@ -72,6 +72,7 @@ public class LayoutManager : NetworkBehaviour
     private int totalRoomCount = 0; // TODO delete when unnecessary
 
     // Navmesh
+    public List<GameObject> allPlayers = new List<GameObject>();
     [Header("Navigation")]
     public List<NavMeshSurface> allSurfaces = new List<NavMeshSurface>();
 
@@ -290,16 +291,9 @@ public class LayoutManager : NetworkBehaviour
     [ClientRpc]
     void RpcSpawnRoomOnClient(int roomIndex, Vector3 pos)
     {
-        print("spawning room now");
-        Room newRoom = Instantiate(allRooms[roomIndex], pos, Quaternion.identity);
-
-        if (newRoom.surface)
+        foreach (GameObject player in allPlayers)
         {
-            allSurfaces.Add(newRoom.surface);
-        }
-        else
-        {
-            Debug.LogError("No surface on " + newRoom.roomName);
+            player.GetComponent<PCControl>().LML.SpawnRoom(roomIndex, pos);
         }
     }
 
@@ -328,12 +322,9 @@ public class LayoutManager : NetworkBehaviour
     void RpcBuildNavmeshes()
     {
         // Build Navmeshes
-        for (int i = 0; i < allSurfaces.Count; i++)
+        foreach (GameObject player in allPlayers)
         {
-            if (allSurfaces[i])
-            {
-                allSurfaces[i].BuildNavMesh();
-            }
+            player.GetComponent<PCControl>().LML.BuildNavmeshes();
         }
         print("all navmeshes built");
         //
