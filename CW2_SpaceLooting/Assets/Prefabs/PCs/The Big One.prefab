@@ -296,7 +296,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fcba0b46c5a84234eabc6a7a7675cf6e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lm: {fileID: 0}
   allSurfaces: []
   allRooms:
   - {fileID: 114870997167779920, guid: 8bc2abaec3194fb4a9411cd72e77b090, type: 2}
@@ -347,6 +346,8 @@ MonoBehaviour:
   escapePod: {fileID: 1179498873279780, guid: 983a4a41469474b4ea26b5191d2f53d2, type: 2}
   LI_Point: {fileID: 108191797683479830}
   FL_Gravity: 0
+  NMA_PC: {fileID: 0}
+  LML: {fileID: 0}
   hM: {fileID: 114216866977420888, guid: 0d6661e9241f115418a8624db5f479a0, type: 2}
   lgm: {fileID: 114786811400711148, guid: 44bbecb7674b777439431205085b82e6, type: 2}
   podInventory: {fileID: 4610772718841810}
@@ -359,6 +360,8 @@ MonoBehaviour:
   outlineColour: {r: 0, g: 0.58431375, b: 1, a: 1}
   pickupThrowStrength: 500
   doubleClickInterval: 0.5
+  isPlayerSelectionThere: 0
+  OtherPlayer: {fileID: 0}
 --- !u!143 &143157360071920434
 CharacterController:
   m_ObjectHideFlags: 1
@@ -382,7 +385,7 @@ NavMeshAgent:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1879537341438234}
-  m_Enabled: 0
+  m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 0.3
   m_Speed: 3.5

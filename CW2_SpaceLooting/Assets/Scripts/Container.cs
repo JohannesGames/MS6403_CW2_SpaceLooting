@@ -50,6 +50,7 @@ public class Container : NetworkBehaviour
                 return;
             }
         }
+
         playersAccessing.Add(_pc);
     }
 

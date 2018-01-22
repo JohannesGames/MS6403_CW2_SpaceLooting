@@ -36,7 +36,7 @@ public class LayoutManagerLocal : MonoBehaviour
 
     public void BuildNavmeshes()
     {
-        StartCoroutine(BuildNevMeshAsync());
+        //StartCoroutine(BuildNevMeshAsync());
     }
 
     IEnumerator BuildNevMeshAsync()

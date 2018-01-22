@@ -414,7 +414,7 @@ GameObject:
   - component: {fileID: 114080241613615388}
   - component: {fileID: 114898896563585506}
   m_Layer: 0
-  m_Name: Floor
+  m_Name: Floors
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -595,7 +595,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1601116969042602}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.000027865, y: 0.000000059601, z: -28}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4354147396537188}
@@ -637,8 +637,8 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1638090047190974}
   m_LocalRotation: {x: -0, y: 0.7071068, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: 0, z: -6.246}
-  m_LocalScale: {x: 7.5000076, y: 0.5, z: 4}
+  m_LocalPosition: {x: 0, y: 0, z: -6.25}
+  m_LocalScale: {x: 7.5, y: 0.5, z: 4}
   m_Children: []
   m_Father: {fileID: 4723835651961114}
   m_RootOrder: 2
@@ -796,8 +796,8 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1440050417380828}
   m_LocalRotation: {x: -0, y: 1, z: -0, w: 0.0000004768371}
-  m_LocalPosition: {x: 6.2500057, y: 0, z: -0}
-  m_LocalScale: {x: 7.50001, y: 0.5, z: 4}
+  m_LocalPosition: {x: 6.25, y: 0, z: -0}
+  m_LocalScale: {x: 7.5, y: 0.5, z: 4}
   m_Children: []
   m_Father: {fileID: 4723835651961114}
   m_RootOrder: 4
@@ -809,8 +809,8 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1900529411987640}
   m_LocalRotation: {x: -0, y: 1, z: -0, w: 0.0000004768371}
-  m_LocalPosition: {x: -6.2499943, y: 0, z: 0}
-  m_LocalScale: {x: 7.500014, y: 0.5, z: 4}
+  m_LocalPosition: {x: -6.25, y: 0, z: 0}
+  m_LocalScale: {x: 7.5, y: 0.5, z: 4}
   m_Children: []
   m_Father: {fileID: 4723835651961114}
   m_RootOrder: 3
@@ -948,7 +948,7 @@ Transform:
   m_GameObject: {fileID: 1230498844389632}
   m_LocalRotation: {x: -0, y: 0.7071068, z: -0, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 0, z: 6.25}
-  m_LocalScale: {x: 7.500004, y: 0.5, z: 4}
+  m_LocalScale: {x: 7.5, y: 0.5, z: 4}
   m_Children: []
   m_Father: {fileID: 4723835651961114}
   m_RootOrder: 1
@@ -2303,7 +2303,7 @@ MonoBehaviour:
   m_OverrideVoxelSize: 0
   m_VoxelSize: 0.1
   m_BuildHeightMesh: 0
-  m_NavMeshData: {fileID: 23800000, guid: 247b557c7e4402d458b90b68abdd0dd6, type: 2}
+  m_NavMeshData: {fileID: 23800000, guid: dbf91550fcc4b7244b860e214b7f0581, type: 2}
 --- !u!114 &114184295586069566
 MonoBehaviour:
   m_ObjectHideFlags: 1

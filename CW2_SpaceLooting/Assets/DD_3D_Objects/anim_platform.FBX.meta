@@ -1,0 +1,498 @@
+fileFormatVersion: 2
+guid: 96f4a7cc8d89143419e46f66d1e24086
+timeCreated: 1476289070
+licenseType: Free
+ModelImporter:
+  serializedVersion: 22
+  fileIDToRecycleName:
+    100000: //RootNode
+    100002: Box001
+    100004: Box002
+    100006: Box003
+    100008: Box004
+    100010: Cylinder001
+    100012: Cylinder002
+    100014: Cylinder003
+    100016: Cylinder004
+    100018: Cylinder005
+    100020: Cylinder006
+    100022: Cylinder007
+    100024: Cylinder008
+    100026: Cylinder009
+    100028: Cylinder010
+    100030: Cylinder011
+    100032: Cylinder012
+    100034: Tube001
+    100036: Tube002
+    100038: Tube003
+    100040: Tube004
+    400000: //RootNode
+    400002: Box001
+    400004: Box002
+    400006: Box003
+    400008: Box004
+    400010: Cylinder001
+    400012: Cylinder002
+    400014: Cylinder003
+    400016: Cylinder004
+    400018: Cylinder005
+    400020: Cylinder006
+    400022: Cylinder007
+    400024: Cylinder008
+    400026: Cylinder009
+    400028: Cylinder010
+    400030: Cylinder011
+    400032: Cylinder012
+    400034: Tube001
+    400036: Tube002
+    400038: Tube003
+    400040: Tube004
+    2300000: Box001
+    2300002: Box002
+    2300004: Box003
+    2300006: Box004
+    2300008: Cylinder001
+    2300010: Cylinder002
+    2300012: Cylinder003
+    2300014: Cylinder004
+    2300016: Cylinder005
+    2300018: Cylinder006
+    2300020: Cylinder007
+    2300022: Cylinder008
+    2300024: Cylinder009
+    2300026: Cylinder010
+    2300028: Cylinder011
+    2300030: Cylinder012
+    2300032: Tube001
+    2300034: Tube002
+    2300036: Tube003
+    2300038: Tube004
+    3300000: Box001
+    3300002: Box002
+    3300004: Box003
+    3300006: Box004
+    3300008: Cylinder001
+    3300010: Cylinder002
+    3300012: Cylinder003
+    3300014: Cylinder004
+    3300016: Cylinder005
+    3300018: Cylinder006
+    3300020: Cylinder007
+    3300022: Cylinder008
+    3300024: Cylinder009
+    3300026: Cylinder010
+    3300028: Cylinder011
+    3300030: Cylinder012
+    3300032: Tube001
+    3300034: Tube002
+    3300036: Tube003
+    3300038: Tube004
+    4300000: Tube001
+    4300002: Box001
+    4300004: Cylinder001
+    4300006: Cylinder002
+    4300008: Cylinder003
+    4300010: Tube002
+    4300012: Box002
+    4300014: Cylinder004
+    4300016: Cylinder005
+    4300018: Cylinder006
+    4300020: Tube003
+    4300022: Box003
+    4300024: Cylinder007
+    4300026: Cylinder008
+    4300028: Cylinder009
+    4300030: Tube004
+    4300032: Box004
+    4300034: Cylinder010
+    4300036: Cylinder011
+    4300038: Cylinder012
+    6400000: Box001
+    6400002: Box002
+    6400004: Box003
+    6400006: Box004
+    6400008: Cylinder001
+    6400010: Cylinder002
+    6400012: Cylinder003
+    6400014: Cylinder004
+    6400016: Cylinder005
+    6400018: Cylinder006
+    6400020: Cylinder007
+    6400022: Cylinder008
+    6400024: Cylinder009
+    6400026: Cylinder010
+    6400028: Cylinder011
+    6400030: Cylinder012
+    6400032: Tube001
+    6400034: Tube002
+    6400036: Tube003
+    6400038: Tube004
+    7400000: Extend
+    7400002: PF_idle
+    7400004: PF_Stage_01
+    7400006: PF_Stage_02
+    7400008: PF_Stage_03
+    9500000: //RootNode
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: No Name
+    second: {fileID: 2100000, guid: 952508f34bde6b44a8f809f4832de576, type: 2}
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 0
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations:
+    - serializedVersion: 16
+      name: PF_idle
+      takeName: Take 001
+      firstFrame: 0
+      lastFrame: 0
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask:
+      - path: 
+        weight: 1
+      - path: Tube001
+        weight: 1
+      - path: Tube001/Box001
+        weight: 1
+      - path: Tube001/Box001/Cylinder001
+        weight: 1
+      - path: Tube001/Box001/Cylinder002
+        weight: 1
+      - path: Tube001/Box001/Cylinder003
+        weight: 1
+      - path: Tube002
+        weight: 1
+      - path: Tube002/Box002
+        weight: 1
+      - path: Tube002/Box002/Cylinder004
+        weight: 1
+      - path: Tube002/Box002/Cylinder005
+        weight: 1
+      - path: Tube002/Box002/Cylinder006
+        weight: 1
+      - path: Tube003
+        weight: 1
+      - path: Tube003/Box003
+        weight: 1
+      - path: Tube003/Box003/Cylinder007
+        weight: 1
+      - path: Tube003/Box003/Cylinder008
+        weight: 1
+      - path: Tube003/Box003/Cylinder009
+        weight: 1
+      - path: Tube004
+        weight: 1
+      - path: Tube004/Box004
+        weight: 1
+      - path: Tube004/Box004/Cylinder010
+        weight: 1
+      - path: Tube004/Box004/Cylinder011
+        weight: 1
+      - path: Tube004/Box004/Cylinder012
+        weight: 1
+      maskType: 0
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    - serializedVersion: 16
+      name: PF_Stage_01
+      takeName: Take 001
+      firstFrame: 0
+      lastFrame: 30
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask:
+      - path: 
+        weight: 1
+      - path: Tube001
+        weight: 1
+      - path: Tube001/Box001
+        weight: 1
+      - path: Tube001/Box001/Cylinder001
+        weight: 1
+      - path: Tube001/Box001/Cylinder002
+        weight: 1
+      - path: Tube001/Box001/Cylinder003
+        weight: 1
+      - path: Tube002
+        weight: 1
+      - path: Tube002/Box002
+        weight: 1
+      - path: Tube002/Box002/Cylinder004
+        weight: 1
+      - path: Tube002/Box002/Cylinder005
+        weight: 1
+      - path: Tube002/Box002/Cylinder006
+        weight: 1
+      - path: Tube003
+        weight: 1
+      - path: Tube003/Box003
+        weight: 1
+      - path: Tube003/Box003/Cylinder007
+        weight: 1
+      - path: Tube003/Box003/Cylinder008
+        weight: 1
+      - path: Tube003/Box003/Cylinder009
+        weight: 1
+      - path: Tube004
+        weight: 1
+      - path: Tube004/Box004
+        weight: 1
+      - path: Tube004/Box004/Cylinder010
+        weight: 1
+      - path: Tube004/Box004/Cylinder011
+        weight: 1
+      - path: Tube004/Box004/Cylinder012
+        weight: 1
+      maskType: 3
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    - serializedVersion: 16
+      name: PF_Stage_02
+      takeName: Take 001
+      firstFrame: 31
+      lastFrame: 60
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask:
+      - path: 
+        weight: 1
+      - path: Tube001
+        weight: 1
+      - path: Tube001/Box001
+        weight: 1
+      - path: Tube001/Box001/Cylinder001
+        weight: 1
+      - path: Tube001/Box001/Cylinder002
+        weight: 1
+      - path: Tube001/Box001/Cylinder003
+        weight: 1
+      - path: Tube002
+        weight: 1
+      - path: Tube002/Box002
+        weight: 1
+      - path: Tube002/Box002/Cylinder004
+        weight: 1
+      - path: Tube002/Box002/Cylinder005
+        weight: 1
+      - path: Tube002/Box002/Cylinder006
+        weight: 1
+      - path: Tube003
+        weight: 1
+      - path: Tube003/Box003
+        weight: 1
+      - path: Tube003/Box003/Cylinder007
+        weight: 1
+      - path: Tube003/Box003/Cylinder008
+        weight: 1
+      - path: Tube003/Box003/Cylinder009
+        weight: 1
+      - path: Tube004
+        weight: 1
+      - path: Tube004/Box004
+        weight: 1
+      - path: Tube004/Box004/Cylinder010
+        weight: 1
+      - path: Tube004/Box004/Cylinder011
+        weight: 1
+      - path: Tube004/Box004/Cylinder012
+        weight: 1
+      maskType: 3
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    - serializedVersion: 16
+      name: PF_Stage_03
+      takeName: Take 001
+      firstFrame: 59
+      lastFrame: 90
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask:
+      - path: 
+        weight: 1
+      - path: Tube001
+        weight: 1
+      - path: Tube001/Box001
+        weight: 1
+      - path: Tube001/Box001/Cylinder001
+        weight: 1
+      - path: Tube001/Box001/Cylinder002
+        weight: 1
+      - path: Tube001/Box001/Cylinder003
+        weight: 1
+      - path: Tube002
+        weight: 1
+      - path: Tube002/Box002
+        weight: 1
+      - path: Tube002/Box002/Cylinder004
+        weight: 1
+      - path: Tube002/Box002/Cylinder005
+        weight: 1
+      - path: Tube002/Box002/Cylinder006
+        weight: 1
+      - path: Tube003
+        weight: 1
+      - path: Tube003/Box003
+        weight: 1
+      - path: Tube003/Box003/Cylinder007
+        weight: 1
+      - path: Tube003/Box003/Cylinder008
+        weight: 1
+      - path: Tube003/Box003/Cylinder009
+        weight: 1
+      - path: Tube004
+        weight: 1
+      - path: Tube004/Box004
+        weight: 1
+      - path: Tube004/Box004/Cylinder010
+        weight: 1
+      - path: Tube004/Box004/Cylinder011
+        weight: 1
+      - path: Tube004/Box004/Cylinder012
+        weight: 1
+      maskType: 3
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 1
+    importVisibility: 0
+    importBlendShapes: 1
+    importCameras: 0
+    importLights: 0
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 0
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    rootMotionBoneRotation: {x: 0, y: 0, z: 0, w: 1}
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 0
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 2
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

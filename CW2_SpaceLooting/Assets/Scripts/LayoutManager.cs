@@ -173,7 +173,6 @@ public class LayoutManager : NetworkBehaviour
                 roomRowsAndColumns[i, j] = _roomColumns[j];  // populates the array
             }
         }
-
         return roomRowsAndColumns;
     }
 
@@ -236,7 +235,7 @@ public class LayoutManager : NetworkBehaviour
             indices = _roomCoordinates[arrayPos].Split(fieldSeperator);    // get the string index
             pos.z = (podRoomRow - System.Int32.Parse(indices[0])) * 28;
             pos.x = (System.Int32.Parse(indices[1]) - podRoomColumn) * 28;
-            RpcSpawnRoomOnClient(_roomIndex, pos);
+            CmdSpawnRoomOnClient(_roomIndex, pos);
             roomTypeCount.Add(allRooms[_roomIndex].roomName, 1);
             totalRoomCount++;
 
@@ -281,11 +280,17 @@ public class LayoutManager : NetworkBehaviour
             pos.z = (podRoomRow - System.Int32.Parse(indices[0])) * 28;
             pos.x = (System.Int32.Parse(indices[1]) - podRoomColumn) * 28;
 
-            RpcSpawnRoomOnClient(roomIndex, pos);
+            CmdSpawnRoomOnClient(roomIndex, pos);
             
             _roomCoordinates.RemoveAt(i);
             totalRoomCount++;
         }
+    }
+
+    [Command]
+    void CmdSpawnRoomOnClient(int roomIndex, Vector3 pos)
+    {
+        RpcSpawnRoomOnClient(roomIndex, pos);
     }
 
     [ClientRpc]
