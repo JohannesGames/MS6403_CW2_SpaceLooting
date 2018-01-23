@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -32,6 +33,7 @@ public class PCControl : NetworkBehaviour
     }
 
     // For host
+    public JB_NetworkManager nm;
     List<GameObject> allPlayers = new List<GameObject>();
     //public GameObject LevelManager;
     //List<GameObject> playerList = new List<GameObject>();
@@ -42,14 +44,10 @@ public class PCControl : NetworkBehaviour
     [SyncVar]
     public bool isReady;
     [HideInInspector]
-    [SyncVar(hook = "OnChangePlayerReady")]
-    public int playersReady;
-    [HideInInspector]
     [SyncVar]
     public int playerCount;
     //
-    public GameObject playerSelectPrefab;
-    private PlayerSelection playerSelectScreen;
+    public PlayerSelection playerSelectScreen;
     public bool isInMenu;
     public GameObject cameraContainer;
     public GameObject escapePod;
@@ -119,35 +117,24 @@ public class PCControl : NetworkBehaviour
         GetComponent<AudioListener>().enabled = true;
         AudioListener.volume = 0;
 
-        hM = Instantiate(hM);
-        hM.pc = this;
-        hM.pcInv = pcI = GetComponent<PCInventory>();
+        //if (isServer)
+        //{
+        //    isHost = true;
+        //    playerCount = 1;
 
-        if (isServer)
-        {
-            isHost = true;
-            playerCount = 1;
+        //    OtherPlayer = (this);
+        //    allPlayers = OtherPlayer.allPlayers;
 
-            OtherPlayer = (this);
-            allPlayers = OtherPlayer.allPlayers;
+        //    allPlayers.Add(this.gameObject);
+        //    CmdAddHostPlayer(this.gameObject);
+        //    //playerSelectScreen.launchButton.GetComponentInChildren<Text>().text = "begin";
+        //    //playerSelectScreen.hostInfo.gameObject.SetActive(true);
+        //    //playerSelectScreen.hostInfo.text = "0 of 0 players ready";
 
-            allPlayers.Add(this.gameObject);
-            CmdAddHostPlayer(this.gameObject);
-            //playerSelectScreen.launchButton.GetComponentInChildren<Text>().text = "begin";
-            //playerSelectScreen.hostInfo.gameObject.SetActive(true);
-            //playerSelectScreen.hostInfo.text = "0 of 0 players ready";
+        //    FindObjectOfType<LayoutManager>().BeginTheSpawning();
 
-            FindObjectOfType<LayoutManager>().BeginTheSpawning();
-
-            print("PCControl: isServer");
-        }
-
-        else
-        {
-            Invoke("AddPlayerToGame", .1f);
-
-            print("PCControl: Not isServer");
-        }
+        //    print("PCControl: isServer");
+        //}
 
 
     }
@@ -206,16 +193,40 @@ public class PCControl : NetworkBehaviour
         CO_InRadius.Clear();
     }
 
-    void AddPlayerToGame()
+    [ClientRpc]
+    public void RpcSpawnPlayerSelectScreen()
     {
-        if (isServer)
+        if (!isLocalPlayer)
         {
             return;
         }
+        var tempPS = Instantiate(playerSelectScreen);
+        tempPS.gameObject.SetActive(true);
+        playerSelectScreen = tempPS;
+        isInMenu = true;
+        playerSelectScreen.launchButton.GetComponentInChildren<Text>().alignment = TextAnchor.MiddleCenter;
+        if (!isServer) playerSelectScreen.hostInfo.gameObject.SetActive(false);
+        playerSelectScreen.pc = this;
+    }
 
-        print("AddPlayerToGame: is Not Server");
+    public void SetHostLaunchButton()
+    {
+        playerSelectScreen.launchButton.GetComponentInChildren<Text>().text = "begin round";
+        playerSelectScreen.hostInfo.gameObject.SetActive(true);
+        playerSelectScreen.hostInfo.text = "0 of 0 connected players ready";
+        if (nm) nm.hostObject = this.gameObject;
+    }
 
-        CmdAddPlayerToGame(this.gameObject);
+    public void UpdateLaunchButton(int readyPlayers, int playerNum)
+    {
+        playerSelectScreen.hostInfo.text = readyPlayers + " of " + playerNum + " connected players ready";
+    }
+
+    public void SpawnHUD()
+    {
+        hM = Instantiate(hM);
+        hM.pc = this;
+        hM.pcInv = pcI = GetComponent<PCInventory>();
     }
 
     public void BeginGame()
@@ -225,79 +236,78 @@ public class PCControl : NetworkBehaviour
             return;
         }
 
-        if (!isServer)
+        if (isServer)
         {
-            isReady = true;
-            CmdSetPlayerReady();
+            nm.HostReadyToPlay();
             return;
         }
 
-        CmdStartGameOnAllClients();
-        var lm = FindObjectOfType<LayoutManager>();
-        foreach (GameObject player in allPlayers)
+        CmdSetPlayerReady();
+    }
+
+    [Command]
+    void CmdSetPlayerReady()
+    {
+        if (nm)
         {
-            lm.allPlayers.Add(player);
+            nm.SetPlayerReady(this.gameObject);
         }
-        lm.BeginTheSpawning();
-    }
-
-    [Command]
-    public void CmdSetPlayerReady()
-    {
-        playersReady++;
-        Debug.Log("CMDSetPlayerReady");
-    }
-
-    [Command]
-    void CmdStartGameOnAllClients()
-    {
-        RpcBeginGameAllPlayers();
+        else
+        {
+            Debug.LogError("Manager not set");
+        }
     }
 
     [ClientRpc]
-    public void RpcBeginGameAllPlayers()
+    public void RpcBeginGame()
     {
-        foreach (GameObject player in allPlayers)
-        {
-            var _pc = player.GetComponent<PCControl>();
-            _pc.hM = Instantiate(_pc.hM);
-            _pc.hM.pcInv = _pc.pcI;
-            _pc.hM.pc = _pc;
-            _pc.playerSelectScreen.gameObject.SetActive(false);
-            _pc.NMA_PC.enabled = true;
-        }
-        // TODO set correct gameobject to PC
-    }
-
-    [Command]
-    public void CmdAddPlayerToGame(GameObject _player)
-    {
-        Debug.Log("CmdAddPlayerToGame");
-
-        if (!isServer)// || !isLocalPlayer)
+        if (!isLocalPlayer)
         {
             return;
         }
-
-        allPlayers.Add(_player);
-        playerCount++;
-
-        for (int i = 0; i < allPlayers.Count; i++)
+        if (isServer)
         {
-            PCControl _pc = _player.GetComponent<PCControl>();
-
-            if (_pc.isServer)
-            {
-                Debug.Log("PC is host");
-            }
-
-            else
-            {
-                playerSelectScreen.hostInfo.text = playersReady + " of " + (allPlayers.Count - 1) + " players ready";
-                Debug.Log("PC is not Host");
-            }
+            
         }
+        hM = Instantiate(hM);
+        hM.pcInv = pcI;
+        hM.pc = this;
+        playerSelectScreen.gameObject.SetActive(false);
+        NMA_PC.enabled = true;
+        isInMenu = false;
+
+        // TODO set correct gameobject to PC
     }
+
+    //[Command]
+    //public void CmdAddPlayerToGame(GameObject _player)
+    //{
+    //    Debug.Log("CmdAddPlayerToGame");
+
+    //    if (!isServer)// || !isLocalPlayer)
+    //    {
+    //        return;
+    //    }
+
+    //    allPlayers.Add(_player);
+    //    playerCount++;
+
+    //    for (int i = 0; i < allPlayers.Count; i++)
+    //    {
+    //        PCControl _pc = _player.GetComponent<PCControl>();
+
+    //        if (_pc.isServer)
+    //        {
+    //            Debug.Log("PC is host");
+    //        }
+
+    //        else
+    //        {
+    //            playerSelectScreen.hostInfo.text = playersReady + " of " + (allPlayers.Count - 1) + " players ready";
+    //            Debug.Log("PC is not Host");
+    //        }
+    //    }
+    //}
 
     [Command]
     public void CmdAddHostPlayer(GameObject _player)

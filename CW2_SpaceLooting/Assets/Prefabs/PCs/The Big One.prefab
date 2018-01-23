@@ -334,11 +334,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5dd6c0606c3e76f458be7c79b0696cb5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  nm: {fileID: 0}
   isHost: 0
   isReady: 0
   playersReady: 0
   playerCount: 0
-  playerSelectPrefab: {fileID: 1032252470567066, guid: 39eb3aee48a93c84c981fb8972349151,
+  playerSelectScreen: {fileID: 114502399016326282, guid: 39eb3aee48a93c84c981fb8972349151,
     type: 2}
   isInMenu: 0
   cameraContainer: {fileID: 1800410202692166, guid: 08506de0b3ab1d64380dadd1a61e74b0,

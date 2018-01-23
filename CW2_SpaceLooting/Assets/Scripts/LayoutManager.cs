@@ -104,8 +104,17 @@ public class LayoutManager : NetworkBehaviour
         //}
     }
 
-    public void BeginTheSpawning()
+    public void BeginTheSpawning(List<GameObject> _allPlayers)
     {
+        if (!isServer)
+        {
+            return;
+        }
+
+        foreach (GameObject item in _allPlayers)
+        {
+            allPlayers.Add(item);
+        }
 
         SpawnRooms();
 
