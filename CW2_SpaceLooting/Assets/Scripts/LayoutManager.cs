@@ -72,6 +72,7 @@ public class LayoutManager : NetworkBehaviour
     private int totalRoomCount = 0; // TODO delete when unnecessary
 
     // Navmesh
+    public JB_NetworkManager nm;
     public List<GameObject> allPlayers = new List<GameObject>();
     [Header("Navigation")]
     public List<NavMeshSurface> allSurfaces = new List<NavMeshSurface>();
@@ -135,7 +136,6 @@ public class LayoutManager : NetworkBehaviour
         SpawnCrossroads();
         SpawnMustHaves(ref roomCoordinates);
         SpawnAllRooms(ref roomCoordinates);
-        RpcBuildNavmeshes();
         
     }
 
@@ -223,7 +223,7 @@ public class LayoutManager : NetworkBehaviour
             indices = crossroadCoordinates[i].Split(fieldSeperator);
             pos.z = (podRoomRow - System.Int32.Parse(indices[0])) * 28;
             pos.x = (System.Int32.Parse(indices[1]) - podRoomColumn) * 28;
-            RpcSpawnRoomOnClient(0, pos);
+            nm.BuildRoomOnClient(0, pos);
 
             crossroadCoordinates.RemoveAt(i);
         }
@@ -244,7 +244,7 @@ public class LayoutManager : NetworkBehaviour
             indices = _roomCoordinates[arrayPos].Split(fieldSeperator);    // get the string index
             pos.z = (podRoomRow - System.Int32.Parse(indices[0])) * 28;
             pos.x = (System.Int32.Parse(indices[1]) - podRoomColumn) * 28;
-            CmdSpawnRoomOnClient(_roomIndex, pos);
+            nm.BuildRoomOnClient(_roomIndex, pos);
             roomTypeCount.Add(allRooms[_roomIndex].roomName, 1);
             totalRoomCount++;
 
@@ -289,7 +289,7 @@ public class LayoutManager : NetworkBehaviour
             pos.z = (podRoomRow - System.Int32.Parse(indices[0])) * 28;
             pos.x = (System.Int32.Parse(indices[1]) - podRoomColumn) * 28;
 
-            CmdSpawnRoomOnClient(roomIndex, pos);
+            nm.BuildRoomOnClient(roomIndex, pos);
             
             _roomCoordinates.RemoveAt(i);
             totalRoomCount++;
@@ -330,18 +330,6 @@ public class LayoutManager : NetworkBehaviour
             roomTypeCount.Add(_room.roomName, 1);
         }
         return true;
-    }
-
-    [ClientRpc]
-    void RpcBuildNavmeshes()
-    {
-        // Build Navmeshes
-        foreach (GameObject player in allPlayers)
-        {
-            player.GetComponent<PCControl>().LML.BuildNavmeshes();
-        }
-        print("all navmeshes built");
-        //
     }
 
     #endregion

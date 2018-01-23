@@ -1013,6 +1013,14 @@ namespace UnityEngine.Networking
             }
             lm.BeginTheSpawning(readyPlayers);
         }
+
+        public void BuildRoomOnClient(int roomIndex, Vector3 pos)
+        {
+            foreach (GameObject player in readyPlayers)
+            {
+                player.GetComponent<PCControl>().RpcBuildRoom(roomIndex, pos);
+            }
+        }
     }
 }
 #endif //ENABLE_UNET

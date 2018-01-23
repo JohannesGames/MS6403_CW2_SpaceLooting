@@ -205,7 +205,11 @@ public class PCControl : NetworkBehaviour
         playerSelectScreen = tempPS;
         isInMenu = true;
         playerSelectScreen.launchButton.GetComponentInChildren<Text>().alignment = TextAnchor.MiddleCenter;
-        if (!isServer) playerSelectScreen.hostInfo.gameObject.SetActive(false);
+        if (!isServer)
+        {
+            playerSelectScreen.hostInfo.gameObject.SetActive(false);
+            playerSelectScreen.launchButton.GetComponentInChildren<Text>().text = "accept";
+        }
         playerSelectScreen.pc = this;
     }
 
@@ -277,6 +281,17 @@ public class PCControl : NetworkBehaviour
         isInMenu = false;
 
         // TODO set correct gameobject to PC
+    }
+
+    [ClientRpc]
+    public void RpcBuildRoom(int roomIndex, Vector3 pos)
+    {
+        if (!isLocalPlayer)
+        {
+            return;
+        }
+
+        LML.SpawnRoom(roomIndex, pos);
     }
 
     //[Command]
