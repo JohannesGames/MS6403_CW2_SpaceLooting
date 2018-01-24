@@ -590,14 +590,12 @@ public class PCControl : NetworkBehaviour
 
         Pickup pu = Instantiate(pickupPrefab, tPos, Quaternion.identity);
         pu.itemName = ip.itemName;
-        //int index = (int)ip.pickupType;
         pu.pickupType = (InventoryPickup.ItemType)ip.pickupType;
         pu.typeInt = ip.pickupType;
         pu.serial = ip.serial;
         pu.transform.position = tPos;
         pu.transform.rotation = Quaternion.Euler(tRot);
         pu.GetComponent<Rigidbody>().AddForce(pu.transform.TransformDirection(Vector3.up) * pickupThrowStrength);   //throw it a small distance next to the PC
-        pu.playParticle = false;
         NetworkServer.Spawn(pu.gameObject);
     }
 

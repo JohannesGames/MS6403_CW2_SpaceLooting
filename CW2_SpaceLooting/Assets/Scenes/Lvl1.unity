@@ -20,7 +20,7 @@ RenderSettings:
   m_FogDensity: 0.01
   m_LinearFogStart: 0
   m_LinearFogEnd: 300
-  m_AmbientSkyColor: {r: 0.022058845, g: 0.022058845, b: 0.022058845, a: 1}
+  m_AmbientSkyColor: {r: 0.075, g: 0.075, b: 0.075, a: 1}
   m_AmbientEquatorColor: {r: 0.114, g: 0.125, b: 0.133, a: 1}
   m_AmbientGroundColor: {r: 0.047, g: 0.043, b: 0.035, a: 1}
   m_AmbientIntensity: 0
@@ -6329,6 +6329,9 @@ MonoBehaviour:
   - {fileID: 114035060506609130, guid: d0a275a860e896349a03a64bca1337e1, type: 2}
   - {fileID: 114331724453723838, guid: 81c0b38ad8ad8d64fb41f0e564449526, type: 2}
   - {fileID: 114445028132071120, guid: bc7b6264e930a0c42b7779a3ec91a115, type: 2}
+  - {fileID: 114746467702562848, guid: 6b2b929c9ea17324a810798a1b97d2a4, type: 2}
+  - {fileID: 114427922515742026, guid: 857f210ddd805a741b5e3fc67cb76b98, type: 2}
+  - {fileID: 114619723771885036, guid: 8178b7dd87aa59a4589526c7494953f9, type: 2}
   podRoom: {fileID: 338959836}
   engineRoom: {fileID: 69483262}
 --- !u!114 &613896521
@@ -8365,7 +8368,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!108 &779295839
 Light:
   m_ObjectHideFlags: 0
