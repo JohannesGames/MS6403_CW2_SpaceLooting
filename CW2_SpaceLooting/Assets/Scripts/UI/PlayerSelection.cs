@@ -19,6 +19,7 @@ public class PlayerSelection : MonoBehaviour
     public Text hostInfo;
     [HideInInspector]
     public PCControl pc;
+    public RectTransform pleaseWaitPanel;
 
     private Quaternion currentModel;
     private int currentIndex;

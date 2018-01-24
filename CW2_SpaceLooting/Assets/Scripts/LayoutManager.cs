@@ -74,13 +74,13 @@ public class LayoutManager : NetworkBehaviour
     // Navmesh
     public JB_NetworkManager nm;
     public List<GameObject> allPlayers = new List<GameObject>();
-    [Header("Navigation")]
-    public List<NavMeshSurface> allSurfaces = new List<NavMeshSurface>();
 
     // Room prefabs
     [Header("Room Prefabs")]
     [Tooltip("0: Crossroad")]
     public Room[] allRooms;
+    public Room podRoom;
+    public Room engineRoom;
 
     //public Room crossroad;
     //public Room canteen;
@@ -90,7 +90,7 @@ public class LayoutManager : NetworkBehaviour
     //public Room weaponStation;
     //public Room bridge;
     //public Room comms;
-    
+
     void Start()
     {
         if (!isServer)
@@ -118,16 +118,14 @@ public class LayoutManager : NetworkBehaviour
         }
 
         SpawnRooms();
-
-        SpawnPickups(InventoryPickup.ItemType.tool);
-        SpawnPickups(InventoryPickup.ItemType.component);
+        Invoke("SpawnAllContainers", .2f);
+        Invoke("SpawnAllPickups", .25f);
     }
 
     #region Room Spawning
-    
+
     void SpawnRooms()
     {
-        print("spawning rooms");
         currentLayout = PickLayout(playerNumber);                                   // pick a CSV layout file depending on the number of players
         string[,] finalRoomLayout = SplitRoomCSV();                                 // get a 2D string array describing the level layout
         List<string> roomCoordinates = new List<string>();                              // where all the rooms are
@@ -136,7 +134,7 @@ public class LayoutManager : NetworkBehaviour
         SpawnCrossroads();
         SpawnMustHaves(ref roomCoordinates);
         SpawnAllRooms(ref roomCoordinates);
-        
+
     }
 
     TextAsset PickLayout(int playerNum)
@@ -144,7 +142,7 @@ public class LayoutManager : NetworkBehaviour
         switch (playerNum)
         {
             case 2:
-                return twoPlayerLayouts[Random.Range(0,twoPlayerLayouts.Length)];
+                return twoPlayerLayouts[Random.Range(0, twoPlayerLayouts.Length)];
             case 3:
                 return threePlayerLayouts[Random.Range(0, twoPlayerLayouts.Length)];
             case 4:
@@ -191,7 +189,7 @@ public class LayoutManager : NetworkBehaviour
         {
             for (int j = 0; j < roomColumns; j++)
             {
-                if (_roomLayout[i,j] == "r")            // if this is a room index
+                if (_roomLayout[i, j] == "r")            // if this is a room index
                 {
                     _roomCount++;
                     _roomCoordinates.Add(System.String.Format("{0},{1}", i, j));
@@ -214,7 +212,7 @@ public class LayoutManager : NetworkBehaviour
     void SpawnCrossroads()
     {
         if (crossroadCoordinates.Count == 0) return;
-        
+
         string[] indices = new string[2];
         Vector3 pos = new Vector3();
 
@@ -290,7 +288,7 @@ public class LayoutManager : NetworkBehaviour
             pos.x = (System.Int32.Parse(indices[1]) - podRoomColumn) * 28;
 
             nm.BuildRoomOnClient(roomIndex, pos);
-            
+
             _roomCoordinates.RemoveAt(i);
             totalRoomCount++;
         }
@@ -334,10 +332,21 @@ public class LayoutManager : NetworkBehaviour
 
     #endregion
 
+    void SpawnAllPickups()
+    {
+        SpawnPickups(InventoryPickup.ItemType.tool);
+        SpawnPickups(InventoryPickup.ItemType.component);
+    }
+
+    void SpawnAllContainers()
+    {
+        nm.SpawnAllContainers();
+    }
+
     void ReadPickupData(InventoryPickup.ItemType _type)
     {
         string[] pickupCSV = GetPickupCSV(_type);
-        
+
         spawnList.Clear();
         foreach (string pickup in pickupCSV)
         {
@@ -369,7 +378,7 @@ public class LayoutManager : NetworkBehaviour
     {                                                   // e.g. 2 players requiring 3 tools and 6 comps, spawn 12 tools, 24 comps and 20 boosts
         ReadPickupData(_type);
 
-        int numItemsRequired;
+        int numItemsRequired = 1;
         switch (_type)      //set the number required for the item
         {
             case InventoryPickup.ItemType.tool:
@@ -394,7 +403,7 @@ public class LayoutManager : NetworkBehaviour
 
         // TODO Spawn the correct amount of pickups in the various containers and spawn points
 
-        InventoryPickup[] toBeSpawned = new InventoryPickup[playerNumber * toolsRequired * itemMulitplier];    // this contains the pickups chosen from pickupPool to be spawned around the map
+        InventoryPickup[] toBeSpawned = new InventoryPickup[playerNumber * numItemsRequired * itemMulitplier];    // this contains the pickups chosen from pickupPool to be spawned around the map
 
         for (int i = 0; i < toBeSpawned.Length; i++)
         {
@@ -402,136 +411,34 @@ public class LayoutManager : NetworkBehaviour
             {
                 int index = Random.Range(0, pickupPool.Count - 1);
                 InventoryPickup PU = new InventoryPickup(pickupPool[index].itemName, InventoryPickup.ItemType.tool, -1);
+                //// is serial unique?
+                for (int j = 0; j < 1; j++)
+                {
+                    PU.serial = Random.Range(1000000, 9999999);
+                    if (serialsUsed.Count > 0 && serialsUsed[j] != 0)
+                    {
+                        if (PU.serial == serialsUsed[j])
+                        {
+                            j = -1;
+                        }
+                    }
+                }
+                ////
+                //// add new serial to serialsUsed array
+                serialsUsed.Add(PU.serial);
+                ////
+                PU.pickupType = _type;
                 toBeSpawned[i] = PU;
             }
         }
 
-        for (int i = 0; i < toBeSpawned.Length; i++)    // spawn chosen tools. TODO disperse all pickups around level
+        for (int i = 0; i < toBeSpawned.Length; i++)    // spawn chosen pickup. TODO disperse all pickups around level
         {
-            var PU = Instantiate(pickupPrefab);
-
-            //// is serial unique?
-            for (int j = 0; j < 1; j++)
-            {
-                PU.serial = Random.Range(1000000, 9999999);
-                if (serialsUsed.Count > 0 && serialsUsed[j] != 0)
-                {
-                    if (PU.serial == serialsUsed[j])
-                    {
-                        j = -1;
-                    }
-                }
-            }
-            ////
-
-            //// add new serial to serialsUsed array
-            for (int j = 0; j < serialsUsed.Count; j++)
-            {
-                serialsUsed.Add(PU.serial);
-            }
-            ////
-
-            //// set world object's name, type and icon
-            PU.pickupType = _type;
-            PU.itemName = toBeSpawned[i].itemName;
-            ////
-
-            switch (_type)      //set the relevant hierarchy name for the item
-            {
-                case InventoryPickup.ItemType.tool:
-                    PU.name = toBeSpawned[i].itemName + " - TOOL";
-                    break;
-                case InventoryPickup.ItemType.component:
-                    PU.name = toBeSpawned[i].itemName + " - COMPONENT";
-                    break;
-                case InventoryPickup.ItemType.boost:
-                    PU.name = toBeSpawned[i].itemName + " - BOOST";
-                    break;
-            }
-
-            NetworkServer.Spawn(PU.gameObject);
+            nm.SpawnPickup(new PCControl.ItemPickups(toBeSpawned[i]));
         }
 
         // check enough unique ones (playerNumber * toolsRequired * 2)?
-}
-
-    //void SpawnTools()
-    //{
-    //    ReadPickupData();
-
-    //    List<InventoryPickup> pickupPool = new List<InventoryPickup>();   // the possible pool of spawned pickups
-    //    foreach (PickupSpawner item in spawnList)
-    //    {
-    //        for (int i = 0; i < item.rarity; i++)       // rarity defines how many of this object go into the potential spawn pool
-    //        {
-    //            pickupPool.Add(new InventoryPickup(item.pickupName, InventoryPickup.ItemType.tool, -1, toolIcon));
-    //        }
-    //    }
-
-    //    // Spawn the correct amount of tools in the various containers and spawn points
-
-    //    InventoryPickup[] toBeSpawned = new InventoryPickup[playerNumber * toolsRequired * 4];    // this contains the pickups chosen from pickupPool to be spawned around the map
-
-    //    for (int i = 0; i < toBeSpawned.Length; i++)    
-    //    {
-    //        if (toBeSpawned[i] == null) // while there are still spaces in the array add Pickups
-    //        {
-    //            int index = Random.Range(0, pickupPool.Count - 1);
-    //            InventoryPickup PU = new InventoryPickup(pickupPool[index].itemName, InventoryPickup.ItemType.tool, -1, toolIcon);
-    //            toBeSpawned[i] = PU;
-    //        }
-    //    }
-
-    //    int[] serialsUsed = new int[playerNumber * toolsRequired * 4];  // for checking that all pickups have unique serials
-
-    //    for (int i = 0; i < toBeSpawned.Length; i++)    // spawn chosen tools
-    //    {
-    //        var PU = Instantiate(pickupPrefab);
-
-    //        //// is serial unique?
-    //        for (int j = 0; j < 1; j++)
-    //        {
-    //            PU.serial = Random.Range(1000000, 999999);
-    //            if (serialsUsed[j] != 0)
-    //            {
-    //                if (PU.serial == serialsUsed[j])
-    //                {
-    //                    j = -1;
-    //                    break;
-    //                }
-    //            }
-    //        }
-    //        ////
-
-    //        //// add new serial to serialsUsed array
-    //        for (int j = 0; j < serialsUsed.Length; j++)
-    //        {
-    //            if (serialsUsed[j] == 0) serialsUsed[j] = PU.serial;
-    //        }
-    //        ////
-
-    //        PU.pickupType = InventoryPickup.ItemType.tool;
+    }
 
 
-    //        switch (PU.pickupType)      //set the relevant icon for the item
-    //        {
-    //            case InventoryPickup.ItemType.tool:
-    //                PU.icon = toolIcon;
-    //                break;
-    //            case InventoryPickup.ItemType.component:
-    //                PU.icon = compIcon;
-    //                break;
-    //            case InventoryPickup.ItemType.boost:
-    //                PU.icon = boostIcon;
-    //                break;
-    //            default:
-    //                break;
-    //        }
-    //        PU.itemName = toBeSpawned[i].itemName;
-    //        PU.name = toBeSpawned[i].itemName + " - TOOL";
-    //        NetworkServer.Spawn(PU.gameObject);
-    //    }
-
-    //    //check enough unique ones (playerNumber * toolsRequired * 2)
-    //}
 }

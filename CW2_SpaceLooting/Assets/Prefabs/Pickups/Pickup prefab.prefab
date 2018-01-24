@@ -159,8 +159,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemName: 
   pickupType: 0
-  particleSys: {fileID: 0}
+  particleSys: {fileID: 198640082147745124}
   serial: 0
+  playParticle: 0
 --- !u!114 &114474748182712804
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -237,7 +238,7 @@ ParticleSystem:
   stopAction: 0
   looping: 1
   prewarm: 0
-  playOnAwake: 0
+  playOnAwake: 1
   useUnscaledTime: 0
   autoRandomSeed: 1
   useRigidbodyForVelocity: 1

@@ -34,6 +34,7 @@ public class PCControl : NetworkBehaviour
 
     // For host
     public JB_NetworkManager nm;
+    public Fading fader;
     List<GameObject> allPlayers = new List<GameObject>();
     //public GameObject LevelManager;
     //List<GameObject> playerList = new List<GameObject>();
@@ -103,7 +104,10 @@ public class PCControl : NetworkBehaviour
         NMA_PC = GetComponent<NavMeshAgent>();
         speedNav = NMA_PC.speed;
         CC = GetComponent<CharacterController>();
-
+        if (!nm)
+        {
+            nm = FindObjectOfType<JB_NetworkManager>();
+        }
         //Instantiate(playerSelectPrefab);
         //playerSelectScreen = GameObject.Find("Player select(Clone)").GetComponent<PlayerSelection>();
 
@@ -239,14 +243,21 @@ public class PCControl : NetworkBehaviour
         {
             return;
         }
+        if (!fader)
+        {
+            fader = nm.fader;
+        }
+
 
         if (isServer)
         {
             nm.HostReadyToPlay();
-            return;
         }
-
-        CmdSetPlayerReady();
+        else
+        {
+            CmdSetPlayerReady();
+            playerSelectScreen.pleaseWaitPanel.gameObject.SetActive(true);
+        }
     }
 
     [Command]
@@ -269,18 +280,20 @@ public class PCControl : NetworkBehaviour
         {
             return;
         }
-        if (isServer)
-        {
-            
-        }
+        fader.StartFadeOut();
         hM = Instantiate(hM);
         hM.pcInv = pcI;
         hM.pc = this;
         playerSelectScreen.gameObject.SetActive(false);
         NMA_PC.enabled = true;
         isInMenu = false;
-
+        fader.StartFadeIn();
         // TODO set correct gameobject to PC
+    }
+
+    public void DecideSpawnContainerOrWorld(ItemPickups ip)
+    {
+        LML.DecidePickupLocation(ip);
     }
 
     [ClientRpc]
@@ -292,6 +305,49 @@ public class PCControl : NetworkBehaviour
         }
 
         LML.SpawnRoom(roomIndex, pos);
+    }
+
+    [Command]
+    public void CmdSpawnPickupInContainer(GameObject con, ItemPickups ip)
+    {
+        Container tCon = con.GetComponent<Container>();
+
+        if (tCon)
+        {
+            for (int i = 0; i < tCon.inContainer.Count; i++)  // ensure no repeats
+                if (tCon.inContainer[i].serial == ip.serial) return;
+            tCon.containerParticle.Play();
+            tCon.inContainer.Add(ip);
+        }
+    }
+
+    [Command]
+    public void CmdSpawnPickupInLootPoint(Vector3 pos, ItemPickups ip)
+    {
+        var PU = Instantiate(pickupPrefab, pos, Quaternion.identity);
+        
+        //// set world object's name, type and icon
+        PU.pickupType = (InventoryPickup.ItemType)ip.pickupType;
+        PU.typeInt = ip.pickupType;
+        PU.itemName = ip.itemName;
+        ////
+
+        switch (PU.pickupType)      //set the relevant hierarchy name for the item
+        {
+            case InventoryPickup.ItemType.tool:
+                PU.name = PU.itemName + " - TOOL";
+                break;
+            case InventoryPickup.ItemType.component:
+                PU.name = PU.itemName + " - COMPONENT";
+                break;
+            case InventoryPickup.ItemType.boost:
+                PU.name = PU.itemName + " - BOOST";
+                break;
+        }
+
+        PU.playParticle = true;
+
+        NetworkServer.Spawn(PU.gameObject);
     }
 
     //[Command]
@@ -534,12 +590,14 @@ public class PCControl : NetworkBehaviour
 
         Pickup pu = Instantiate(pickupPrefab, tPos, Quaternion.identity);
         pu.itemName = ip.itemName;
-        int index = (int)ip.pickupType;
-        pu.pickupType = (InventoryPickup.ItemType)index;
+        //int index = (int)ip.pickupType;
+        pu.pickupType = (InventoryPickup.ItemType)ip.pickupType;
+        pu.typeInt = ip.pickupType;
         pu.serial = ip.serial;
         pu.transform.position = tPos;
         pu.transform.rotation = Quaternion.Euler(tRot);
         pu.GetComponent<Rigidbody>().AddForce(pu.transform.TransformDirection(Vector3.up) * pickupThrowStrength);   //throw it a small distance next to the PC
+        pu.playParticle = false;
         NetworkServer.Spawn(pu.gameObject);
     }
 

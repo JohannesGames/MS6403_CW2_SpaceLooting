@@ -145,6 +145,8 @@ namespace UnityEngine.Networking
         static string s_Address;
 
         // Johannes blindly added these variables
+        public Container containerPrefab;
+        public Fading fader;
         [HideInInspector]
         public GameObject hostObject;
         public List<GameObject> readyPlayers = new List<GameObject>();
@@ -179,6 +181,8 @@ namespace UnityEngine.Networking
             {
                 m_NetworkAddress = s_Address;
             }
+
+            fader = GetComponent<Fading>();
         }
 
         void OnValidate()
@@ -812,11 +816,33 @@ namespace UnityEngine.Networking
             else
             {
                 hostObject = player;
+                PCControl tempPC = player.GetComponent<PCControl>();
+                tempPC.LML = tempPC.GetComponent<LayoutManagerLocal>();
+
+                foreach (Transform item in lm.podRoom.containersInRoom)
+                {
+                    tempPC.LML.allContainerLocations.Add(item);
+                }
+                foreach (Transform item in lm.podRoom.lootDrops)
+                {
+                    tempPC.LML.allLootPoints.Add(item);
+                }
+
+                foreach (Transform item in lm.engineRoom.containersInRoom)
+                {
+                    tempPC.LML.allContainerLocations.Add(item);
+                }
+                foreach (Transform item in lm.engineRoom.lootDrops)
+                {
+                    tempPC.LML.allLootPoints.Add(item);
+                }
             }
 
             PCControl _pc = player.GetComponent<PCControl>();
             _pc.RpcSpawnPlayerSelectScreen();
             _pc.SetHostLaunchButton();
+            _pc.LML = _pc.GetComponent<LayoutManagerLocal>();
+            _pc.fader = fader;
             _pc.nm = this;
         }
 
@@ -1020,6 +1046,27 @@ namespace UnityEngine.Networking
             {
                 player.GetComponent<PCControl>().RpcBuildRoom(roomIndex, pos);
             }
+        }
+
+        public void SpawnAllContainers()
+        {
+            PCControl pc = hostObject.GetComponent<PCControl>();
+
+            foreach (Transform item in pc.LML.allContainerLocations)
+            {
+                if (item)
+                {
+                    var _con = Instantiate(containerPrefab, item.position, Quaternion.identity);
+                    pc.LML.allContainers.Add(_con);
+
+                    NetworkServer.Spawn(_con.gameObject);
+                }
+            }
+        }
+
+        public void SpawnPickup(PCControl.ItemPickups ip)
+        {
+            hostObject.GetComponent<PCControl>().DecideSpawnContainerOrWorld(ip);
         }
     }
 }

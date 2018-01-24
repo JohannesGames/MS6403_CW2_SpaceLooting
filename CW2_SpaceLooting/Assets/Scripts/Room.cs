@@ -25,9 +25,9 @@ public class Room : MonoBehaviour
     public bool mustHaveOne;
 
     [Header("Loot")]
-    public Transform lootDrops;
+    public Transform[] lootDrops;
 
-    public Container[] containersInRoom;
+    public Transform[] containersInRoom;
 
     public NavMeshSurface surface;
 }
